@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #f8f5f0;
+  --foreground: #1a1a1a;
+  --font-heading: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Section colors */
+  --color-politica: #e63946;
+  --color-deportes: #3b82f6;
+  --color-economia: #10b981;
+  --color-internacionales: #8b5cf6;
+  --color-tucuman: #f59e0b;
+
+  /* Neutral palette */
+  --color-cream: #f8f5f0;
+  --color-paper: #fdfbf7;
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-border: #d4cfc7;
+  --color-rule: #c8c3bb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-cream: #f8f5f0;
+  --color-paper: #fdfbf7;
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-border: #d4cfc7;
+  --color-rule: #c8c3bb;
+  --color-politica: #e63946;
+  --color-deportes: #3b82f6;
+  --color-economia: #10b981;
+  --color-internacionales: #8b5cf6;
+  --color-tucuman: #f59e0b;
+  --font-heading: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+/* Newspaper horizontal rules */
+.rule {
+  border-top: 2px solid var(--color-ink);
+}
+
+.rule-thin {
+  border-top: 1px solid var(--color-rule);
+}
+
+/* Section color accents */
+.section-politica {
+  border-top-color: var(--color-politica);
+}
+
+.section-deportes {
+  border-top-color: var(--color-deportes);
+}
+
+.section-economia {
+  border-top-color: var(--color-economia);
+}
+
+.section-internacionales {
+  border-top-color: var(--color-internacionales);
+}
+
+.section-tucuman {
+  border-top-color: var(--color-tucuman);
+}
+
+.text-politica {
+  color: var(--color-politica);
+}
+
+.text-deportes {
+  color: var(--color-deportes);
+}
+
+.text-economia {
+  color: var(--color-economia);
+}
+
+.text-internacionales {
+  color: var(--color-internacionales);
+}
+
+.text-tucuman {
+  color: var(--color-tucuman);
+}
+
+.bg-politica {
+  background-color: var(--color-politica);
+}
+
+.bg-deportes {
+  background-color: var(--color-deportes);
+}
+
+.bg-economia {
+  background-color: var(--color-economia);
+}
+
+.bg-internacionales {
+  background-color: var(--color-internacionales);
+}
+
+.bg-tucuman {
+  background-color: var(--color-tucuman);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Skeleton loading animation */
+@keyframes skeleton-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Smooth card transitions */
+article.group {
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+article.group:hover {
+  box-shadow: 0 4px 16px rgba(26, 26, 26, 0.08);
+}
+
+/* Article body typography */
+.article-body p {
+  margin-bottom: 1.25rem;
+  line-height: var(--article-line-height, 1.8);
+  text-align: justify;
+  font-size: var(--article-font-size, 1.0625rem);
+}
+
+.article-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* Ad overlay animation */
+@keyframes ad-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-ad-overlay-in {
+  animation: ad-overlay-in 0.3s ease-out;
+}
+
+/* Responsive article detail */
+@media (max-width: 640px) {
+}
