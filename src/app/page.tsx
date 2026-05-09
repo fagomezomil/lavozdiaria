@@ -17,14 +17,16 @@ import {
   fetchHomepageArticles,
 } from "@/lib/api";
 import { getActiveAds } from "@/lib/ads";
+import { getActiveArticles } from "@/lib/articles";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [breakingData, sectionData, ads] = await Promise.all([
+  const [breakingData, sectionData, ads, customArticles] = await Promise.all([
     fetchBreakingNews(),
     fetchHomepageArticles(),
     getActiveAds(),
+    getActiveArticles(),
   ]);
 
   const leaderboard1 = ads.find((a) => a.type === "leaderboard");
@@ -32,14 +34,25 @@ export default async function Home() {
   const rectangleAd = ads.find((a) => a.type === "rectangle");
   const modalAd = ads.find((a) => a.type === "modal");
 
-  const breaking = breakingData ?? seedArticles.filter((a) => a.breaking);
-  const sectionArticles: Record<Section, Article[]> = sectionData ?? {
+  // Merge custom breaking news with API breaking news
+  const customBreaking = customArticles.filter((a) => a.breaking);
+  const apiBreaking = breakingData ?? seedArticles.filter((a) => a.breaking);
+  const breaking = [...customBreaking, ...apiBreaking];
+
+  // Build section articles: custom first, then API/seed
+  const apiSectionArticles: Record<Section, Article[]> = sectionData ?? {
     politica: getArticlesBySection("politica"),
     deportes: getArticlesBySection("deportes"),
     economia: getArticlesBySection("economia"),
     internacionales: getArticlesBySection("internacionales"),
     tucuman: getArticlesBySection("tucuman"),
   };
+
+  const sectionArticles: Record<Section, Article[]> = {} as Record<Section, Article[]>;
+  for (const key of Object.keys(sectionConfig) as Section[]) {
+    const custom = customArticles.filter((a) => a.section === key && !a.breaking);
+    sectionArticles[key] = [...custom, ...apiSectionArticles[key]];
+  }
 
   // Flatten all articles for hero/sidebar logic
   const allArticles = Object.values(sectionArticles).flat();

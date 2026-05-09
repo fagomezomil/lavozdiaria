@@ -10,8 +10,10 @@ import FontSizeControl from "@/components/FontSizeControl";
 /** Strip HTML tags and decode common entities */
 function stripHtml(html: string): string {
   return html
-    .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n\n")
+    .replace(/<\/li>/gi, "\n")
     .replace(/<[^>]*>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -30,65 +32,32 @@ function stripHtml(html: string): string {
 function parseBody(raw: string): string[] {
   const text = stripHtml(raw);
   const paragraphs = text
-    .split(/\n{2,}|(?<=\.)\s{2,}/)
+    .split(/\n{1,}/)                    // split on any newline (single or double)
     .map((p) => p.replace(/\s+/g, " ").trim())
-    .filter((p) => p.length > 10);
+    .filter((p) => p.length > 5);
   return paragraphs;
 }
 
 /** Pick the best sentence as the pull-quote highlight */
-function extractHighlight(paragraphs: string[]): { text: string; insertAfter: number } | null {
+function extractHighlight(paragraphs: string[]): string | null {
   if (paragraphs.length === 0) return null;
 
   // Look at paragraphs after the intro (skip first), pick the longest sentence
   const startIdx = paragraphs.length > 2 ? 1 : 0;
   const candidates = paragraphs.slice(startIdx, startIdx + 3);
   let best = "";
-  let bestParaOffset = 0;
 
-  candidates.forEach((para, offset) => {
+  candidates.forEach((para) => {
     const sentences = para.match(/[^.!?]+[.!?]+/g) || [para];
     for (const s of sentences) {
       const trimmed = s.trim();
       if (trimmed.length > best.length && trimmed.length > 30) {
         best = trimmed;
-        bestParaOffset = offset;
       }
     }
   });
 
-  if (!best) return null;
-  return { text: best, insertAfter: startIdx + bestParaOffset };
-}
-
-function BodyWithHighlight({ body, color }: { body: string; color: string }) {
-  const paragraphs = parseBody(body);
-  const highlight = extractHighlight(paragraphs);
-  const insertAfter = highlight?.insertAfter ?? -1;
-
-  if (paragraphs.length === 0) return null;
-
-  return (
-    <div className="mt-8 article-body text-foreground/90 space-y-4">
-      {paragraphs.map((paragraph, i) => (
-        <div key={i}>
-          <p className="">
-            {paragraph}
-          </p>
-          {i === insertAfter && highlight && (
-            <blockquote
-              className="my-8 pl-6 border-l-4 italic"
-              style={{ borderColor: color, color }}
-            >
-              <p className="text-xl md:text-2xl font-[family-name:var(--font-heading)] leading-snug">
-                &ldquo;{highlight.text}&rdquo;
-              </p>
-            </blockquote>
-          )}
-        </div>
-      ))}
-    </div>
-  );
+  return best || null;
 }
 
 interface ArticleDetailProps {
@@ -108,6 +77,20 @@ export default function ArticleDetail({
   const byline = article.author ?? article.publisher;
   const [imgFailed, setImgFailed] = useState(false);
   const [fontSize, setFontSize] = useState(0); // -1 smaller, 0 default, 1 larger, 2 extra-large
+
+  // Parse body and extract highlight once
+  const rawBody = article.body || "";
+  const paragraphs = rawBody ? parseBody(rawBody) : [];
+  const highlight = paragraphs.length > 0 ? extractHighlight(paragraphs) : null;
+
+  // Excerpt fallback highlight
+  const excerptHighlight = article.excerpt
+    ? article.excerpt.length > 80
+      ? article.excerpt.slice(0, article.excerpt.lastIndexOf(".", 80) + 1) || article.excerpt.slice(0, 80) + "\u2026"
+      : article.excerpt
+    : null;
+
+  const displayHighlight = highlight ?? excerptHighlight;
 
   return (
     <article className="max-w-7xl mx-auto px-4 py-8">
@@ -185,15 +168,20 @@ export default function ArticleDetail({
           {/* Image */}
           <AnimateIn direction="up" delay={0.25}>
           {article.imageUrl && !imgFailed ? (
-            <div className="mt-6 w-full h-64 md:h-96 overflow-hidden rounded-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={article.imageUrl}
-                alt={article.imageAlt}
-                className="w-full h-full object-cover"
-                onError={() => setImgFailed(true)}
-                loading="eager"
-              />
+            <div className="mt-6">
+              <div className="w-full h-64 md:h-96 overflow-hidden rounded-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={article.imageUrl}
+                  alt={article.imageAlt}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgFailed(true)}
+                  loading="eager"
+                />
+              </div>
+              {article.imageAlt && (
+                <p className="mt-2 text-xs text-muted italic">{article.imageAlt}</p>
+              )}
             </div>
           ) : (
             <div
@@ -212,39 +200,98 @@ export default function ArticleDetail({
           )}
           </AnimateIn>
 
-          {/* Leaderboard ad between image and body */}
-          <div className="mt-6">
-            <AdSlot size="leaderboard" ad={leaderboardAd} />
-          </div>
+          {/* Destacado (pull quote) — below the photo */}
+          {displayHighlight && (
+            <AnimateIn direction="up" delay={0.3}>
+              <blockquote
+                className="mt-6 pl-6 border-l-4 italic"
+                style={{ borderColor: cfg.color, color: cfg.color }}
+              >
+                <p className="text-xl md:text-2xl font-[family-name:var(--font-heading)] leading-snug">
+                  &ldquo;{displayHighlight}&rdquo;
+                </p>
+              </blockquote>
+            </AnimateIn>
+          )}
 
           {/* Font size control */}
-          <div className="flex justify-end mt-4 mb-2">
+          <div className="flex justify-end mt-6 mb-2">
             <FontSizeControl fontSize={fontSize} setFontSize={setFontSize} />
           </div>
 
-          {/* Body */}
+          {/* Body text */}
           <div style={{
             '--article-font-size': fontSize === -1 ? '0.875rem' : fontSize === 1 ? '1.125rem' : fontSize === 2 ? '1.25rem' : '1.0625rem',
             '--article-line-height': fontSize >= 1 ? '1.9' : '1.8',
           } as React.CSSProperties}>
-          {article.body ? (
-            <BodyWithHighlight
-              body={article.body}
-              color={cfg.color}
-            />
+          {paragraphs.length > 0 ? (
+            <div className="article-body text-foreground/90">
+              {paragraphs.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
           ) : article.excerpt ? (
-            <div className="mt-8 article-body">
+            <div className="mt-4 article-body text-foreground/90">
               <p>{article.excerpt}</p>
-              <blockquote
-                className="my-8 pl-6 border-l-4 italic"
-                style={{ borderColor: cfg.color, color: cfg.color }}
-              >
-                <p className="text-xl md:text-2xl font-[family-name:var(--font-heading)] leading-snug">
-                  &ldquo;{article.excerpt.length > 80 ? article.excerpt.slice(0, article.excerpt.lastIndexOf(".", 80) + 1) || article.excerpt.slice(0, 80) + "…" : article.excerpt}&rdquo;
-                </p>
-              </blockquote>
             </div>
           ) : null}
+          </div>
+
+          {/* Related cards */}
+          {related.length > 0 && (
+            <div className="mt-12">
+              <h2
+                className="text-sm font-bold tracking-widest uppercase pb-3 mb-6 border-b-2"
+                style={{ borderColor: cfg.color, color: cfg.color }}
+              >
+                Leé aquí más información
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {related.slice(0, 3).map((a) => {
+                  const rCfg = sectionConfig[a.section];
+                  return (
+                    <Link key={a.id} href={`/${a.section}/${a.id}`} className="group">
+                      <div className="h-40 overflow-hidden rounded-sm relative" style={{ borderTop: `3px solid ${rCfg.color}` }}>
+                        {a.imageUrl ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={a.imageUrl}
+                            alt={a.imageAlt}
+                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ background: `linear-gradient(135deg, ${rCfg.color}20, ${rCfg.color}08)` }}
+                          >
+                            <span className="text-4xl font-[family-name:var(--font-heading)] opacity-15" style={{ color: rCfg.color }}>
+                              LV
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="mt-2 text-sm font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline line-clamp-2">
+                        {a.title}
+                      </h3>
+                      {a.excerpt && (
+                        <p className="mt-1 text-xs text-muted line-clamp-2">
+                          {a.excerpt}
+                        </p>
+                      )}
+                      <span className="mt-1.5 text-[10px] text-muted block">
+                        {a.date}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Leaderboard ad — after all content */}
+          <div className="mt-10">
+            <AdSlot size="leaderboard" ad={leaderboardAd} />
           </div>
 
           {/* Share / back link */}

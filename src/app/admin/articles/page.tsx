@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { getAllAds } from "@/lib/ads";
+import { getAllArticles } from "@/lib/articles";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/admin/LogoutButton";
-import AdRow from "@/components/admin/AdRow";
+import ArticleRow from "@/components/admin/ArticleRow";
 
-export default async function AdminDashboard() {
+export default async function AdminArticlesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/admin/login");
 
-  const ads = await getAllAds();
+  const articles = await getAllArticles();
 
   return (
     <div className="min-h-screen bg-[#f0efed]">
@@ -34,26 +34,26 @@ export default async function AdminDashboard() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Nav tabs */}
         <div className="flex gap-4 mb-6 border-b border-border">
-          <span className="pb-2 border-b-2 border-ink font-bold text-sm">Avisos</span>
-          <Link href="/admin/articles" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Notas</Link>
+          <Link href="/admin" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Avisos</Link>
+          <span className="pb-2 border-b-2 border-ink font-bold text-sm">Notas</span>
           <Link href="/admin/users" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Usuarios</Link>
         </div>
 
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold">Avisos Publicitarios</h2>
+          <h2 className="text-lg font-bold">Notas Periodísticas</h2>
           <Link
-            href="/admin/ads/new"
+            href="/admin/articles/new"
             className="px-4 py-2 bg-ink text-white text-sm font-bold rounded hover:bg-ink/80 transition-colors"
           >
-            + Nuevo Aviso
+            + Nueva Nota
           </Link>
         </div>
 
-        {ads.length === 0 ? (
+        {articles.length === 0 ? (
           <div className="bg-white rounded-lg p-12 text-center border border-border">
-            <p className="text-muted">No hay avisos publicitarios cargados.</p>
+            <p className="text-muted">No hay notas periodísticas cargadas.</p>
             <p className="text-sm text-muted/60 mt-1">
-              Hacé clic en &ldquo;Nuevo Aviso&rdquo; para crear el primero.
+              Hacé clic en &ldquo;Nueva Nota&rdquo; para crear la primera.
             </p>
           </div>
         ) : (
@@ -61,17 +61,16 @@ export default async function AdminDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-ink text-white">
                 <tr>
+                  <th className="px-4 py-2.5 text-left font-semibold w-16"></th>
                   <th className="px-4 py-2.5 text-left font-semibold">Título</th>
-                  <th className="px-4 py-2.5 text-left font-semibold">Tipo</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Estado</th>
-                  <th className="px-4 py-2.5 text-left font-semibold">Prioridad</th>
-                  <th className="px-4 py-2.5 text-left font-semibold">Vigencia</th>
+                  <th className="px-4 py-2.5 text-left font-semibold">Fecha</th>
                   <th className="px-4 py-2.5 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {ads.map((ad) => (
-                  <AdRow key={ad.id} ad={ad} />
+                {articles.map((article) => (
+                  <ArticleRow key={article.id} article={article} />
                 ))}
               </tbody>
             </table>

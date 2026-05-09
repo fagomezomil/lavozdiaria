@@ -36,10 +36,19 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
-        <Link href="/" className="block text-center mb-6">
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)]">
-            La<span className="text-[#c8102e]">Voz</span>Diaria
+        <Link href="/" className="block text-center mb-2 group">
+          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:text-ink/70 transition-colors">
+            La<span className="text-[#c8102e] group-hover:text-[#c8102e]/80 transition-colors">Voz</span>Diaria
           </h1>
+        </Link>
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-1.5 text-sm text-muted hover:text-ink transition-colors mb-6"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver al inicio
         </Link>
 
         <h2 className="text-lg font-bold text-center mb-6">Ingresá a tu cuenta</h2>

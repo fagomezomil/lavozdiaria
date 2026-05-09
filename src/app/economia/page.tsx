@@ -2,13 +2,18 @@ import SectionPageLayout from "@/components/SectionPageLayout";
 import { fetchSectionArticles } from "@/lib/api";
 import { getActiveAds } from "@/lib/ads";
 import { getArticlesBySection, articles } from "@/lib/data";
+import { getActiveArticles } from "@/lib/articles";
 
 export const revalidate = 300;
 
 export default async function EconomiaPage() {
-  const apiArticles = await fetchSectionArticles("economia");
-  const sectionArticles = apiArticles ?? getArticlesBySection("economia");
-  const ads = await getActiveAds();
+  const [apiArticles, ads, customArticles] = await Promise.all([
+    fetchSectionArticles("economia"),
+    getActiveAds(),
+    getActiveArticles("economia"),
+  ]);
+
+  const sectionArticles = [...customArticles, ...(apiArticles ?? getArticlesBySection("economia"))];
   const leaderboardAd = ads.find((a) => a.type === "leaderboard");
 
   return (
@@ -16,7 +21,7 @@ export default async function EconomiaPage() {
       section="economia"
       articles={sectionArticles}
       subtitle="Mercados, finanzas y tendencias económicas."
-      allArticles={apiArticles ? [...articles, ...apiArticles] : articles}
+      allArticles={apiArticles ? [...customArticles, ...articles, ...apiArticles] : [...customArticles, ...articles]}
       leaderboardAd={leaderboardAd}
     />
   );

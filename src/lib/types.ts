@@ -33,6 +33,13 @@ export interface Article {
   breaking?: boolean;
 }
 
+export interface CustomArticle extends Article {
+  active: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SectionConfig {
   label: string;
   color: string;

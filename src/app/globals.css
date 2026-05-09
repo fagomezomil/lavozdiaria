@@ -168,7 +168,7 @@ article.group:hover {
 
 /* Article body typography */
 .article-body p {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
   line-height: var(--article-line-height, 1.8);
   text-align: justify;
   font-size: var(--article-font-size, 1.0625rem);

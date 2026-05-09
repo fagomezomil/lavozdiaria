@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
@@ -35,10 +36,21 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-paper rounded-lg p-8 shadow-xl">
-        <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] text-center mb-1">
-          La<span className="text-[#c8102e]">Voz</span>Diaria
-        </h1>
-        <p className="text-center text-sm text-muted mb-6">Panel de Administración</p>
+        <Link href="/" className="block group">
+          <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] text-center mb-1 group-hover:opacity-80 transition-opacity">
+            La<span className="text-[#c8102e]">Voz</span>Diaria
+          </h1>
+        </Link>
+        <p className="text-center text-sm text-muted mb-2">Panel de Administración</p>
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-1.5 text-xs text-muted hover:text-ink transition-colors mb-6"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver al inicio
+        </Link>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -51,7 +63,7 @@ export default function AdminLogin() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#e63946]"
-              placeholder="admin@lavozdiaria.com"
+              placeholder="Ingrese usuario"
             />
           </div>
           <div>
