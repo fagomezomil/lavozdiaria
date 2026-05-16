@@ -196,19 +196,22 @@ async function syncSection(section: Section): Promise<number> {
   return rows.length;
 }
 
-export async function syncAllSections(): Promise<{ synced: number; errors: string[] }> {
+export async function syncAllSections(): Promise<{ synced: number; errors: string[]; details: string[] }> {
   const sections = Object.keys(sectionConfig) as Section[];
   const errors: string[] = [];
+  const details: string[] = [];
   let totalSynced = 0;
 
   for (const section of sections) {
     try {
       const count = await syncSection(section);
       console.log(`Synced ${count} articles for section ${section}`);
+      details.push(`${section}: ${count} articles`);
       totalSynced += count;
     } catch (err) {
       console.error(`Failed to sync section ${section}:`, err);
       errors.push(`${section}: ${String(err)}`);
+      details.push(`${section}: FAILED - ${String(err)}`);
     }
   }
 
@@ -224,7 +227,7 @@ export async function syncAllSections(): Promise<{ synced: number; errors: strin
     errors.push(`Cleanup: ${deleteError.message}`);
   }
 
-  return { synced: totalSynced, errors };
+  return { synced: totalSynced, errors, details };
 }
 
 // --- Backfill details for incomplete cached articles ---

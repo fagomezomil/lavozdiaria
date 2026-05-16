@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       success: true,
       synced: result.synced,
       errors: result.errors,
+      details: result.details,
       timestamp: new Date().toISOString(),
       note: "List sync only. Call /api/backfill-details?token=TOKEN to fill images/content.",
     });
