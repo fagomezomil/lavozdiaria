@@ -1,5 +1,10 @@
 import { Section, Article, sectionConfig } from "./types";
 import { getArticlesBySection } from "./data";
+import {
+  getCachedArticles,
+  getCachedArticleDetail,
+  getCachedBreakingNews,
+} from "./sync-news";
 
 const API_BASE = "https://api.freenewsapi.io/v1";
 const API_KEY = process.env.FREENEWS_API_KEY ?? "";
@@ -158,12 +163,16 @@ function mapArticleDetail(detail: ArticleDetailData): Article {
   };
 }
 
-// --- Public API functions ---
+// --- Public API functions (cache-first) ---
 
 export async function fetchSectionArticles(
   section: Section,
 ): Promise<Article[] | null> {
-  // Tucumán uses keyword search instead of topic filter
+  // Try cached articles from Supabase first
+  const cached = await getCachedArticles(section);
+  if (cached.length > 0) return cached;
+
+  // Fallback to live API
   const url =
     section === "tucuman"
       ? "/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=20"
@@ -172,7 +181,6 @@ export async function fetchSectionArticles(
   const data = await apiFetch<NewsListResponse>(url, REVALIDATE_LISTING);
   if (!data) return null;
 
-  // Fetch details for top articles to get images and excerpts
   const detailPromises = data.data.slice(0, 9).map(async (item) => {
     const detail = await apiFetch<ArticleDetailResponse>(
       `/details?uuid=${item.uuid}`,
@@ -190,6 +198,11 @@ export async function fetchSectionArticles(
 export async function fetchArticleDetail(
   uuid: string,
 ): Promise<Article | null> {
+  // Try cached article first
+  const cached = await getCachedArticleDetail(uuid);
+  if (cached) return cached;
+
+  // Fallback to live API
   const data = await apiFetch<ArticleDetailResponse>(
     `/details?uuid=${uuid}`,
     REVALIDATE_DETAIL,
@@ -199,13 +212,17 @@ export async function fetchArticleDetail(
 }
 
 export async function fetchBreakingNews(): Promise<Article[] | null> {
+  // Try cached breaking news first
+  const cached = await getCachedBreakingNews();
+  if (cached && cached.length > 0) return cached;
+
+  // Fallback to live API
   const data = await apiFetch<NewsListResponse>(
     "/news?country=ar&language=es&page_size=5",
     REVALIDATE_BREAKING,
   );
   if (!data) return null;
 
-  // Fetch details for breaking news to get images
   const detailPromises = data.data.slice(0, 3).map(async (item) => {
     const detail = await apiFetch<ArticleDetailResponse>(
       `/details?uuid=${item.uuid}`,

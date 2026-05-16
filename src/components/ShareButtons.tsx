@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ShareButtonsProps {
   title: string;
@@ -9,8 +9,13 @@ interface ShareButtonsProps {
 
 export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
 
-  const fullUrl = typeof window !== "undefined" ? `${window.location.origin}${url}` : url;
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const fullUrl = origin ? `${origin}${url}` : url;
   const encodedUrl = encodeURIComponent(fullUrl);
   const encodedTitle = encodeURIComponent(title);
   const shareText = `${title} - LaVozDiaria`;
@@ -21,7 +26,6 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const input = document.createElement("input");
       input.value = fullUrl;
       document.body.appendChild(input);
@@ -36,7 +40,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const buttons = [
     {
       label: "WhatsApp",
-      href: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}%20${encodedUrl}`,
+      href: `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + "\n" + fullUrl)}`,
       color: "#25D366",
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -66,7 +70,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
     },
     {
       label: "Email",
-      href: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(shareText + "\n\n" + url)}`,
+      href: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(shareText + "\n\n" + fullUrl)}`,
       color: "#6b6b6b",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
