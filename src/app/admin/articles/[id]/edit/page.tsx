@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/admin/LogoutButton";
 import ArticleForm from "@/components/admin/ArticleForm";
@@ -10,10 +10,7 @@ interface EditArticlePageProps {
 }
 
 export default async function EditArticlePage({ params }: EditArticlePageProps) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  const { user } = await requireAdmin();
 
   const { id } = await params;
   const article = await getArticleById(id);

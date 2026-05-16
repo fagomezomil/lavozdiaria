@@ -1,13 +1,15 @@
 export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman";
 
-export type AdType = "leaderboard" | "rectangle" | "sidebar" | "modal";
+export type AdType = "leaderboard" | "rectangle" | "sidebar" | "modal" | "infeed" | "sticky_footer";
 
 export interface Ad {
   id: string;
   type: AdType;
   title: string;
   image_url: string | null;
+  mobile_image_url: string | null;
   link_url: string | null;
+  section: Section | null;
   active: boolean;
   priority: number;
   starts_at: string | null;

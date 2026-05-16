@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/supabase/server";
 import LogoutButton from "@/components/admin/LogoutButton";
 import ArticleForm from "@/components/admin/ArticleForm";
 
 export default async function NewArticlePage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  const { user } = await requireAdmin();
 
   return (
     <div className="min-h-screen bg-[#f0efed]">

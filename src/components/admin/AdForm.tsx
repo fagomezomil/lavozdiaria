@@ -3,13 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Ad, AdType } from "@/lib/types";
+import type { Ad, AdType, Section } from "@/lib/types";
+import { sectionConfig } from "@/lib/types";
 
 const adTypes: { value: AdType; label: string }[] = [
   { value: "leaderboard", label: "Leaderboard (728x90)" },
   { value: "rectangle", label: "Rectangle (300x250)" },
   { value: "sidebar", label: "Sidebar (ancho completo x 250)" },
   { value: "modal", label: "Modal (pantalla completa)" },
+  { value: "infeed", label: "In-Feed (entre artículos)" },
+  { value: "sticky_footer", label: "Sticky Footer (móvil, 320x50)" },
+];
+
+const sectionOptions: { value: Section | ""; label: string }[] = [
+  { value: "", label: "Todas las secciones" },
+  ...Object.entries(sectionConfig).map(([key, cfg]) => ({
+    value: key as Section,
+    label: cfg.label,
+  })),
 ];
 
 interface AdFormProps {
@@ -22,6 +33,7 @@ export default function AdForm({ ad }: AdFormProps) {
 
   const [title, setTitle] = useState(ad?.title ?? "");
   const [type, setType] = useState<AdType>(ad?.type ?? "leaderboard");
+  const [section, setSection] = useState<Section | "">(ad?.section ?? "");
   const [linkUrl, setLinkUrl] = useState(ad?.link_url ?? "");
   const [active, setActive] = useState(ad?.active ?? true);
   const [priority, setPriority] = useState(ad?.priority ?? 0);
@@ -39,6 +51,8 @@ export default function AdForm({ ad }: AdFormProps) {
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState(ad?.image_url ?? "");
+  const [mobileImageFile, setMobileImageFile] = useState<File | null>(null);
+  const [mobilePreviewUrl, setMobilePreviewUrl] = useState(ad?.mobile_image_url ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -49,6 +63,13 @@ export default function AdForm({ ad }: AdFormProps) {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
+  const handleMobileFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMobileImageFile(file);
+    setMobilePreviewUrl(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -56,8 +77,9 @@ export default function AdForm({ ad }: AdFormProps) {
 
     const supabase = createClient();
     let imageUrl = ad?.image_url ?? null;
+    let mobileImageUrl = ad?.mobile_image_url ?? null;
 
-    // Upload image if a new file was selected
+    // Upload desktop image if a new file was selected
     if (imageFile) {
       const ext = imageFile.name.split(".").pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -75,11 +97,31 @@ export default function AdForm({ ad }: AdFormProps) {
       imageUrl = urlData.publicUrl;
     }
 
+    // Upload mobile image if a new file was selected
+    if (mobileImageFile) {
+      const ext = mobileImageFile.name.split(".").pop();
+      const path = `${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("ads")
+        .upload(path, mobileImageFile, { upsert: true });
+
+      if (uploadError) {
+        setError("Error al subir la imagen mobile: " + uploadError.message);
+        setSaving(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+      mobileImageUrl = urlData.publicUrl;
+    }
+
     const payload = {
       title,
       type,
+      section: section || null,
       link_url: linkUrl || null,
       image_url: imageUrl,
+      mobile_image_url: mobileImageUrl,
       active,
       priority,
       starts_at: startsAtDate ? new Date(`${startsAtDate}T${startsAtTime}`).toISOString() : null,
@@ -134,26 +176,44 @@ export default function AdForm({ ad }: AdFormProps) {
         />
       </div>
 
-      <div>
-        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
-          Tipo de espacio
-        </label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value as AdType)}
-          className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
-        >
-          {adTypes.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+            Tipo de espacio
+          </label>
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value as AdType)}
+            className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+          >
+            {adTypes.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+            Sección objetivo
+          </label>
+          <select
+            value={section}
+            onChange={(e) => setSection(e.target.value as Section | "")}
+            className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+          >
+            {sectionOptions.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div>
         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
-          Imagen
+          Imagen (escritorio)
         </label>
         <input
           type="file"
@@ -165,8 +225,32 @@ export default function AdForm({ ad }: AdFormProps) {
           <div className="mt-2">
             <img
               src={previewUrl}
-              alt="Preview"
+              alt="Preview escritorio"
               className="max-h-32 rounded border border-border"
+            />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+          Imagen mobile (opcional)
+        </label>
+        <p className="text-xs text-muted mb-1">
+          Imagen optimizada para celulares. Recomendado: 320x100 para leaderboard.
+        </p>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleMobileFileChange}
+          className="w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-ink file:text-white file:text-xs file:font-bold hover:file:bg-ink/80"
+        />
+        {mobilePreviewUrl && (
+          <div className="mt-2">
+            <img
+              src={mobilePreviewUrl}
+              alt="Preview mobile"
+              className="max-h-24 rounded border border-border"
             />
           </div>
         )}

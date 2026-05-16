@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { getAllAds } from "@/lib/ads";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/supabase/server";
 import LogoutButton from "@/components/admin/LogoutButton";
 import AdRow from "@/components/admin/AdRow";
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  const { user } = await requireAdmin();
 
   const ads = await getAllAds();
 
@@ -63,6 +59,7 @@ export default async function AdminDashboard() {
                 <tr>
                   <th className="px-4 py-2.5 text-left font-semibold">Título</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Tipo</th>
+                  <th className="px-4 py-2.5 text-left font-semibold">Sección</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Estado</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Prioridad</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Vigencia</th>

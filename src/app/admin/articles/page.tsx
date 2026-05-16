@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { getAllArticles } from "@/lib/articles";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/supabase/server";
 import LogoutButton from "@/components/admin/LogoutButton";
 import ArticleRow from "@/components/admin/ArticleRow";
 
 export default async function AdminArticlesPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  const { user } = await requireAdmin();
 
   const articles = await getAllArticles();
 

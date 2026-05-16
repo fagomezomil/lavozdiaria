@@ -1,11 +1,15 @@
 import type { Ad } from "@/lib/types";
+import { sectionConfig } from "@/lib/types";
 import Link from "next/link";
+import AdDeleteButton from "@/components/admin/AdDeleteButton";
 
 const typeLabels: Record<string, string> = {
   leaderboard: "Leaderboard",
   rectangle: "Rectangle",
   sidebar: "Sidebar",
   modal: "Modal",
+  infeed: "In-Feed",
+  sticky_footer: "Sticky Footer",
 };
 
 export default function AdRow({ ad }: { ad: Ad }) {
@@ -27,10 +31,18 @@ export default function AdRow({ ad }: { ad: Ad }) {
               Sin img
             </div>
           )}
-          <span className="font-medium">{ad.title || "Sin título"}</span>
+          <div className="flex flex-col">
+            <span className="font-medium">{ad.title || "Sin título"}</span>
+            {ad.mobile_image_url && (
+              <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-wider">Mobile</span>
+            )}
+          </div>
         </div>
       </td>
       <td className="px-4 py-3 text-muted">{typeLabels[ad.type] || ad.type}</td>
+      <td className="px-4 py-3 text-muted text-xs">
+        {ad.section ? (sectionConfig[ad.section as keyof typeof sectionConfig]?.label ?? ad.section) : "Todas"}
+      </td>
       <td className="px-4 py-3">
         <span
           className={`px-2 py-0.5 rounded text-xs font-bold ${
@@ -59,6 +71,7 @@ export default function AdRow({ ad }: { ad: Ad }) {
         >
           Editar
         </Link>
+        <AdDeleteButton id={ad.id} />
       </td>
     </tr>
   );

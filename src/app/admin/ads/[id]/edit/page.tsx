@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getAdById } from "@/lib/ads";
 import AdForm from "@/components/admin/AdForm";
@@ -11,10 +11,7 @@ interface EditAdPageProps {
 export default async function EditAdPage({ params }: EditAdPageProps) {
   const { id } = await params;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  await requireAdmin();
 
   const ad = await getAdById(id);
   if (!ad) redirect("/admin");

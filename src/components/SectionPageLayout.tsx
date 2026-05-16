@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import BreakingNews from "@/components/BreakingNews";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import AdInFeed from "@/components/AdInFeed";
 import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import AnimateStagger from "@/components/animate/AnimateStagger";
@@ -15,6 +16,7 @@ interface SectionPageLayoutProps {
   subtitle: string;
   allArticles: Article[];
   leaderboardAd?: Ad | null;
+  inFeedAd?: Ad | null;
 }
 
 export default function SectionPageLayout({
@@ -23,6 +25,7 @@ export default function SectionPageLayout({
   subtitle,
   allArticles,
   leaderboardAd,
+  inFeedAd,
 }: SectionPageLayoutProps) {
   const cfg = sectionConfig[section];
 
@@ -62,7 +65,17 @@ export default function SectionPageLayout({
               </div>
             </StaggerItem>
           )}
-          {articles.slice(1).map((a) => (
+          {articles.slice(1, 2).map((a) => (
+            <StaggerItem key={a.id}>
+              <ArticleCard article={a} variant="standard" />
+            </StaggerItem>
+          ))}
+          {inFeedAd && (
+            <StaggerItem>
+              <AdInFeed ad={inFeedAd} />
+            </StaggerItem>
+          )}
+          {articles.slice(2).map((a) => (
             <StaggerItem key={a.id}>
               <ArticleCard article={a} variant="standard" />
             </StaggerItem>

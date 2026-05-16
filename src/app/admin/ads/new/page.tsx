@@ -1,13 +1,9 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/supabase/server";
 import AdForm from "@/components/admin/AdForm";
 
 export default async function NewAdPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) redirect("/admin/login");
+  await requireAdmin();
 
   return (
     <div className="min-h-screen bg-[#f0efed]">

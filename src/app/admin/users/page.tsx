@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/supabase/server";
 import LogoutButton from "@/components/admin/LogoutButton";
 import { ToggleRoleForm } from "@/components/admin/ToggleRoleForm";
 
 export default async function AdminUsersPage() {
-  const supabase = await createClient();
-  const { data: { user: currentUser } } = await supabase.auth.getUser();
-
-  if (!currentUser) redirect("/admin/login");
+  const { supabase, user: currentUser } = await requireAdmin();
 
   const { data: profiles } = await supabase
     .from("profiles")

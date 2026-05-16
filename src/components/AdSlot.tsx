@@ -2,27 +2,34 @@ import Link from "next/link";
 import type { Ad } from "@/lib/types";
 
 interface AdSlotProps {
-  size?: "leaderboard" | "rectangle" | "sidebar";
+  size?: "leaderboard" | "rectangle" | "sidebar" | "infeed" | "sticky_footer";
   className?: string;
   ad?: Ad | null;
 }
 
 const sizeStyles: Record<string, string> = {
-  leaderboard: "w-full h-24 md:h-[90px]",
+  leaderboard: "w-full h-32 md:h-[90px]",
   rectangle: "w-full max-w-[300px] h-[250px]",
   sidebar: "w-full h-[250px]",
+  infeed: "w-full",
+  sticky_footer: "w-full h-[50px]",
 };
 
 export default function AdSlot({ size = "leaderboard", className = "", ad }: AdSlotProps) {
   // If we have a real ad with an image, render it
   if (ad?.image_url) {
+    const mobileSrc = ad.mobile_image_url || ad.image_url;
+
     const inner = (
       <div className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className}`}>
-        <img
-          src={ad.image_url}
-          alt={ad.title || "Aviso publicitario"}
-          className="w-full h-full object-cover"
-        />
+        <picture>
+          <source media="(max-width: 767px)" srcSet={mobileSrc} />
+          <img
+            src={ad.image_url}
+            alt={ad.title || "Aviso publicitario"}
+            className="w-full h-full object-cover"
+          />
+        </picture>
       </div>
     );
 

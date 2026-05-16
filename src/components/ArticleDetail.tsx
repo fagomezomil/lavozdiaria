@@ -6,6 +6,7 @@ import { Article, Ad, sectionConfig } from "@/lib/types";
 import AdSlot from "@/components/AdSlot";
 import AnimateIn from "@/components/animate/AnimateIn";
 import FontSizeControl from "@/components/FontSizeControl";
+import ShareButtons from "@/components/ShareButtons";
 
 /** Strip HTML tags and decode common entities */
 function stripHtml(html: string): string {
@@ -164,6 +165,14 @@ export default function ArticleDetail({
               )}
             </div>
           </AnimateIn>
+
+          {/* Share buttons */}
+          <div className="mt-4">
+            <ShareButtons
+              title={article.title}
+              url={`/${article.section}/${article.id}`}
+            />
+          </div>
 
           {/* Image */}
           <AnimateIn direction="up" delay={0.25}>

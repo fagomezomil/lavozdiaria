@@ -5,9 +5,10 @@ import Navbar from "@/components/Navbar";
 import BreakingNews from "@/components/BreakingNews";
 import Footer from "@/components/Footer";
 import ArticleDetail from "@/components/ArticleDetail";
+import AdStickyFooter from "@/components/AdStickyFooter";
 import { fetchArticleDetail, fetchSectionArticles, fetchBreakingNews } from "@/lib/api";
 import { getArticleById as getSeedArticleById, getArticlesBySection, articles } from "@/lib/data";
-import { getActiveAds } from "@/lib/ads";
+import { getActiveAds, pickAd } from "@/lib/ads";
 import { getArticleById as getCustomArticleById, getActiveArticles } from "@/lib/articles";
 import { sectionConfig, Section } from "@/lib/types";
 
@@ -50,7 +51,7 @@ export default async function ArticlePage({ params }: PageProps) {
     fetchSectionArticles(sectionKey),
     getActiveArticles(sectionKey),
     fetchBreakingNews(),
-    getActiveAds(),
+    getActiveAds(undefined, sectionKey),
   ]);
 
   const related = [...customRelated, ...(sectionArticles ?? getArticlesBySection(sectionKey))].filter(
@@ -61,8 +62,9 @@ export default async function ArticlePage({ params }: PageProps) {
   const customBreaking = customRelated.filter((a) => a.breaking);
   const breaking = [...customBreaking, ...(breakingData ?? articles.filter((a) => a.breaking))];
 
-  const leaderboardAd = ads.find((a) => a.type === "leaderboard");
-  const sidebarAd = ads.find((a) => a.type === "sidebar");
+  const leaderboardAd = pickAd(ads, "leaderboard");
+  const sidebarAd = pickAd(ads, "sidebar");
+  const stickyFooterAd = pickAd(ads, "sticky_footer");
 
   return (
     <>
@@ -71,6 +73,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <BreakingNews articles={breaking} />
       <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} />
       <Footer />
+      <AdStickyFooter ad={stickyFooterAd} />
     </>
   );
 }

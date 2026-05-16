@@ -3,7 +3,9 @@ import Navbar from "@/components/Navbar";
 import BreakingNews from "@/components/BreakingNews";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import AdInFeed from "@/components/AdInFeed";
 import AdModal from "@/components/AdModal";
+import AdStickyFooter from "@/components/AdStickyFooter";
 import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import AnimateStagger from "@/components/animate/AnimateStagger";
@@ -16,7 +18,7 @@ import {
   fetchBreakingNews,
   fetchHomepageArticles,
 } from "@/lib/api";
-import { getActiveAds } from "@/lib/ads";
+import { getActiveAds, pickAd, pickAds } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
 
 export const revalidate = 60;
@@ -29,10 +31,11 @@ export default async function Home() {
     getActiveArticles(),
   ]);
 
-  const leaderboard1 = ads.find((a) => a.type === "leaderboard");
-  const leaderboard2 = ads.find((a) => a.type === "leaderboard" && a.id !== leaderboard1?.id);
-  const rectangleAd = ads.find((a) => a.type === "rectangle");
-  const modalAd = ads.find((a) => a.type === "modal");
+  const [leaderboard1, leaderboard2] = pickAds(ads, "leaderboard", 2);
+  const rectangleAd = pickAd(ads, "rectangle");
+  const modalAd = pickAd(ads, "modal");
+  const stickyFooterAd = pickAd(ads, "sticky_footer");
+  const inFeedAd = pickAd(ads, "infeed");
 
   // Merge custom breaking news with API breaking news
   const customBreaking = customArticles.filter((a) => a.breaking);
@@ -95,6 +98,13 @@ export default async function Home() {
           ))}
         </AnimateStagger>
 
+        {/* Rectangle ad */}
+        {rectangleAd && (
+          <div className="flex justify-center mb-10">
+            <AdSlot size="rectangle" ad={rectangleAd} />
+          </div>
+        )}
+
         {/* Section grids */}
         {Object.entries(sectionConfig).map(([key, cfg]) => {
           const sArticles = sectionArticles[key as Section];
@@ -115,7 +125,17 @@ export default async function Home() {
                   </h2>
                 </div>
                 <AnimateStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sArticles.slice(0, 3).map((a) => (
+                  {sArticles.slice(0, 2).map((a) => (
+                    <StaggerItem key={a.id}>
+                      <ArticleCard article={a} variant="standard" />
+                    </StaggerItem>
+                  ))}
+                  {inFeedAd && sArticles.length >= 2 && (
+                    <StaggerItem>
+                      <AdInFeed ad={inFeedAd} />
+                    </StaggerItem>
+                  )}
+                  {sArticles.slice(2, 3).map((a) => (
                     <StaggerItem key={a.id}>
                       <ArticleCard article={a} variant="standard" />
                     </StaggerItem>
@@ -129,6 +149,7 @@ export default async function Home() {
 
       <Footer />
       <AdModal ad={modalAd} />
+      <AdStickyFooter ad={stickyFooterAd} />
     </>
   );
 }

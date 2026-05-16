@@ -3,16 +3,66 @@
 import { useEffect, useState } from "react";
 import type { Ad } from "@/lib/types";
 
+const MODAL_CAP_KEY = "lv_modal_shown";
+const MAX_MODAL_PER_DAY = 3;
+
+function canShowModal(): boolean {
+  try {
+    // Session cap: max once per session
+    if (sessionStorage.getItem(MODAL_CAP_KEY + "_session")) return false;
+
+    // Daily cap: max N per day
+    const stored = localStorage.getItem(MODAL_CAP_KEY);
+    if (!stored) return true;
+    const entries: { timestamp: number }[] = JSON.parse(stored);
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const recent = entries.filter((e) => e.timestamp > dayAgo);
+    return recent.length < MAX_MODAL_PER_DAY;
+  } catch {
+    return true;
+  }
+}
+
+function recordModalShown(): void {
+  try {
+    // Record in localStorage for daily cap
+    const stored = localStorage.getItem(MODAL_CAP_KEY);
+    const entries: { timestamp: number }[] = stored ? JSON.parse(stored) : [];
+    entries.push({ timestamp: Date.now() });
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const recent = entries.filter((e) => e.timestamp > dayAgo);
+    localStorage.setItem(MODAL_CAP_KEY, JSON.stringify(recent));
+
+    // Record in sessionStorage for session cap
+    sessionStorage.setItem(MODAL_CAP_KEY + "_session", "1");
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 interface AdModalProps {
   ad?: Ad | null;
 }
 
 export default function AdModal({ ad }: AdModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsOpen(true), 1500);
+    if (!canShowModal()) return;
+
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+      recordModalShown();
+    }, 1500);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   useEffect(() => {
@@ -27,6 +77,9 @@ export default function AdModal({ ad }: AdModalProps) {
   if (!isOpen) return null;
 
   const hasImage = ad?.image_url;
+  const imgSrc = hasImage
+    ? (isMobile && ad!.mobile_image_url ? ad!.mobile_image_url : ad!.image_url)
+    : null;
 
   return (
     <div
@@ -34,7 +87,7 @@ export default function AdModal({ ad }: AdModalProps) {
       onClick={() => setIsOpen(false)}
     >
       <div
-        className={`relative w-[90vw] max-w-[900px] h-[70vh] max-h-[600px] rounded-lg overflow-hidden ${
+        className={`relative w-[95vw] md:w-[90vw] max-w-[900px] h-[80vh] md:h-[70vh] max-h-[600px] rounded-lg overflow-hidden ${
           hasImage ? "" : "bg-[#f0efed] border-2 border-dashed border-[#d4cfc7] flex items-center justify-center"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -42,7 +95,7 @@ export default function AdModal({ ad }: AdModalProps) {
         {/* Close button */}
         <button
           onClick={() => setIsOpen(false)}
-          className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-[#555] hover:text-[#333] transition-colors shadow-sm"
+          className="absolute top-2 right-2 md:top-3 md:right-3 z-10 w-9 h-9 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-[#555] hover:text-[#333] transition-colors shadow-sm"
           aria-label="Cerrar aviso"
         >
           <svg
@@ -60,18 +113,18 @@ export default function AdModal({ ad }: AdModalProps) {
           </svg>
         </button>
 
-        {hasImage ? (
+        {imgSrc ? (
           ad!.link_url ? (
             <a href={ad!.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
               <img
-                src={ad!.image_url!}
+                src={imgSrc}
                 alt={ad!.title || "Aviso publicitario"}
                 className="w-full h-full object-cover"
               />
             </a>
           ) : (
             <img
-              src={ad!.image_url!}
+              src={imgSrc}
               alt={ad!.title || "Aviso publicitario"}
               className="w-full h-full object-cover"
             />

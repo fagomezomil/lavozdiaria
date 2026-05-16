@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
-import Navbar from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function NotFound() {
   return (
@@ -24,6 +25,7 @@ export default function NotFound() {
           Volver a la portada
         </Link>
       </main>
+      <Footer />
     </>
   );
 }
