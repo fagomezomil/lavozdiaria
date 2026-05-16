@@ -134,16 +134,16 @@ async function syncSection(section: Section): Promise<number> {
   const topic = SECTION_TOPIC_MAP[section];
   const url =
     section === "tucuman"
-      ? `/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=20`
-      : `/news?country=ar&language=es&topic=${topic}&page_size=20`;
+      ? `/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=12`
+      : `/news?country=ar&language=es&topic=${topic}&page_size=12`;
 
   const listData = await fetchFromApi<NewsListResponse>(url);
   if (!listData?.data?.length) return 0;
 
-  // Fetch details for top articles (with images/excerpts)
+  // Fetch details for ALL articles so none are incomplete
   const rows: CachedArticleRow[] = [];
 
-  const detailPromises = listData.data.slice(0, 9).map(async (item) => {
+  const detailPromises = listData.data.map(async (item) => {
     const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${item.uuid}`);
     if (detail) {
       const d = detail.data;
@@ -184,27 +184,6 @@ async function syncSection(section: Section): Promise<number> {
       });
     }
   });
-
-  // Remaining articles without details
-  for (const item of listData.data.slice(9)) {
-    rows.push({
-      id: item.uuid,
-      section,
-      title: item.title,
-      subtitle: null,
-      author: null,
-      publisher: item.publisher,
-      date: formatDate(item.published_at),
-      image_url: null,
-      image_alt: item.title,
-      excerpt: "",
-      body: null,
-      original_url: null,
-      featured: false,
-      breaking: false,
-      cached_at: new Date().toISOString(),
-    });
-  }
 
   await Promise.all(detailPromises);
 

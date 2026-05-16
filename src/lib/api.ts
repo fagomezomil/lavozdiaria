@@ -175,13 +175,14 @@ export async function fetchSectionArticles(
   // Fallback to live API
   const url =
     section === "tucuman"
-      ? "/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=20"
-      : `/news?country=ar&language=es&topic=${SECTION_TOPIC_MAP[section]}&page_size=20`;
+      ? "/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=12"
+      : `/news?country=ar&language=es&topic=${SECTION_TOPIC_MAP[section]}&page_size=12`;
 
   const data = await apiFetch<NewsListResponse>(url, REVALIDATE_LISTING);
   if (!data) return null;
 
-  const detailPromises = data.data.slice(0, 9).map(async (item) => {
+  // Fetch details for ALL articles so none are incomplete
+  const detailPromises = data.data.map(async (item) => {
     const detail = await apiFetch<ArticleDetailResponse>(
       `/details?uuid=${item.uuid}`,
       REVALIDATE_DETAIL,
@@ -190,9 +191,7 @@ export async function fetchSectionArticles(
     return mapNewsListItem(item, section);
   });
 
-  const rest = data.data.slice(9).map((item) => mapNewsListItem(item, section));
-  const details = await Promise.all(detailPromises);
-  return [...details, ...rest];
+  return Promise.all(detailPromises);
 }
 
 export async function fetchArticleDetail(
