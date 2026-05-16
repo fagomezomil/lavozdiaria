@@ -118,14 +118,21 @@ function getSupabaseAdmin() {
 }
 
 async function fetchFromApi<T>(path: string): Promise<T | null> {
-  if (!API_KEY) return null;
+  if (!API_KEY) {
+    console.error("[sync] FREENEWS_API_KEY is not set");
+    return null;
+  }
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { "x-api-key": API_KEY },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[sync] API error ${res.status} for ${path}`);
+      return null;
+    }
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    console.error(`[sync] Fetch failed for ${path}:`, err);
     return null;
   }
 }
@@ -138,14 +145,21 @@ async function syncSection(section: Section): Promise<number> {
       : `/news?country=ar&language=es&topic=${topic}&page_size=12`;
 
   const listData = await fetchFromApi<NewsListResponse>(url);
-  if (!listData?.data?.length) return 0;
+  if (!listData?.data?.length) {
+    console.warn(`[sync] No articles returned for section ${section}`);
+    return 0;
+  }
+  console.log(`[sync] Section ${section}: got ${listData.data.length} articles from list API`);
 
   // Fetch details for ALL articles so none are incomplete
   const rows: CachedArticleRow[] = [];
+  let detailOk = 0;
+  let detailFail = 0;
 
   const detailPromises = listData.data.map(async (item) => {
     const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${item.uuid}`);
     if (detail) {
+      detailOk++;
       const d = detail.data;
       rows.push({
         id: d.uuid,
@@ -165,6 +179,7 @@ async function syncSection(section: Section): Promise<number> {
         cached_at: new Date().toISOString(),
       });
     } else {
+      detailFail++;
       rows.push({
         id: item.uuid,
         section,
@@ -186,6 +201,7 @@ async function syncSection(section: Section): Promise<number> {
   });
 
   await Promise.all(detailPromises);
+  console.log(`[sync] Section ${section}: ${detailOk} details OK, ${detailFail} failed, ${rows.length} total rows`);
 
   // Upsert into Supabase
   const supabase = getSupabaseAdmin();
