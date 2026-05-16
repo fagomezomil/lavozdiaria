@@ -117,6 +117,12 @@ function getSupabaseAdmin() {
   return createClient(url, key);
 }
 
+// Ensure SSL verification is disabled for FreeNewsApi (they have cert issues)
+// This is also set via Netlify env var NODE_TLS_REJECT_UNAUTHORIZED=0
+if (typeof process !== "undefined" && process.env) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
+}
+
 async function fetchFromApi<T>(path: string): Promise<T | null> {
   if (!API_KEY) {
     console.error("[sync] FREENEWS_API_KEY is not set");

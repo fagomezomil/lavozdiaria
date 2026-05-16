@@ -6,6 +6,11 @@ import {
   getCachedBreakingNews,
 } from "./sync-news";
 
+// Ensure SSL verification is disabled for FreeNewsApi (cert issues)
+if (typeof process !== "undefined" && process.env) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
+}
+
 const API_BASE = "https://api.freenewsapi.io/v1";
 const API_KEY = process.env.FREENEWS_API_KEY ?? "";
 

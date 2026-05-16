@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-// FreeNewsApi has SSL cert issues — disable verification in all environments
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+// Allow self-signed certificates for API connections (needed for FreeNewsApi SSL)
+if (process.env.NODE_ENV === "development") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
 
 export default nextConfig;
