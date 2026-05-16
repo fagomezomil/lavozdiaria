@@ -225,16 +225,23 @@ export async function syncAllSections(): Promise<{ synced: number; errors: strin
 
 // --- Backfill details for incomplete cached articles ---
 
-export async function backfillDetails(): Promise<{ backfilled: number; errors: string[] }> {
+export async function backfillDetails(limit = 10): Promise<{ backfilled: number; errors: string[]; remaining: number }> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("cached_articles")
     .select("id")
-    .is("body", null);
+    .is("body", null)
+    .limit(limit);
 
   if (error || !data?.length) {
-    return { backfilled: 0, errors: error ? [error.message] : [] };
+    return { backfilled: 0, errors: error ? [error.message] : [], remaining: 0 };
   }
+
+  // Count remaining incomplete articles
+  const { count } = await supabase
+    .from("cached_articles")
+    .select("*", { count: "exact", head: true })
+    .is("body", null);
 
   const errors: string[] = [];
   let backfilled = 0;
@@ -260,7 +267,7 @@ export async function backfillDetails(): Promise<{ backfilled: number; errors: s
     }
   }
 
-  return { backfilled, errors };
+  return { backfilled, errors, remaining: (count ?? 0) - backfilled };
 }
 
 // --- Read cached articles (used by api.ts) ---

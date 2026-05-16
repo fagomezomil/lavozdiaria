@@ -16,6 +16,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       backfilled: result.backfilled,
+      remaining: result.remaining,
       errors: result.errors,
       timestamp: new Date().toISOString(),
     });
