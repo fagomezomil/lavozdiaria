@@ -151,7 +151,7 @@ async function syncSection(section: Section): Promise<number> {
   }
   console.log(`[sync] Section ${section}: got ${listData.data.length} articles from list API`);
 
-  // Only store basic info from the list — details are fetched on-demand
+  // Store basic info from list — details are backfilled on-demand
   const rows: CachedArticleRow[] = listData.data.map((item) => ({
     id: item.uuid,
     section,
@@ -169,48 +169,6 @@ async function syncSection(section: Section): Promise<number> {
     breaking: false,
     cached_at: new Date().toISOString(),
   }));
-
-  // Fetch details in small batches to avoid timeout
-  const BATCH_SIZE = 4;
-  let detailOk = 0;
-  let detailFail = 0;
-
-  for (let i = 0; i < listData.data.length; i += BATCH_SIZE) {
-    const batch = listData.data.slice(i, i + BATCH_SIZE);
-    const results = await Promise.all(
-      batch.map(async (item) => {
-        const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${item.uuid}`);
-        return { item, detail };
-      })
-    );
-
-    for (const { item, detail } of results) {
-      const row = rows.find((r) => r.id === item.uuid);
-      if (!row) continue;
-
-      if (detail) {
-        detailOk++;
-        const d = detail.data;
-        row.title = d.title;
-        row.author = d.authors?.length ? d.authors[0] : null;
-        row.publisher = d.publisher;
-        row.date = formatDate(d.published_at);
-        row.image_url = d.thumbnail || null;
-        row.excerpt = generateExcerpt(d.incipit, d.body);
-        row.body = d.body || null;
-        row.original_url = d.original_url || null;
-      } else {
-        detailFail++;
-      }
-    }
-
-    // Small delay between batches to avoid rate limiting
-    if (i + BATCH_SIZE < listData.data.length) {
-      await new Promise((r) => setTimeout(r, 500));
-    }
-  }
-
-  console.log(`[sync] Section ${section}: ${detailOk} details OK, ${detailFail} failed, ${rows.length} total rows`);
 
   // Upsert into Supabase
   const supabase = getSupabaseAdmin();
@@ -256,6 +214,46 @@ export async function syncAllSections(): Promise<{ synced: number; errors: strin
   return { synced: totalSynced, errors };
 }
 
+// --- Backfill details for incomplete cached articles ---
+
+export async function backfillDetails(): Promise<{ backfilled: number; errors: string[] }> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("cached_articles")
+    .select("id")
+    .is("body", null);
+
+  if (error || !data?.length) {
+    return { backfilled: 0, errors: error ? [error.message] : [] };
+  }
+
+  const errors: string[] = [];
+  let backfilled = 0;
+
+  // Process in batches of 4
+  for (let i = 0; i < data.length; i += 4) {
+    const batch = data.slice(i, i + 4);
+    const results = await Promise.all(
+      batch.map(async (row) => {
+        try {
+          await backfillArticle({ id: row.id } as Record<string, unknown>);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+    );
+    backfilled += results.filter(Boolean).length;
+
+    // Delay between batches
+    if (i + 4 < data.length) {
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+
+  return { backfilled, errors };
+}
+
 // --- Read cached articles (used by api.ts) ---
 
 export interface CachedArticle {
@@ -275,6 +273,32 @@ export interface CachedArticle {
   breaking: boolean;
 }
 
+// Backfill missing details for articles (fire-and-forget cache update)
+async function backfillArticle(row: Record<string, unknown>): Promise<void> {
+  const uuid = row.id as string;
+  const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${uuid}`);
+  if (!detail) return;
+
+  const d = detail.data;
+  const adminClient = getSupabaseAdmin();
+  const { error } = await adminClient.from("cached_articles").update({
+    title: d.title,
+    author: d.authors?.length ? d.authors[0] : null,
+    publisher: d.publisher,
+    date: formatDate(d.published_at),
+    image_url: d.thumbnail || null,
+    excerpt: generateExcerpt(d.incipit, d.body),
+    body: d.body || null,
+    original_url: d.original_url || null,
+  }).eq("id", uuid);
+
+  if (error) {
+    console.error(`[backfill] Error updating ${uuid}:`, error);
+  } else {
+    console.log(`[backfill] Updated detail for ${uuid}`);
+  }
+}
+
 export async function getCachedArticles(section: Section): Promise<Article[]> {
   const { createClient: createServerClient } = await import("@/lib/supabase/server");
   const supabase = await createServerClient();
@@ -285,6 +309,29 @@ export async function getCachedArticles(section: Section): Promise<Article[]> {
     .order("cached_at", { ascending: false });
 
   if (error || !data?.length) return [];
+
+  // Backfill articles missing details (in parallel, fire-and-forget)
+  const incomplete = (data as Record<string, unknown>[]).filter(
+    (row) => !row.image_url && !row.body
+  );
+  if (incomplete.length > 0) {
+    // Backfill up to 4 at a time to avoid overwhelming the API
+    const backfillBatch = incomplete.slice(0, 4);
+    Promise.all(backfillBatch.map(backfillArticle)).catch(() => {});
+    // Queue remaining backfills with a delay
+    if (incomplete.length > 4) {
+      setTimeout(async () => {
+        const rest = incomplete.slice(4);
+        for (let i = 0; i < rest.length; i += 4) {
+          const batch = rest.slice(i, i + 4);
+          await Promise.all(batch.map(backfillArticle));
+          if (i + 4 < rest.length) {
+            await new Promise((r) => setTimeout(r, 1000));
+          }
+        }
+      }, 2000);
+    }
+  }
 
   return data.map((row: Record<string, unknown>) => ({
     id: row.id as string,
@@ -375,6 +422,14 @@ export async function getCachedBreakingNews(): Promise<Article[] | null> {
     .limit(5);
 
   if (error || !data?.length) return null;
+
+  // Backfill incomplete breaking news
+  const incomplete = (data as Record<string, unknown>[]).filter(
+    (row) => !row.image_url && !row.body
+  );
+  if (incomplete.length > 0) {
+    Promise.all(incomplete.slice(0, 3).map(backfillArticle)).catch(() => {});
+  }
 
   return data.map((row: Record<string, unknown>) => ({
     id: row.id as string,

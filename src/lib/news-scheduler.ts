@@ -3,13 +3,22 @@ import { CronJob } from "cron";
 let scheduler: CronJob | null = null;
 
 async function runSync() {
-  console.log("[news-scheduler] Syncing articles from API...");
+  console.log("[news-scheduler] Syncing article list from API...");
   try {
     const { syncAllSections } = await import("./sync-news");
     const result = await syncAllSections();
     console.log(`[news-scheduler] Synced ${result.synced} articles, errors: ${result.errors.length}`);
   } catch (err) {
     console.error("[news-scheduler] Error syncing:", err);
+  }
+
+  // Backfill details after sync completes
+  try {
+    const { backfillDetails } = await import("./sync-news");
+    const result = await backfillDetails();
+    console.log(`[news-scheduler] Backfilled ${result.backfilled} article details`);
+  } catch (err) {
+    console.error("[news-scheduler] Error backfilling:", err);
   }
 }
 
