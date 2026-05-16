@@ -10,9 +10,9 @@ export default function Header() {
   });
 
   return (
-    <header className="bg-ink text-white">
+    <header className="bg-ink text-white" style={{ overflow: "visible" }}>
       {/* Top bar */}
-      <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs tracking-wider uppercase text-muted">
+      <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs tracking-wider uppercase text-muted" style={{ overflow: "visible", position: "relative", zIndex: 60 }}>
         <span>{today}</span>
         <HeaderAuth />
       </div>

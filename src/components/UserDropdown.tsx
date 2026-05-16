@@ -38,7 +38,7 @@ export default function UserDropdown() {
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" style={{ overflow: "visible" }}>
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 hover:opacity-80 transition-opacity"
@@ -58,7 +58,7 @@ export default function UserDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-border py-1 z-50">
+        <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-lg shadow-xl border border-border py-1" style={{ zIndex: 9999 }}>
           <div className="px-3 py-2 border-b border-border">
             <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
             <p className="text-xs text-muted truncate">{user.email}</p>
@@ -76,6 +76,13 @@ export default function UserDropdown() {
             className="block px-3 py-2 text-sm text-foreground hover:bg-[#f0efed] transition-colors"
           >
             Mis Favoritos
+          </Link>
+          <Link
+            href="/perfil?tab=comentarios"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-foreground hover:bg-[#f0efed] transition-colors"
+          >
+            Mis Comentarios
           </Link>
           <div className="border-t border-border my-1" />
           <button
