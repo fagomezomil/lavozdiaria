@@ -151,56 +151,65 @@ async function syncSection(section: Section): Promise<number> {
   }
   console.log(`[sync] Section ${section}: got ${listData.data.length} articles from list API`);
 
-  // Fetch details for ALL articles so none are incomplete
-  const rows: CachedArticleRow[] = [];
+  // Only store basic info from the list — details are fetched on-demand
+  const rows: CachedArticleRow[] = listData.data.map((item) => ({
+    id: item.uuid,
+    section,
+    title: item.title,
+    subtitle: null,
+    author: null,
+    publisher: item.publisher,
+    date: formatDate(item.published_at),
+    image_url: null,
+    image_alt: item.title,
+    excerpt: "",
+    body: null,
+    original_url: null,
+    featured: false,
+    breaking: false,
+    cached_at: new Date().toISOString(),
+  }));
+
+  // Fetch details in small batches to avoid timeout
+  const BATCH_SIZE = 4;
   let detailOk = 0;
   let detailFail = 0;
 
-  const detailPromises = listData.data.map(async (item) => {
-    const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${item.uuid}`);
-    if (detail) {
-      detailOk++;
-      const d = detail.data;
-      rows.push({
-        id: d.uuid,
-        section,
-        title: d.title,
-        subtitle: null,
-        author: d.authors?.length ? d.authors[0] : null,
-        publisher: d.publisher,
-        date: formatDate(d.published_at),
-        image_url: d.thumbnail || null,
-        image_alt: d.title,
-        excerpt: generateExcerpt(d.incipit, d.body),
-        body: d.body || null,
-        original_url: d.original_url || null,
-        featured: false,
-        breaking: false,
-        cached_at: new Date().toISOString(),
-      });
-    } else {
-      detailFail++;
-      rows.push({
-        id: item.uuid,
-        section,
-        title: item.title,
-        subtitle: null,
-        author: null,
-        publisher: item.publisher,
-        date: formatDate(item.published_at),
-        image_url: null,
-        image_alt: item.title,
-        excerpt: "",
-        body: null,
-        original_url: null,
-        featured: false,
-        breaking: false,
-        cached_at: new Date().toISOString(),
-      });
-    }
-  });
+  for (let i = 0; i < listData.data.length; i += BATCH_SIZE) {
+    const batch = listData.data.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map(async (item) => {
+        const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${item.uuid}`);
+        return { item, detail };
+      })
+    );
 
-  await Promise.all(detailPromises);
+    for (const { item, detail } of results) {
+      const row = rows.find((r) => r.id === item.uuid);
+      if (!row) continue;
+
+      if (detail) {
+        detailOk++;
+        const d = detail.data;
+        row.title = d.title;
+        row.author = d.authors?.length ? d.authors[0] : null;
+        row.publisher = d.publisher;
+        row.date = formatDate(d.published_at);
+        row.image_url = d.thumbnail || null;
+        row.excerpt = generateExcerpt(d.incipit, d.body);
+        row.body = d.body || null;
+        row.original_url = d.original_url || null;
+      } else {
+        detailFail++;
+      }
+    }
+
+    // Small delay between batches to avoid rate limiting
+    if (i + BATCH_SIZE < listData.data.length) {
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+
   console.log(`[sync] Section ${section}: ${detailOk} details OK, ${detailFail} failed, ${rows.length} total rows`);
 
   // Upsert into Supabase
@@ -210,7 +219,7 @@ async function syncSection(section: Section): Promise<number> {
   });
 
   if (error) {
-    console.error(`Error syncing section ${section}:`, error);
+    console.error(`[sync] Error upserting section ${section}:`, error);
   }
 
   return rows.length;
@@ -306,7 +315,7 @@ export async function getCachedArticleDetail(uuid: string): Promise<Article | nu
   if (error || !data) return null;
 
   const row = data as Record<string, unknown>;
-  return {
+  const article: Article = {
     id: row.id as string,
     title: row.title as string,
     section: row.section as Section,
@@ -321,6 +330,38 @@ export async function getCachedArticleDetail(uuid: string): Promise<Article | nu
     featured: (row.featured as boolean) ?? false,
     breaking: (row.breaking as boolean) ?? false,
   };
+
+  // If article is incomplete (no body/image), fetch detail from API and update cache
+  if (!article.body && !article.imageUrl) {
+    const detail = await fetchFromApi<ArticleDetailResponse>(`/details?uuid=${uuid}`);
+    if (detail) {
+      const d = detail.data;
+      article.author = d.authors?.length ? d.authors[0] : undefined;
+      article.publisher = d.publisher;
+      article.date = formatDate(d.published_at);
+      article.imageUrl = d.thumbnail || undefined;
+      article.excerpt = generateExcerpt(d.incipit, d.body);
+      article.body = d.body || undefined;
+      article.originalUrl = d.original_url || undefined;
+
+      // Update cache in background
+      const adminClient = getSupabaseAdmin();
+      adminClient.from("cached_articles").update({
+        title: d.title,
+        author: article.author,
+        publisher: d.publisher,
+        date: formatDate(d.published_at),
+        image_url: d.thumbnail || null,
+        excerpt: generateExcerpt(d.incipit, d.body),
+        body: d.body || null,
+        original_url: d.original_url || null,
+      }).eq("id", uuid).then(() => {
+        console.log(`[sync] Backfilled detail for article ${uuid}`);
+      });
+    }
+  }
+
+  return article;
 }
 
 export async function getCachedBreakingNews(): Promise<Article[] | null> {

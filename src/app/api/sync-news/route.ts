@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { syncAllSections } from "@/lib/sync-news";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 300; // Allow up to 5 minutes for sync
 
 export async function GET(request: Request) {
   // Verify cron secret to prevent unauthorized access
