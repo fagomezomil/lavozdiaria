@@ -62,6 +62,16 @@ interface ArticleDetailResponse {
 
 // --- Fetch helper ---
 
+let undiciAgent: InstanceType<typeof import("undici").Agent> | null = null;
+
+async function getInsecureDispatcher() {
+  if (!undiciAgent) {
+    const { Agent } = await import("undici");
+    undiciAgent = new Agent({ connect: { rejectUnauthorized: false } });
+  }
+  return undiciAgent;
+}
+
 async function apiFetch<T>(
   path: string,
   revalidateSeconds: number,
@@ -71,6 +81,8 @@ async function apiFetch<T>(
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { "x-api-key": API_KEY },
       next: { revalidate: revalidateSeconds },
+      //@ts-expect-error Node.js fetch option for custom agent
+      dispatcher: await getInsecureDispatcher(),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;

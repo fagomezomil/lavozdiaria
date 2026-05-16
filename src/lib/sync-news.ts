@@ -117,6 +117,17 @@ function getSupabaseAdmin() {
   return createClient(url, key);
 }
 
+// Agent that skips SSL verification for FreeNewsApi (they have cert issues)
+let undiciAgent: InstanceType<typeof import("undici").Agent> | null = null;
+
+async function getInsecureDispatcher() {
+  if (!undiciAgent) {
+    const { Agent } = await import("undici");
+    undiciAgent = new Agent({ connect: { rejectUnauthorized: false } });
+  }
+  return undiciAgent;
+}
+
 async function fetchFromApi<T>(path: string): Promise<T | null> {
   if (!API_KEY) {
     console.error("[sync] FREENEWS_API_KEY is not set");
@@ -125,6 +136,8 @@ async function fetchFromApi<T>(path: string): Promise<T | null> {
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { "x-api-key": API_KEY },
+      //@ts-expect-error Node.js fetch option for custom agent
+      dispatcher: await getInsecureDispatcher(),
     });
     if (!res.ok) {
       console.error(`[sync] API error ${res.status} for ${path}`);
