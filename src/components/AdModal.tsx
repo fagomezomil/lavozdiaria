@@ -2,43 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Ad } from "@/lib/types";
-
-const MODAL_CAP_KEY = "lv_modal_shown";
-const MAX_MODAL_PER_DAY = 3;
-
-function canShowModal(): boolean {
-  try {
-    // Session cap: max once per session
-    if (sessionStorage.getItem(MODAL_CAP_KEY + "_session")) return false;
-
-    // Daily cap: max N per day
-    const stored = localStorage.getItem(MODAL_CAP_KEY);
-    if (!stored) return true;
-    const entries: { timestamp: number }[] = JSON.parse(stored);
-    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    const recent = entries.filter((e) => e.timestamp > dayAgo);
-    return recent.length < MAX_MODAL_PER_DAY;
-  } catch {
-    return true;
-  }
-}
-
-function recordModalShown(): void {
-  try {
-    // Record in localStorage for daily cap
-    const stored = localStorage.getItem(MODAL_CAP_KEY);
-    const entries: { timestamp: number }[] = stored ? JSON.parse(stored) : [];
-    entries.push({ timestamp: Date.now() });
-    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    const recent = entries.filter((e) => e.timestamp > dayAgo);
-    localStorage.setItem(MODAL_CAP_KEY, JSON.stringify(recent));
-
-    // Record in sessionStorage for session cap
-    sessionStorage.setItem(MODAL_CAP_KEY + "_session", "1");
-  } catch {
-    // Ignore storage errors
-  }
-}
+import { useAdStore } from "@/lib/store/ads";
 
 interface AdModalProps {
   ad?: Ad | null;
@@ -47,6 +11,8 @@ interface AdModalProps {
 export default function AdModal({ ad }: AdModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const canShowModal = useAdStore((s) => s.canShowModal);
+  const recordModalShown = useAdStore((s) => s.recordModalShown);
 
   useEffect(() => {
     if (!canShowModal()) return;
@@ -56,7 +22,7 @@ export default function AdModal({ ad }: AdModalProps) {
       recordModalShown();
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [canShowModal, recordModalShown]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);

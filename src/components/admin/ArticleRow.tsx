@@ -45,6 +45,11 @@ export default function ArticleRow({ article }: { article: CustomArticle }) {
       <td className="px-4 py-3">
         <ArticleToggleActive id={article.id} active={article.active} />
       </td>
+      <td className="px-4 py-3">
+        <span className={`text-xs font-semibold ${article.comments_enabled ? "text-[#8b5cf6]" : "text-muted"}`}>
+          {article.comments_enabled ? "Comentarios ✓" : "Sin comentarios"}
+        </span>
+      </td>
       <td className="px-4 py-3 text-xs text-muted">{article.date}</td>
       <td className="px-4 py-3 text-right space-x-3">
         <Link

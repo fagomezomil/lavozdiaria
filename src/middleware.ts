@@ -10,5 +10,7 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/register",
+    "/recuperar-password",
+    "/actualizar-password",
   ],
 };

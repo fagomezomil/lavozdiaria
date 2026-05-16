@@ -19,6 +19,7 @@ interface UpdateArticlePayload {
   featured: boolean;
   breaking: boolean;
   active: boolean;
+  comments_enabled: boolean;
 }
 
 export async function updateArticle(payload: UpdateArticlePayload) {

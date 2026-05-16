@@ -100,6 +100,13 @@ export default function LoginPage() {
             Registrate
           </Link>
         </p>
+
+        <Link
+          href="/recuperar-password"
+          className="block mt-2 text-center text-xs text-muted hover:text-[#3b82f6] transition-colors"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
       </div>
     </div>
   );

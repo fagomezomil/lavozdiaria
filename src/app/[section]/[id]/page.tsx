@@ -71,7 +71,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <Header />
       <Navbar />
       <BreakingNews articles={breaking} />
-      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} />
+      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} isCustom={!!customArticle} />
       <Footer />
       <AdStickyFooter ad={stickyFooterAd} />
     </>

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Section, CustomArticle } from "@/lib/types";
+import type { Section, CustomArticle, Comment } from "@/lib/types";
 
 function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
   return {
@@ -21,6 +21,7 @@ function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
     created_by: (row.created_by as string) || null,
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
+    comments_enabled: (row.comments_enabled as boolean) ?? true,
   };
 }
 
@@ -75,5 +76,52 @@ export async function getArticleById(id: string): Promise<CustomArticle | null> 
     return mapRowToArticle(data);
   } catch {
     return null;
+  }
+}
+
+export async function getComments(articleId: string): Promise<Comment[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("comments")
+      .select("id, article_id, user_id, content, created_at, profiles!comments_user_id_fkey(full_name, avatar_url)")
+      .eq("article_id", articleId)
+      .order("created_at", { ascending: true });
+
+    if (error || !data) return [];
+
+    return data.map((row: Record<string, unknown>) => ({
+      id: row.id as string,
+      article_id: row.article_id as string,
+      user_id: (row.user_id as string) || null,
+      user_name: ((row.profiles as Record<string, unknown>)?.full_name as string) || "Anónimo",
+      user_avatar_url: ((row.profiles as Record<string, unknown>)?.avatar_url as string) || null,
+      content: row.content as string,
+      created_at: row.created_at as string,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getCommentCounts(articleIds: string[]): Promise<Record<string, number>> {
+  if (articleIds.length === 0) return {};
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("comments")
+      .select("article_id")
+      .in("article_id", articleIds);
+
+    if (error || !data) return {};
+
+    const counts: Record<string, number> = {};
+    for (const row of data) {
+      const id = row.article_id as string;
+      counts[id] = (counts[id] || 0) + 1;
+    }
+    return counts;
+  } catch {
+    return {};
   }
 }

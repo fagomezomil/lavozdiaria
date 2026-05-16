@@ -40,6 +40,17 @@ export interface CustomArticle extends Article {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  comments_enabled: boolean;
+}
+
+export interface Comment {
+  id: string;
+  article_id: string;
+  user_id: string | null;
+  user_name: string;
+  user_avatar_url: string | null;
+  content: string;
+  created_at: string;
 }
 
 export interface SectionConfig {

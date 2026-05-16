@@ -37,6 +37,7 @@ export default async function AdminUsersPage() {
         <div className="flex gap-4 mb-6 border-b border-border">
           <Link href="/admin" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Avisos</Link>
           <Link href="/admin/articles" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Notas</Link>
+          <Link href="/admin/comments" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Comentarios</Link>
           <span className="pb-2 border-b-2 border-ink font-bold text-sm">Usuarios</span>
         </div>
 

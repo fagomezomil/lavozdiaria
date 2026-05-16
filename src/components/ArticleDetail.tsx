@@ -7,6 +7,11 @@ import AdSlot from "@/components/AdSlot";
 import AnimateIn from "@/components/animate/AnimateIn";
 import FontSizeControl from "@/components/FontSizeControl";
 import ShareButtons from "@/components/ShareButtons";
+import LikeButton from "@/components/LikeButton";
+import FavoriteButton from "@/components/FavoriteButton";
+import CommentSection from "@/components/CommentSection";
+import { useUIStore } from "@/lib/store/ui";
+import type { LocalArticleData } from "@/lib/store/likes";
 
 /** Strip HTML tags and decode common entities */
 function stripHtml(html: string): string {
@@ -66,6 +71,7 @@ interface ArticleDetailProps {
   related: Article[];
   leaderboardAd?: Ad | null;
   sidebarAd?: Ad | null;
+  isCustom?: boolean;
 }
 
 export default function ArticleDetail({
@@ -73,11 +79,12 @@ export default function ArticleDetail({
   related,
   leaderboardAd,
   sidebarAd,
+  isCustom = false,
 }: ArticleDetailProps) {
   const cfg = sectionConfig[article.section];
   const byline = article.author ?? article.publisher;
   const [imgFailed, setImgFailed] = useState(false);
-  const [fontSize, setFontSize] = useState(0); // -1 smaller, 0 default, 1 larger, 2 extra-large
+  const fontSize = useUIStore((s) => s.fontSize);
 
   // Parse body and extract highlight once
   const rawBody = article.body || "";
@@ -166,12 +173,36 @@ export default function ArticleDetail({
             </div>
           </AnimateIn>
 
-          {/* Share buttons */}
-          <div className="mt-4">
+          {/* Share, like, and favorite buttons */}
+          <div className="mt-4 flex items-center gap-4 flex-wrap">
             <ShareButtons
               title={article.title}
               url={`/${article.section}/${article.id}`}
             />
+            <div className="flex items-center gap-3">
+              <LikeButton
+                articleId={article.id}
+                isCustom={isCustom}
+                articleData={{
+                  id: article.id,
+                  title: article.title,
+                  section: article.section,
+                  imageUrl: article.imageUrl,
+                  date: article.date,
+                }}
+              />
+              <FavoriteButton
+                articleId={article.id}
+                isCustom={isCustom}
+                articleData={{
+                  id: article.id,
+                  title: article.title,
+                  section: article.section,
+                  imageUrl: article.imageUrl,
+                  date: article.date,
+                }}
+              />
+            </div>
           </div>
 
           {/* Image */}
@@ -225,7 +256,7 @@ export default function ArticleDetail({
 
           {/* Font size control */}
           <div className="flex justify-end mt-6 mb-2">
-            <FontSizeControl fontSize={fontSize} setFontSize={setFontSize} />
+            <FontSizeControl />
           </div>
 
           {/* Body text */}
@@ -245,6 +276,9 @@ export default function ArticleDetail({
             </div>
           ) : null}
           </div>
+
+          {/* Comments */}
+          <CommentSection articleId={article.id} isCustom={isCustom} commentsEnabled={!isCustom ? true : ("comments_enabled" in article ? (article as Record<string, unknown>).comments_enabled !== false : true)} />
 
           {/* Related cards */}
           {related.length > 0 && (

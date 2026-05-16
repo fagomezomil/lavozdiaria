@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { Ad } from "@/lib/types";
+import { useAdStore } from "@/lib/store/ads";
 
 interface AdSlotProps {
   size?: "leaderboard" | "rectangle" | "sidebar" | "infeed" | "sticky_footer";
@@ -16,12 +19,23 @@ const sizeStyles: Record<string, string> = {
 };
 
 export default function AdSlot({ size = "leaderboard", className = "", ad }: AdSlotProps) {
+  const dismissed = useAdStore((s) => s.dismissedIds.includes(ad?.id ?? ""));
+  const dismiss = useAdStore((s) => s.dismiss);
+
   // If we have a real ad with an image, render it
   if (ad?.image_url) {
+    if (dismissed) return null;
+
     const mobileSrc = ad.mobile_image_url || ad.image_url;
 
+    const handleDismiss = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dismiss(ad.id);
+    };
+
     const inner = (
-      <div className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className}`}>
+      <div className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className} group/ad`}>
         <picture>
           <source media="(max-width: 767px)" srcSet={mobileSrc} />
           <img
@@ -30,6 +44,14 @@ export default function AdSlot({ size = "leaderboard", className = "", ad }: AdS
             className="w-full h-full object-cover"
           />
         </picture>
+        {/* Dismiss button */}
+        <button
+          onClick={handleDismiss}
+          className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-0 group-hover/ad:opacity-100 transition-opacity"
+          aria-label="Ocultar aviso"
+        >
+          &times;
+        </button>
       </div>
     );
 

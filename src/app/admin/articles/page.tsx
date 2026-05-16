@@ -32,6 +32,7 @@ export default async function AdminArticlesPage() {
         <div className="flex gap-4 mb-6 border-b border-border">
           <Link href="/admin" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Avisos</Link>
           <span className="pb-2 border-b-2 border-ink font-bold text-sm">Notas</span>
+          <Link href="/admin/comments" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Comentarios</Link>
           <Link href="/admin/users" className="pb-2 text-sm text-muted hover:text-foreground transition-colors">Usuarios</Link>
         </div>
 
@@ -60,6 +61,7 @@ export default async function AdminArticlesPage() {
                   <th className="px-4 py-2.5 text-left font-semibold w-16"></th>
                   <th className="px-4 py-2.5 text-left font-semibold">Título</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Estado</th>
+                  <th className="px-4 py-2.5 text-left font-semibold">Comentarios</th>
                   <th className="px-4 py-2.5 text-left font-semibold">Fecha</th>
                   <th className="px-4 py-2.5 text-right font-semibold">Acciones</th>
                 </tr>

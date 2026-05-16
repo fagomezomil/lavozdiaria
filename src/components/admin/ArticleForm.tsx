@@ -41,6 +41,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
   const [featured, setFeatured] = useState(article?.featured ?? false);
   const [breaking, setBreaking] = useState(article?.breaking ?? false);
   const [active, setActive] = useState(article?.active ?? true);
+  const [commentsEnabled, setCommentsEnabled] = useState(article?.comments_enabled ?? true);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState(article?.imageUrl ?? "");
@@ -98,6 +99,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       featured,
       breaking,
       active,
+      comments_enabled: commentsEnabled,
     };
 
     if (isEditing) {
@@ -318,6 +320,15 @@ export default function ArticleForm({ article }: ArticleFormProps) {
             className="w-4 h-4 accent-[#e63946]"
           />
           <span className="text-sm font-semibold">Urgente</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={commentsEnabled}
+            onChange={(e) => setCommentsEnabled(e.target.checked)}
+            className="w-4 h-4 accent-[#8b5cf6]"
+          />
+          <span className="text-sm font-semibold">Comentarios</span>
         </label>
       </div>
 

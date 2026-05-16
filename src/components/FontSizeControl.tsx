@@ -1,18 +1,11 @@
 "use client";
 
-interface FontSizeControlProps {
-  fontSize: number;
-  setFontSize: (size: number) => void;
-}
+import { useUIStore } from "@/lib/store/ui";
 
-const sizes = [
-  { value: -1, label: "A", className: "text-[10px]" },
-  { value: 0, label: "A", className: "text-xs" },
-  { value: 1, label: "A", className: "text-[13px]" },
-  { value: 2, label: "A", className: "text-sm" },
-];
+export default function FontSizeControl() {
+  const fontSize = useUIStore((s) => s.fontSize);
+  const setFontSize = useUIStore((s) => s.setFontSize);
 
-export default function FontSizeControl({ fontSize, setFontSize }: FontSizeControlProps) {
   return (
     <div className="flex items-center gap-0.5 rounded-full border border-border bg-white/80 px-1 py-0.5">
       <button

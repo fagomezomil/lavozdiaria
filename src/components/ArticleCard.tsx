@@ -7,6 +7,7 @@ import { Article, sectionConfig } from "@/lib/types";
 interface ArticleCardProps {
   article: Article;
   variant?: "hero" | "standard" | "compact";
+  commentCount?: number;
 }
 
 function NewsImage({
@@ -96,6 +97,7 @@ function NewsImage({
 export default function ArticleCard({
   article,
   variant = "standard",
+  commentCount,
 }: ArticleCardProps) {
   const cfg = sectionConfig[article.section];
   const byline = article.author ?? article.publisher;
@@ -135,6 +137,17 @@ export default function ArticleCard({
               </>
             )}
             <span>{article.date}</span>
+            {commentCount !== undefined && commentCount > 0 && (
+              <>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M2 4a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H6l-3 3V4z" />
+                  </svg>
+                  {commentCount}
+                </span>
+              </>
+            )}
           </div>
         </Link>
       </article>
@@ -218,6 +231,9 @@ export default function ArticleCard({
           <div className="mt-3 text-xs text-muted">
             {byline && <>{byline} · </>}
             {article.date}
+            {commentCount !== undefined && commentCount > 0 && (
+              <> · <span className="inline-flex items-center gap-0.5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3"><path d="M2 4a2 2 0 012-2h8a2 2 0 012 2v5a2 2 0 01-2 2H6l-3 3V4z" /></svg>{commentCount}</span></>
+            )}
           </div>
         </div>
       </Link>
