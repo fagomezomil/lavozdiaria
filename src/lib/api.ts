@@ -147,6 +147,7 @@ function mapNewsListItem(
     excerpt: "",
     featured: false,
     breaking: false,
+    layout: "normal",
   };
 }
 
@@ -165,6 +166,7 @@ function mapArticleDetail(detail: ArticleDetailData): Article {
     originalUrl: detail.original_url || undefined,
     featured: false,
     breaking: false,
+    layout: "normal",
   };
 }
 
@@ -216,37 +218,10 @@ export async function fetchArticleDetail(
 }
 
 export async function fetchBreakingNews(): Promise<Article[] | null> {
-  // Try cached breaking news first
+  // Breaking news comes from cached articles only (same data as sections)
   const cached = await getCachedBreakingNews();
   if (cached && cached.length > 0) return cached;
-
-  // Fallback to live API
-  const data = await apiFetch<NewsListResponse>(
-    "/news?country=ar&language=es&page_size=5",
-    REVALIDATE_BREAKING,
-  );
-  if (!data) return null;
-
-  const detailPromises = data.data.slice(0, 3).map(async (item) => {
-    const detail = await apiFetch<ArticleDetailResponse>(
-      `/details?uuid=${item.uuid}`,
-      REVALIDATE_BREAKING,
-    );
-    if (detail) {
-      return {
-        ...mapArticleDetail(detail.data),
-        breaking: true,
-      };
-    }
-    return {
-      ...mapNewsListItem(item, inferSectionFromTitle(item.title)),
-      breaking: true,
-    };
-  });
-
-  return Promise.all(detailPromises).then((results) =>
-    results.map((r, i) => ({ ...r, featured: i === 0 })),
-  );
+  return null;
 }
 
 export async function fetchHomepageArticles(): Promise<

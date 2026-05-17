@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Section, CustomArticle, Comment } from "@/lib/types";
+import type { Section, ArticleLayout, CustomArticle, Comment } from "@/lib/types";
 
 function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
   return {
@@ -17,6 +17,7 @@ function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
     originalUrl: (row.original_url as string) || undefined,
     featured: (row.featured as boolean) ?? false,
     breaking: (row.breaking as boolean) ?? false,
+    layout: (row.layout as ArticleLayout) || "normal",
     active: row.active as boolean,
     created_by: (row.created_by as string) || null,
     created_at: row.created_at as string,

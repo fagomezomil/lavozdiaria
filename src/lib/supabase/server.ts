@@ -48,3 +48,22 @@ export async function requireAdmin() {
 
   return { supabase, user };
 }
+
+/** Verifies the current user is authenticated and has admin or editor role.
+ *  Redirects to /admin/login if not authenticated, or to / if not authorized. */
+export async function requireEditor() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/admin/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || (profile.role !== "admin" && profile.role !== "editor")) redirect("/");
+
+  return { supabase, user, profile };
+}

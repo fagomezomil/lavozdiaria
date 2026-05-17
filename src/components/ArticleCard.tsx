@@ -6,7 +6,7 @@ import { Article, sectionConfig } from "@/lib/types";
 
 interface ArticleCardProps {
   article: Article;
-  variant?: "hero" | "standard" | "compact";
+  variant?: "hero" | "featured" | "urgente" | "standard" | "compact";
   commentCount?: number;
 }
 
@@ -148,6 +148,90 @@ export default function ArticleCard({
                 </span>
               </>
             )}
+          </div>
+        </Link>
+      </article>
+    );
+  }
+
+  if (variant === "featured") {
+    return (
+      <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+        <Link href={`/${article.section}/${article.id}`} className="flex flex-col sm:flex-row h-full">
+          <div
+            className="sm:w-1/2 h-48 sm:h-auto flex items-center justify-center relative overflow-hidden"
+            style={{ borderTop: `4px solid ${cfg.color}` }}
+          >
+            {article.imageUrl ? (
+              <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{ background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)` }}
+              />
+            )}
+            {!article.imageUrl && (
+              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10 relative z-10" style={{ color: cfg.color }}>
+                LV
+              </span>
+            )}
+            <span
+              className="absolute top-3 left-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 text-white z-20"
+              style={{ backgroundColor: cfg.color }}
+            >
+              {cfg.label}
+            </span>
+          </div>
+          <div className="sm:w-1/2 p-4 sm:p-5 flex flex-col justify-center">
+            <h2 className="text-xl md:text-2xl font-bold leading-tight font-[family-name:var(--font-heading)] group-hover:underline decoration-1 underline-offset-4 line-clamp-3">
+              {article.title}
+            </h2>
+            {article.excerpt && (
+              <p className="mt-2 text-sm text-muted line-clamp-3">
+                {article.excerpt}
+              </p>
+            )}
+            <div className="mt-3 text-xs text-muted">
+              {byline && <>{byline} · </>}
+              {article.date}
+            </div>
+          </div>
+        </Link>
+      </article>
+    );
+  }
+
+  if (variant === "urgente") {
+    return (
+      <article className="group">
+        <Link href={`/${article.section}/${article.id}`} className="block relative w-full min-h-[400px] md:min-h-[530px] overflow-hidden">
+          {article.imageUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={article.imageUrl}
+              alt={article.imageAlt}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[#e63946]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 bg-[#e63946] p-4 md:p-6">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-white/70">
+              {cfg.label}
+            </span>
+            <div className="mt-1">
+              <span className="text-[13px] font-bold tracking-widest uppercase bg-black text-white px-2 py-0.5">
+                URGENTE
+              </span>
+            </div>
+            <h2 className="mt-1 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white font-[family-name:var(--font-heading)] group-hover:underline decoration-2 underline-offset-4">
+              {article.title}
+            </h2>
+            <div className="mt-2 text-xs text-white/60">
+              {byline && <>{byline} · </>}
+              {article.date}
+            </div>
           </div>
         </Link>
       </article>

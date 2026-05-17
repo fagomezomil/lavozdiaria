@@ -46,6 +46,14 @@ export default function CommentForm({ articleId }: CommentFormProps) {
     );
   }
 
+  if (profile?.role === "suspended") {
+    return (
+      <div className="bg-[#e63946]/5 border border-[#e63946]/20 rounded-lg p-4 text-center">
+        <p className="text-sm text-[#e63946]">Tu cuenta está suspendida. No podés comentar.</p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex items-start gap-3">

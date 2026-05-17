@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import BreakingNews from "@/components/BreakingNews";
@@ -67,6 +68,9 @@ export default async function Home() {
     .filter((a) => hero && a.id !== hero.id && !a.featured)
     .slice(0, 5);
 
+  // Urgente articles from all sections (cross-section)
+  const urgentArticles = allArticles.filter((a) => a.layout === "urgente");
+
   return (
     <>
       <Header />
@@ -77,6 +81,15 @@ export default async function Home() {
       <AdSlot size="leaderboard" className="max-w-7xl mx-auto my-4" ad={leaderboard1} />
 
       <main className="max-w-7xl mx-auto pb-4">
+        {/* Urgente articles — full-width red alerts */}
+        {urgentArticles.length > 0 && (
+          <div className="mb-8 space-y-4">
+            {urgentArticles.map((a) => (
+              <ArticleCard key={a.id} article={a} variant="urgente" />
+            ))}
+          </div>
+        )}
+
         {/* Hero Slider */}
         <AnimateIn direction="up">
           <HeroSlider articles={allArticles.slice(0, 5)} interval={6000} />
@@ -114,7 +127,7 @@ export default async function Home() {
             <AnimateIn key={key} direction="up" delay={0.1}>
               <section className="mb-10">
                 <div
-                  className="border-t-4 pt-2 mb-4"
+                  className="border-t-4 pt-2 mb-4 flex items-center justify-between"
                   style={{ borderTopColor: cfg.color }}
                 >
                   <h2
@@ -123,6 +136,13 @@ export default async function Home() {
                   >
                     {cfg.label}
                   </h2>
+                  <Link
+                    href={cfg.path}
+                    className="text-sm font-semibold hover:underline"
+                    style={{ color: cfg.color }}
+                  >
+                    +{cfg.label}
+                  </Link>
                 </div>
                 <AnimateStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sArticles.slice(0, 2).map((a) => (

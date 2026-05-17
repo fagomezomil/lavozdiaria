@@ -1,5 +1,7 @@
 export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman";
 
+export type ArticleLayout = "urgente" | "destacada" | "normal";
+
 export type AdType = "leaderboard" | "rectangle" | "sidebar" | "modal" | "infeed" | "sticky_footer";
 
 export interface Ad {
@@ -33,6 +35,7 @@ export interface Article {
   originalUrl?: string;
   featured?: boolean;
   breaking?: boolean;
+  layout?: ArticleLayout;
 }
 
 export interface CustomArticle extends Article {
@@ -41,6 +44,7 @@ export interface CustomArticle extends Article {
   created_at: string;
   updated_at: string;
   comments_enabled: boolean;
+  layout: ArticleLayout;
 }
 
 export interface Comment {

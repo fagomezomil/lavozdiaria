@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import AnimateStagger from "@/components/animate/AnimateStagger";
 import StaggerItem from "@/components/animate/StaggerItem";
-import { Article, Ad, Section, sectionConfig } from "@/lib/types";
+import { Article, Ad, Section, ArticleLayout, sectionConfig } from "@/lib/types";
 
 interface SectionPageLayoutProps {
   section: Section;
@@ -17,6 +17,18 @@ interface SectionPageLayoutProps {
   allArticles: Article[];
   leaderboardAd?: Ad | null;
   inFeedAd?: Ad | null;
+}
+
+function getVariant(layout?: ArticleLayout): "urgente" | "featured" | "standard" {
+  if (layout === "urgente") return "urgente";
+  if (layout === "destacada") return "featured";
+  return "standard";
+}
+
+function getColSpan(layout?: ArticleLayout): string {
+  if (layout === "urgente") return "lg:col-span-3 sm:col-span-2";
+  if (layout === "destacada") return "sm:col-span-2";
+  return "";
 }
 
 export default function SectionPageLayout({
@@ -28,6 +40,19 @@ export default function SectionPageLayout({
   inFeedAd,
 }: SectionPageLayoutProps) {
   const cfg = sectionConfig[section];
+
+  // Sort: urgente first, then destacada, then normal
+  const sorted = [...articles].sort((a, b) => {
+    const order: Record<string, number> = { urgente: 0, destacada: 1, normal: 2 };
+    return (order[a.layout || "normal"] ?? 2) - (order[b.layout || "normal"] ?? 2);
+  });
+
+  // Separate urgente (full-width above grid) from the rest
+  const urgentArticles = sorted.filter((a) => a.layout === "urgente");
+  const gridArticles = sorted.filter((a) => a.layout !== "urgente");
+
+  // Insert ad after 2nd grid article
+  const adIndex = 2;
 
   return (
     <>
@@ -57,29 +82,39 @@ export default function SectionPageLayout({
           <AdSlot size="leaderboard" className="mb-6" ad={leaderboardAd} />
         </AnimateIn>
 
-        <AnimateStagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.length > 0 && (
-            <StaggerItem>
-              <div className="md:col-span-2 lg:col-span-2">
-                <ArticleCard article={articles[0]} variant="hero" />
-              </div>
-            </StaggerItem>
-          )}
-          {articles.slice(1, 2).map((a) => (
-            <StaggerItem key={a.id}>
-              <ArticleCard article={a} variant="standard" />
-            </StaggerItem>
-          ))}
-          {inFeedAd && (
-            <StaggerItem>
-              <AdInFeed ad={inFeedAd} />
-            </StaggerItem>
-          )}
-          {articles.slice(2).map((a) => (
-            <StaggerItem key={a.id}>
-              <ArticleCard article={a} variant="standard" />
-            </StaggerItem>
-          ))}
+        {/* Urgente articles — full width above the grid */}
+        {urgentArticles.map((a) => (
+          <AnimateIn key={a.id} direction="up" delay={0.1}>
+            <div className="mb-6">
+              <ArticleCard article={a} variant="urgente" />
+            </div>
+          </AnimateIn>
+        ))}
+
+        {/* Grid — destacada (2 cols) + standard (1 col) */}
+        <AnimateStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gridArticles.map((a, i) => {
+            const variant = getVariant(a.layout);
+            const colSpan = getColSpan(a.layout);
+            const elements: React.ReactNode[] = [];
+
+            elements.push(
+              <StaggerItem key={a.id} className={colSpan}>
+                <ArticleCard article={a} variant={variant} />
+              </StaggerItem>
+            );
+
+            // Insert ad after 2nd grid article
+            if (i === adIndex - 1 && inFeedAd) {
+              elements.push(
+                <StaggerItem key="ad">
+                  <AdInFeed ad={inFeedAd} />
+                </StaggerItem>
+              );
+            }
+
+            return elements;
+          })}
         </AnimateStagger>
       </main>
 

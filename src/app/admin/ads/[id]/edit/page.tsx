@@ -1,43 +1,32 @@
-import Link from "next/link";
 import { requireAdmin } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getAdById } from "@/lib/ads";
+import AdminLayout from "@/components/admin/AdminLayout";
 import AdForm from "@/components/admin/AdForm";
+import Link from "next/link";
 
 interface EditAdPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditAdPage({ params }: EditAdPageProps) {
+  const { user } = await requireAdmin();
+
   const { id } = await params;
-
-  await requireAdmin();
-
   const ad = await getAdById(id);
   if (!ad) redirect("/admin");
 
   return (
-    <div className="min-h-screen bg-[#f0efed]">
-      <header className="bg-ink text-white">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="group">
-            <h1 className="text-xl font-bold font-[family-name:var(--font-heading)]">
-              La<span className="text-[#c8102e]">Voz</span>Diaria
-            </h1>
-            <p className="text-xs text-white/60">Panel de Administración</p>
-          </Link>
-          <Link href="/admin" className="text-xs text-white/70 hover:text-white transition-colors">
-            &larr; Volver al panel
-          </Link>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <h2 className="text-lg font-bold mb-6">Editar Aviso</h2>
-        <div className="bg-white rounded-lg border border-border p-6">
-          <AdForm ad={ad} />
-        </div>
-      </main>
-    </div>
+    <AdminLayout role="admin" email={user.email!} activeTab="avisos">
+      <div className="mb-6">
+        <Link href="/admin" className="text-sm text-muted hover:text-foreground transition-colors">
+          &larr; Volver a Avisos
+        </Link>
+      </div>
+      <h2 className="text-lg font-bold mb-6">Editar Aviso</h2>
+      <div className="bg-white rounded-lg border border-border p-6">
+        <AdForm ad={ad} />
+      </div>
+    </AdminLayout>
   );
 }

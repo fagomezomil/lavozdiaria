@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Section, sectionConfig } from "./types";
+import { Section, ArticleLayout, sectionConfig } from "./types";
 
 const API_BASE = "https://api.freenewsapi.io/v1";
 const API_KEY = process.env.FREENEWS_API_KEY ?? "";
@@ -108,6 +108,7 @@ interface CachedArticleRow {
   original_url: string | null;
   featured: boolean;
   breaking: boolean;
+  layout: string;
   cached_at: string;
 }
 
@@ -173,6 +174,7 @@ async function syncSection(section: Section): Promise<number> {
     original_url: null,
     featured: false,
     breaking: false,
+    layout: "normal",
     cached_at: new Date().toISOString(),
   }));
 
@@ -246,24 +248,18 @@ export async function backfillDetails(limit = 10): Promise<{ backfilled: number;
   const errors: string[] = [];
   let backfilled = 0;
 
-  // Process in batches of 4
-  for (let i = 0; i < data.length; i += 4) {
-    const batch = data.slice(i, i + 4);
-    const results = await Promise.all(
-      batch.map(async (row) => {
-        try {
-          await backfillArticle({ id: row.id } as Record<string, unknown>);
-          return true;
-        } catch {
-          return false;
-        }
-      })
-    );
-    backfilled += results.filter(Boolean).length;
+  // Process one at a time with delay to avoid 429 rate limiting
+  for (let i = 0; i < data.length; i++) {
+    try {
+      await backfillArticle({ id: data[i].id } as Record<string, unknown>);
+      backfilled++;
+    } catch {
+      // skip
+    }
 
-    // Delay between batches
-    if (i + 4 < data.length) {
-      await new Promise((r) => setTimeout(r, 500));
+    // 1 second delay between each article to avoid rate limits
+    if (i < data.length - 1) {
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 
@@ -326,26 +322,24 @@ export async function getCachedArticles(section: Section): Promise<Article[]> {
 
   if (error || !data?.length) return [];
 
-  // Backfill articles missing details (in parallel, fire-and-forget)
+  // Backfill articles missing details (sequential with delay to avoid 429)
   const incomplete = (data as Record<string, unknown>[]).filter(
     (row) => !row.image_url && !row.body
   );
   if (incomplete.length > 0) {
-    // Backfill up to 4 at a time to avoid overwhelming the API
-    const backfillBatch = incomplete.slice(0, 4);
-    Promise.all(backfillBatch.map(backfillArticle)).catch(() => {});
-    // Queue remaining backfills with a delay
-    if (incomplete.length > 4) {
+    // Backfill first 2 immediately, rest in background
+    const immediate = incomplete.slice(0, 2);
+    for (const row of immediate) {
+      backfillArticle(row).catch(() => {});
+    }
+    if (incomplete.length > 2) {
       setTimeout(async () => {
-        const rest = incomplete.slice(4);
-        for (let i = 0; i < rest.length; i += 4) {
-          const batch = rest.slice(i, i + 4);
-          await Promise.all(batch.map(backfillArticle));
-          if (i + 4 < rest.length) {
-            await new Promise((r) => setTimeout(r, 1000));
-          }
+        const rest = incomplete.slice(2);
+        for (const row of rest) {
+          await backfillArticle(row).catch(() => {});
+          await new Promise((r) => setTimeout(r, 1000));
         }
-      }, 2000);
+      }, 3000);
     }
   }
 
@@ -363,6 +357,7 @@ export async function getCachedArticles(section: Section): Promise<Article[]> {
     originalUrl: (row.original_url as string) || undefined,
     featured: (row.featured as boolean) ?? false,
     breaking: (row.breaking as boolean) ?? false,
+    layout: (row.layout as ArticleLayout) || "normal",
   }));
 }
 
@@ -392,6 +387,7 @@ export async function getCachedArticleDetail(uuid: string): Promise<Article | nu
     originalUrl: (row.original_url as string) || undefined,
     featured: (row.featured as boolean) ?? false,
     breaking: (row.breaking as boolean) ?? false,
+    layout: (row.layout as ArticleLayout) || "normal",
   };
 
   // If article is incomplete (no body/image), fetch detail from API and update cache
@@ -430,21 +426,23 @@ export async function getCachedArticleDetail(uuid: string): Promise<Article | nu
 export async function getCachedBreakingNews(): Promise<Article[] | null> {
   const { createClient: createServerClient } = await import("@/lib/supabase/server");
   const supabase = await createServerClient();
+  // Get the 5 most recent articles across all sections (no separate API call)
   const { data, error } = await supabase
     .from("cached_articles")
     .select("*")
-    .eq("breaking", true)
     .order("cached_at", { ascending: false })
     .limit(5);
 
   if (error || !data?.length) return null;
 
-  // Backfill incomplete breaking news
+  // Backfill incomplete breaking news (sequential to avoid 429)
   const incomplete = (data as Record<string, unknown>[]).filter(
     (row) => !row.image_url && !row.body
   );
   if (incomplete.length > 0) {
-    Promise.all(incomplete.slice(0, 3).map(backfillArticle)).catch(() => {});
+    for (const row of incomplete.slice(0, 2)) {
+      backfillArticle(row).catch(() => {});
+    }
   }
 
   return data.map((row: Record<string, unknown>) => ({

@@ -36,6 +36,16 @@ export default function ArticleRow({ article }: { article: CustomArticle }) {
           >
             {cfg.label}
           </span>
+          {article.layout === "urgente" && (
+            <span className="text-[10px] font-bold tracking-wider uppercase px-1.5 py-0.5 text-white rounded bg-[#e63946]">
+              URGENTE
+            </span>
+          )}
+          {article.layout === "destacada" && (
+            <span className="text-[10px] font-bold tracking-wider uppercase px-1.5 py-0.5 text-white rounded bg-[#3b82f6]">
+              DESTACADA
+            </span>
+          )}
           <span className="font-semibold text-ink line-clamp-1">{article.title}</span>
         </div>
         {article.excerpt && (

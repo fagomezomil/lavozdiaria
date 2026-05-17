@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { CustomArticle, Section } from "@/lib/types";
+import type { CustomArticle, Section, ArticleLayout } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
 import { updateArticle } from "@/app/admin/articles/actions";
 
@@ -40,6 +40,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
   const [originalUrl, setOriginalUrl] = useState(article?.originalUrl ?? "");
   const [featured, setFeatured] = useState(article?.featured ?? false);
   const [breaking, setBreaking] = useState(article?.breaking ?? false);
+  const [layout, setLayout] = useState<ArticleLayout>(article?.layout ?? "normal");
   const [active, setActive] = useState(article?.active ?? true);
   const [commentsEnabled, setCommentsEnabled] = useState(article?.comments_enabled ?? true);
 
@@ -98,6 +99,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       original_url: originalUrl || null,
       featured,
       breaking,
+      layout,
       active,
       comments_enabled: commentsEnabled,
     };
@@ -293,6 +295,50 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         />
       </div>
 
+      <div>
+        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+          Presentación en la sección
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => setLayout("normal")}
+            className={`p-3 rounded border-2 text-center transition-all ${
+              layout === "normal"
+                ? "border-ink bg-ink/5"
+                : "border-border bg-white hover:border-ink/30"
+            }`}
+          >
+            <span className="block text-xs font-bold uppercase tracking-wider mb-1">Normal</span>
+            <span className="block text-[10px] text-muted">1 columna</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setLayout("destacada")}
+            className={`p-3 rounded border-2 text-center transition-all ${
+              layout === "destacada"
+                ? "border-[#3b82f6] bg-[#3b82f6]/5"
+                : "border-border bg-white hover:border-[#3b82f6]/30"
+            }`}
+          >
+            <span className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#3b82f6]">Destacada</span>
+            <span className="block text-[10px] text-muted">2 columnas</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setLayout("urgente")}
+            className={`p-3 rounded border-2 text-center transition-all ${
+              layout === "urgente"
+                ? "border-[#e63946] bg-[#e63946]/5"
+                : "border-border bg-white hover:border-[#e63946]/30"
+            }`}
+          >
+            <span className="block text-xs font-bold uppercase tracking-wider mb-1 text-[#e63946]">Urgente</span>
+            <span className="block text-[10px] text-muted">3 columnas</span>
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -306,20 +352,11 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
-            checked={featured}
-            onChange={(e) => setFeatured(e.target.checked)}
-            className="w-4 h-4 accent-[#f59e0b]"
-          />
-          <span className="text-sm font-semibold">Destacada</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
             checked={breaking}
             onChange={(e) => setBreaking(e.target.checked)}
             className="w-4 h-4 accent-[#e63946]"
           />
-          <span className="text-sm font-semibold">Urgente</span>
+          <span className="text-sm font-semibold">Urgente (ticker)</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <input

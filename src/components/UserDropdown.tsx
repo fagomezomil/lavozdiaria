@@ -10,6 +10,7 @@ export default function UserDropdown() {
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
   const logout = useAuthStore((s) => s.logout);
+  const isAdmin = profile?.role === "admin" || profile?.role === "editor";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -84,6 +85,16 @@ export default function UserDropdown() {
           >
             Mis Comentarios
           </Link>
+          <div className="border-t border-border my-1" />
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="block px-3 py-2 text-sm text-foreground hover:bg-[#f0efed] transition-colors"
+            >
+              Administración
+            </Link>
+          )}
           <div className="border-t border-border my-1" />
           <button
             onClick={handleLogout}

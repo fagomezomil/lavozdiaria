@@ -29,6 +29,23 @@ export default function LoginPage() {
       return;
     }
 
+    // Check if user is suspended
+    const { data: { user: loggedInUser } } = await supabase.auth.getUser();
+    if (loggedInUser) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", loggedInUser.id)
+        .single();
+
+      if (profile?.role === "suspended") {
+        await supabase.auth.signOut();
+        setError("Tu cuenta está suspendida. Contactá al administrador.");
+        setLoading(false);
+        return;
+      }
+    }
+
     router.push("/");
     router.refresh();
   };
