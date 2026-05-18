@@ -41,6 +41,13 @@ export default function AdRow({ ad }: { ad: Ad }) {
       </td>
       <td className="px-4 py-3 text-muted">{typeLabels[ad.type] || ad.type}</td>
       <td className="px-4 py-3 text-muted text-xs">
+        {ad.client_name ? (
+          <Link href={`/admin/clients/${ad.client_id}`} className="text-[#3b82f6] hover:underline">{ad.client_name}</Link>
+        ) : (
+          <span className="text-muted/50">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-muted text-xs">
         {ad.section ? (sectionConfig[ad.section as keyof typeof sectionConfig]?.label ?? ad.section) : "Todas"}
       </td>
       <td className="px-4 py-3">

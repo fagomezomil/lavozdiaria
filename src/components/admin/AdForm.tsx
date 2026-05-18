@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Ad, AdType, Section } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
+
+interface ClientOption {
+  id: string;
+  name: string;
+}
 
 const adTypes: { value: AdType; label: string }[] = [
   { value: "leaderboard", label: "Leaderboard (728x90)" },
@@ -31,6 +36,8 @@ export default function AdForm({ ad }: AdFormProps) {
   const router = useRouter();
   const isEditing = !!ad;
 
+  const [clients, setClients] = useState<ClientOption[]>([]);
+  const [clientId, setClientId] = useState<string>(ad?.client_id ?? "");
   const [title, setTitle] = useState(ad?.title ?? "");
   const [type, setType] = useState<AdType>(ad?.type ?? "leaderboard");
   const [section, setSection] = useState<Section | "">(ad?.section ?? "");
@@ -55,6 +62,15 @@ export default function AdForm({ ad }: AdFormProps) {
   const [mobilePreviewUrl, setMobilePreviewUrl] = useState(ad?.mobile_image_url ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from("clients").select("id, name").order("name");
+      if (data) setClients(data as ClientOption[]);
+    };
+    fetchClients();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,6 +135,7 @@ export default function AdForm({ ad }: AdFormProps) {
       title,
       type,
       section: section || null,
+      client_id: clientId || null,
       link_url: linkUrl || null,
       image_url: imageUrl,
       mobile_image_url: mobileImageUrl,
@@ -174,6 +191,22 @@ export default function AdForm({ ad }: AdFormProps) {
           className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
           placeholder="Aviso publicitario"
         />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+          Cliente
+        </label>
+        <select
+          value={clientId}
+          onChange={(e) => setClientId(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+        >
+          <option value="">Sin cliente</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

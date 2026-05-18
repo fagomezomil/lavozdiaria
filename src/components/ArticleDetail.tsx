@@ -72,6 +72,9 @@ interface ArticleDetailProps {
   leaderboardAd?: Ad | null;
   sidebarAd?: Ad | null;
   isCustom?: boolean;
+  isSponsored?: boolean;
+  sponsoredSidebar?: Article[];
+  sponsoredIds?: Set<string>;
 }
 
 export default function ArticleDetail({
@@ -80,6 +83,9 @@ export default function ArticleDetail({
   leaderboardAd,
   sidebarAd,
   isCustom = false,
+  isSponsored = false,
+  sponsoredSidebar = [],
+  sponsoredIds = new Set(),
 }: ArticleDetailProps) {
   const cfg = sectionConfig[article.section];
   const byline = article.author ?? article.publisher;
@@ -125,7 +131,7 @@ export default function ArticleDetail({
           {/* Section badge */}
           <AnimateIn direction="left" delay={0.1}>
             <div
-              className="border-t-4 pt-3 mb-4"
+              className="border-t-4 pt-3 mb-4 flex items-center justify-between"
               style={{ borderTopColor: cfg.color }}
             >
               <span
@@ -134,6 +140,11 @@ export default function ArticleDetail({
               >
                 {cfg.label}
               </span>
+              {isSponsored && (
+                <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981]/15 text-[#10b981]">
+                  Contenido patrocinado
+                </span>
+              )}
             </div>
           </AnimateIn>
 
@@ -384,6 +395,39 @@ export default function ArticleDetail({
           <div className="mt-4">
             <AdSlot size="sidebar" ad={sidebarAd} />
           </div>
+          {sponsoredSidebar.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-xs tracking-widest uppercase text-muted mb-3 font-bold border-b-2 border-[#10b981] pb-1">
+                Contenido patrocinado
+              </h2>
+              <div className="space-y-4">
+                {sponsoredSidebar.map((s) => (
+                  <Link
+                    key={s.id}
+                    href={`/patrocinado/${s.id}`}
+                    className="block group bg-white rounded border border-border overflow-hidden hover:shadow-sm transition-shadow"
+                  >
+                    {s.imageUrl && (
+                      <img src={s.imageUrl} alt={s.imageAlt} className="w-full h-32 object-cover" />
+                    )}
+                    <div className="p-3">
+                      <h3 className="text-sm font-semibold leading-snug font-[family-name:var(--font-heading)] group-hover:underline line-clamp-2">
+                        {s.title}
+                      </h3>
+                      {s.excerpt && (
+                        <p className="mt-1 text-xs text-muted line-clamp-2">{s.excerpt}</p>
+                      )}
+                      <p className="mt-1.5 text-[11px] text-muted flex items-center gap-1.5">
+                        {s.author && <span className="font-semibold">{s.author}</span>}
+                        {s.author && s.date && <span>·</span>}
+                        {s.date && <span>{s.date}</span>}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           </AnimateIn>
         </aside>
       </div>

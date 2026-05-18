@@ -13,7 +13,7 @@ import AnimateStagger from "@/components/animate/AnimateStagger";
 import StaggerItem from "@/components/animate/StaggerItem";
 import HeroSlider from "@/components/HeroSlider";
 import { sectionConfig } from "@/lib/types";
-import type { Section, Article } from "@/lib/types";
+import type { Section, Article, SponsoredContent } from "@/lib/types";
 import { articles as seedArticles, getArticlesBySection } from "@/lib/data";
 import {
   fetchBreakingNews,
@@ -21,19 +21,38 @@ import {
 } from "@/lib/api";
 import { getActiveAds, pickAd, pickAds } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
+import { getActiveSponsored } from "@/lib/sponsored";
+
+function sponsoredToArticle(s: SponsoredContent): Article {
+  return {
+    id: s.id,
+    title: s.title,
+    subtitle: s.subtitle,
+    section: s.section,
+    author: s.author ?? undefined,
+    publisher: s.publisher,
+    date: s.date,
+    imageUrl: s.imageUrl ?? undefined,
+    imageAlt: s.imageAlt,
+    excerpt: s.excerpt,
+    body: s.body ?? undefined,
+    originalUrl: s.originalUrl ?? undefined,
+  };
+}
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [breakingData, sectionData, ads, customArticles] = await Promise.all([
+  const [breakingData, sectionData, ads, customArticles, sponsoredContent] = await Promise.all([
     fetchBreakingNews(),
     fetchHomepageArticles(),
     getActiveAds(),
     getActiveArticles(),
+    getActiveSponsored(undefined, true),
   ]);
 
-  const [leaderboard1, leaderboard2] = pickAds(ads, "leaderboard", 2);
-  const rectangleAd = pickAd(ads, "rectangle");
+  const [leaderboard1, leaderboard2, leaderboard3] = pickAds(ads, "leaderboard", 3);
+  const rectangleAds = pickAds(ads, "rectangle", 3);
   const modalAd = pickAd(ads, "modal");
   const stickyFooterAd = pickAd(ads, "sticky_footer");
   const inFeedAd = pickAd(ads, "infeed");
@@ -53,13 +72,27 @@ export default async function Home() {
   };
 
   const sectionArticles: Record<Section, Article[]> = {} as Record<Section, Article[]>;
+  // 1 sponsored per section for homepage (as 3rd item)
+  const sponsoredPerSection: Record<Section, Article | null> = {} as Record<Section, Article | null>;
+  const sponsoredIds = new Set<string>();
   for (const key of Object.keys(sectionConfig) as Section[]) {
     const custom = customArticles.filter((a) => a.section === key && !a.breaking);
+    const firstSponsored = sponsoredContent.find((s) => s.section === key);
+    if (firstSponsored) {
+      sponsoredIds.add(firstSponsored.id);
+      sponsoredPerSection[key] = sponsoredToArticle(firstSponsored);
+    } else {
+      sponsoredPerSection[key] = null;
+    }
     sectionArticles[key] = [...custom, ...apiSectionArticles[key]];
   }
 
   // Flatten all articles for hero/sidebar logic
   const allArticles = Object.values(sectionArticles).flat();
+  // Pick 1 article per section for the hero slider (5 sections = 5 slides)
+  const sliderArticles: Article[] = (Object.keys(sectionConfig) as Section[])
+    .map((key) => sectionArticles[key]?.[0])
+    .filter((a): a is Article => !!a);
   const hero = allArticles.find((a) => a.featured) ?? allArticles[0];
   const secondary = allArticles.filter(
     (a) => hero && a.id !== hero.id && a.featured
@@ -92,7 +125,7 @@ export default async function Home() {
 
         {/* Hero Slider */}
         <AnimateIn direction="up">
-          <HeroSlider articles={allArticles.slice(0, 5)} interval={6000} />
+          <HeroSlider articles={sliderArticles} interval={6000} />
         </AnimateIn>
 
         <div className="rule my-10" />
@@ -111,17 +144,11 @@ export default async function Home() {
           ))}
         </AnimateStagger>
 
-        {/* Rectangle ad */}
-        {rectangleAd && (
-          <div className="flex justify-center mb-10">
-            <AdSlot size="rectangle" ad={rectangleAd} />
-          </div>
-        )}
-
         {/* Section grids */}
-        {Object.entries(sectionConfig).map(([key, cfg]) => {
+        {Object.entries(sectionConfig).map(([key, cfg], index) => {
           const sArticles = sectionArticles[key as Section];
           if (!sArticles || sArticles.length === 0) return null;
+          const sponsoredItem = sponsoredPerSection[key as Section];
 
           return (
             <AnimateIn key={key} direction="up" delay={0.1}>
@@ -150,21 +177,38 @@ export default async function Home() {
                       <ArticleCard article={a} variant="standard" />
                     </StaggerItem>
                   ))}
-                  {inFeedAd && sArticles.length >= 2 && (
-                    <StaggerItem>
-                      <AdInFeed ad={inFeedAd} />
+                  {sponsoredItem ? (
+                    <StaggerItem key={sponsoredItem.id}>
+                      <ArticleCard article={sponsoredItem} variant="standard" sponsored />
                     </StaggerItem>
+                  ) : (
+                    sArticles.slice(2, 3).map((a) => (
+                      <StaggerItem key={a.id}>
+                        <ArticleCard article={a} variant="standard" />
+                      </StaggerItem>
+                    ))
                   )}
-                  {sArticles.slice(2, 3).map((a) => (
-                    <StaggerItem key={a.id}>
-                      <ArticleCard article={a} variant="standard" />
-                    </StaggerItem>
-                  ))}
                 </AnimateStagger>
               </section>
+
+              {/* Rectangle ads row after Deportes (index 1) */}
+              {index === 1 && (
+                <div className="border-t border-[#d4cfc7] pt-6 mt-2 mb-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[0, 1, 2].map((i) => (
+                      <AdSlot key={i} size="rectangle" ad={rectangleAds[i] || undefined} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </AnimateIn>
           );
         })}
+
+        {/* Bottom leaderboard ad */}
+        <AnimateIn direction="up" delay={0.1}>
+          <AdSlot size="leaderboard" className="mb-10" ad={leaderboard3} />
+        </AnimateIn>
       </main>
 
       <Footer />

@@ -8,6 +8,7 @@ interface ArticleCardProps {
   article: Article;
   variant?: "hero" | "featured" | "urgente" | "standard" | "compact";
   commentCount?: number;
+  sponsored?: boolean;
 }
 
 function NewsImage({
@@ -98,14 +99,16 @@ export default function ArticleCard({
   article,
   variant = "standard",
   commentCount,
+  sponsored = false,
 }: ArticleCardProps) {
   const cfg = sectionConfig[article.section];
   const byline = article.author ?? article.publisher;
+  const href = sponsored ? `/patrocinado/${article.id}` : `/${article.section}/${article.id}`;
 
   if (variant === "hero") {
     return (
       <article className="group">
-        <Link href={`/${article.section}/${article.id}`}>
+        <Link href={href}>
           {article.imageUrl ? (
             <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="hero" />
           ) : (
@@ -157,7 +160,7 @@ export default function ArticleCard({
   if (variant === "featured") {
     return (
       <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
-        <Link href={`/${article.section}/${article.id}`} className="flex flex-col sm:flex-row h-full">
+        <Link href={href} className="flex flex-col sm:flex-row h-full">
           <div
             className="sm:w-1/2 h-48 sm:h-auto flex items-center justify-center relative overflow-hidden"
             style={{ borderTop: `4px solid ${cfg.color}` }}
@@ -204,7 +207,7 @@ export default function ArticleCard({
   if (variant === "urgente") {
     return (
       <article className="group">
-        <Link href={`/${article.section}/${article.id}`} className="block relative w-full min-h-[400px] md:min-h-[530px] overflow-hidden">
+        <Link href={href} className="block relative w-full min-h-[400px] md:min-h-[530px] overflow-hidden">
           {article.imageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
@@ -241,7 +244,7 @@ export default function ArticleCard({
   if (variant === "compact") {
     return (
       <article className="group py-3 border-b border-rule last:border-0">
-        <Link href={`/${article.section}/${article.id}`} className="flex gap-3">
+        <Link href={href} className="flex gap-3">
           <NewsImage
             src={article.imageUrl || ""}
             alt={article.imageAlt}
@@ -275,10 +278,62 @@ export default function ArticleCard({
     );
   }
 
+  // Sponsored badge component (light green, right-aligned)
+  const sponsoredBadge = (
+    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981]/15 text-[#10b981]">
+      Contenido patrocinado
+    </span>
+  );
+
+  // standard
+  if (sponsored) {
+    return (
+      <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+        <Link href={href} className="flex flex-col h-full">
+          <div
+            className="h-44 flex items-center justify-center relative overflow-hidden"
+            style={{ borderTop: `3px solid ${cfg.color}` }}
+          >
+            {article.imageUrl ? (
+              <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{ background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)` }}
+              />
+            )}
+            {!article.imageUrl && (
+              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10 relative z-10" style={{ color: cfg.color }}>
+                LV
+              </span>
+            )}
+            <span className="absolute top-3 right-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981] text-white z-20">
+              Contenido patrocinado
+            </span>
+          </div>
+          <div className="p-4 flex-1 flex flex-col">
+            <h3 className="text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
+              {article.title}
+            </h3>
+            {article.excerpt && (
+              <p className="mt-2 text-sm text-muted line-clamp-3">
+                {article.excerpt}
+              </p>
+            )}
+            <div className="mt-auto pt-3 text-xs text-muted">
+              {byline && <>{byline} · </>}
+              {article.date}
+            </div>
+          </div>
+        </Link>
+      </article>
+    );
+  }
+
   // standard
   return (
-    <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg">
-      <Link href={`/${article.section}/${article.id}`}>
+    <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+      <Link href={href} className="flex flex-col h-full">
         <div
           className="h-44 flex items-center justify-center relative overflow-hidden"
           style={{ borderTop: `3px solid ${cfg.color}` }}
@@ -303,7 +358,7 @@ export default function ArticleCard({
             {cfg.label}
           </span>
         </div>
-        <div className="p-4">
+        <div className="p-4 flex-1 flex flex-col">
           <h3 className="text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
             {article.title}
           </h3>
@@ -312,7 +367,7 @@ export default function ArticleCard({
               {article.excerpt}
             </p>
           )}
-          <div className="mt-3 text-xs text-muted">
+          <div className="mt-auto pt-3 text-xs text-muted">
             {byline && <>{byline} · </>}
             {article.date}
             {commentCount !== undefined && commentCount > 0 && (

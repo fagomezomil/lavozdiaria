@@ -12,10 +12,22 @@ export interface Ad {
   mobile_image_url: string | null;
   link_url: string | null;
   section: Section | null;
+  client_id: string | null;
+  client_name?: string | null;
   active: boolean;
   priority: number;
   starts_at: string | null;
   expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Client {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -45,6 +57,31 @@ export interface CustomArticle extends Article {
   updated_at: string;
   comments_enabled: boolean;
   layout: ArticleLayout;
+}
+
+export interface SponsoredContent {
+  id: string;
+  title: string;
+  subtitle: string;
+  section: Section;
+  author: string | null;
+  publisher: string;
+  date: string;
+  imageUrl: string | null;
+  imageAlt: string;
+  excerpt: string;
+  body: string | null;
+  originalUrl: string | null;
+  active: boolean;
+  showOnHomepage: boolean;
+  showInSidebar: boolean;
+  clientId: string | null;
+  clientName?: string | null;
+  startsAt: string | null;
+  expiresAt: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Comment {

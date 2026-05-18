@@ -44,11 +44,14 @@ export async function getAllAds(): Promise<Ad[]> {
 
   const { data, error } = await supabase
     .from("ads")
-    .select("*")
+    .select("*, clients(name)")
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];
-  return data;
+  return data.map((ad: Record<string, unknown>) => {
+    const { clients, ...rest } = ad;
+    return { ...rest, client_name: (clients as Record<string, unknown>)?.name as string | null };
+  }) as Ad[];
 }
 
 export async function getAdById(id: string): Promise<Ad | null> {

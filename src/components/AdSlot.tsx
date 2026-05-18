@@ -12,7 +12,7 @@ interface AdSlotProps {
 
 const sizeStyles: Record<string, string> = {
   leaderboard: "w-full h-32 md:h-[90px]",
-  rectangle: "w-full max-w-[300px] h-[250px]",
+  rectangle: "w-full h-[250px]",
   sidebar: "w-full h-[250px]",
   infeed: "w-full",
   sticky_footer: "w-full h-[50px]",

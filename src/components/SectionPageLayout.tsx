@@ -17,6 +17,7 @@ interface SectionPageLayoutProps {
   allArticles: Article[];
   leaderboardAd?: Ad | null;
   inFeedAd?: Ad | null;
+  sponsoredIds?: Set<string>;
 }
 
 function getVariant(layout?: ArticleLayout): "urgente" | "featured" | "standard" {
@@ -38,6 +39,7 @@ export default function SectionPageLayout({
   allArticles,
   leaderboardAd,
   inFeedAd,
+  sponsoredIds = new Set(),
 }: SectionPageLayoutProps) {
   const cfg = sectionConfig[section];
 
@@ -100,7 +102,7 @@ export default function SectionPageLayout({
 
             elements.push(
               <StaggerItem key={a.id} className={colSpan}>
-                <ArticleCard article={a} variant={variant} />
+                <ArticleCard article={a} variant={variant} sponsored={sponsoredIds.has(a.id)} />
               </StaggerItem>
             );
 

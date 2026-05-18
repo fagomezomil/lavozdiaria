@@ -35,6 +35,7 @@ export default async function AdminDashboard() {
               <tr>
                 <th className="px-4 py-2.5 text-left font-semibold">Título</th>
                 <th className="px-4 py-2.5 text-left font-semibold">Tipo</th>
+                <th className="px-4 py-2.5 text-left font-semibold">Cliente</th>
                 <th className="px-4 py-2.5 text-left font-semibold">Sección</th>
                 <th className="px-4 py-2.5 text-left font-semibold">Estado</th>
                 <th className="px-4 py-2.5 text-left font-semibold">Prioridad</th>

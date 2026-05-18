@@ -5,7 +5,7 @@ interface AdminLayoutProps {
   children: React.ReactNode;
   role: string;
   email: string;
-  activeTab: "avisos" | "notas" | "comentarios" | "usuarios";
+  activeTab: "avisos" | "clientes" | "patrocinados" | "notas" | "comentarios" | "usuarios";
 }
 
 export default function AdminLayout({ children, role, email, activeTab }: AdminLayoutProps) {
@@ -13,6 +13,8 @@ export default function AdminLayout({ children, role, email, activeTab }: AdminL
 
   const tabs = [
     ...(isAdmin ? [{ label: "Avisos", href: "/admin", key: "avisos" as const }] : []),
+    ...(isAdmin ? [{ label: "Clientes", href: "/admin/clients", key: "clientes" as const }] : []),
+    ...(isAdmin ? [{ label: "Patrocinados", href: "/admin/sponsored", key: "patrocinados" as const }] : []),
     { label: "Notas", href: "/admin/articles", key: "notas" as const },
     { label: "Comentarios", href: "/admin/comments", key: "comentarios" as const },
     ...(isAdmin ? [{ label: "Usuarios", href: "/admin/users", key: "usuarios" as const }] : []),

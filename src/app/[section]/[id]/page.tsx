@@ -10,7 +10,8 @@ import { fetchArticleDetail, fetchSectionArticles, fetchBreakingNews } from "@/l
 import { getArticleById as getSeedArticleById, getArticlesBySection, articles } from "@/lib/data";
 import { getActiveAds, pickAd } from "@/lib/ads";
 import { getArticleById as getCustomArticleById, getActiveArticles } from "@/lib/articles";
-import { sectionConfig, Section } from "@/lib/types";
+import { getActiveSponsored } from "@/lib/sponsored";
+import { sectionConfig, Section, Article, SponsoredContent } from "@/lib/types";
 
 interface PageProps {
   params: Promise<{ section: string; id: string }>;
@@ -47,11 +48,12 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!article) notFound();
 
   const sectionKey = article.section as Section;
-  const [sectionArticles, customRelated, breakingData, ads] = await Promise.all([
+  const [sectionArticles, customRelated, breakingData, ads, sponsoredContent] = await Promise.all([
     fetchSectionArticles(sectionKey),
     getActiveArticles(sectionKey),
     fetchBreakingNews(),
     getActiveAds(undefined, sectionKey),
+    getActiveSponsored(sectionKey, undefined, true),
   ]);
 
   const related = [...customRelated, ...(sectionArticles ?? getArticlesBySection(sectionKey))].filter(
@@ -66,12 +68,29 @@ export default async function ArticlePage({ params }: PageProps) {
   const sidebarAd = pickAd(ads, "sidebar");
   const stickyFooterAd = pickAd(ads, "sticky_footer");
 
+  // Convert sponsored to Article format for sidebar
+  const sponsoredSidebar: Article[] = sponsoredContent.slice(0, 2).map((s: SponsoredContent): Article => ({
+    id: s.id,
+    title: s.title,
+    subtitle: s.subtitle,
+    section: s.section,
+    author: s.author ?? undefined,
+    publisher: s.publisher,
+    date: s.date,
+    imageUrl: s.imageUrl ?? undefined,
+    imageAlt: s.imageAlt,
+    excerpt: s.excerpt,
+    body: s.body ?? undefined,
+    originalUrl: s.originalUrl ?? undefined,
+  }));
+  const sponsoredIds = new Set(sponsoredSidebar.map((s) => s.id));
+
   return (
     <>
       <Header />
       <Navbar />
       <BreakingNews articles={breaking} />
-      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} isCustom={!!customArticle} />
+      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} isCustom={!!customArticle} sponsoredSidebar={sponsoredSidebar} sponsoredIds={sponsoredIds} />
       <Footer />
       <AdStickyFooter ad={stickyFooterAd} />
     </>
