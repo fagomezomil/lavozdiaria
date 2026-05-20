@@ -21,6 +21,9 @@
   --color-muted: #6b6b6b;
   --color-border: #d4cfc7;
   --color-rule: #c8c3bb;
+  --color-brand: #c8102e;
+  --color-focus: #3b82f6;
+  --color-admin-bg: #f0efed;
 }
 
 @theme inline {
@@ -32,6 +35,9 @@
   --color-muted: #6b6b6b;
   --color-border: #d4cfc7;
   --color-rule: #c8c3bb;
+  --color-brand: #c8102e;
+  --color-focus: #3b82f6;
+  --color-admin-bg: #f0efed;
   --color-politica: #e63946;
   --color-deportes: #3b82f6;
   --color-economia: #10b981;

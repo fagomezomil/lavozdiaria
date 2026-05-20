@@ -131,7 +131,7 @@ export default function ArticleDetail({
           {/* Section badge */}
           <AnimateIn direction="left" delay={0.1}>
             <div
-              className="border-t-4 pt-3 mb-4 flex items-center justify-between"
+              className="border-t-2 pt-2 mb-4 flex items-center justify-between"
               style={{ borderTopColor: cfg.color }}
             >
               <span

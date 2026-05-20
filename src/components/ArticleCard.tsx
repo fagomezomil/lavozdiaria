@@ -52,7 +52,7 @@ function NewsImage({
 
   if (variant === "hero") {
     return (
-      <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden" style={{ borderTop: `4px solid ${sectionColor}` }}>
+      <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden" style={{ borderTop: `2px solid ${sectionColor}` }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
@@ -113,11 +113,11 @@ export default function ArticleCard({
             <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="hero" />
           ) : (
             <div
-              className="border-t-4 pt-3"
+              className="border-t-2 pt-3"
               style={{ borderTopColor: cfg.color }}
             >
               <span
-                className="text-xs font-bold tracking-widest uppercase"
+                className="text-[11px] font-bold tracking-widest uppercase"
                 style={{ color: cfg.color }}
               >
                 {cfg.label}
@@ -159,11 +159,11 @@ export default function ArticleCard({
 
   if (variant === "featured") {
     return (
-      <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+      <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
         <Link href={href} className="flex flex-col sm:flex-row h-full">
           <div
             className="sm:w-1/2 h-48 sm:h-auto flex items-center justify-center relative overflow-hidden"
-            style={{ borderTop: `4px solid ${cfg.color}` }}
+            style={{ borderTop: `2px solid ${cfg.color}` }}
           >
             {article.imageUrl ? (
               <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
@@ -178,15 +178,15 @@ export default function ArticleCard({
                 LV
               </span>
             )}
+          </div>
+          <div className="sm:w-1/2 p-4 sm:p-5 flex flex-col justify-center">
             <span
-              className="absolute top-3 left-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 text-white z-20"
-              style={{ backgroundColor: cfg.color }}
+              className="text-[11px] font-bold tracking-widest uppercase"
+              style={{ color: cfg.color }}
             >
               {cfg.label}
             </span>
-          </div>
-          <div className="sm:w-1/2 p-4 sm:p-5 flex flex-col justify-center">
-            <h2 className="text-xl md:text-2xl font-bold leading-tight font-[family-name:var(--font-heading)] group-hover:underline decoration-1 underline-offset-4 line-clamp-3">
+            <h2 className="mt-1 text-xl md:text-2xl font-bold leading-tight font-[family-name:var(--font-heading)] group-hover:underline decoration-1 underline-offset-4 line-clamp-3">
               {article.title}
             </h2>
             {article.excerpt && (
@@ -245,12 +245,14 @@ export default function ArticleCard({
     return (
       <article className="group py-3 border-b border-rule last:border-0">
         <Link href={href} className="flex gap-3">
-          <NewsImage
-            src={article.imageUrl || ""}
-            alt={article.imageAlt}
-            sectionColor={cfg.color}
-            variant="compact"
-          />
+          {article.imageUrl && (
+            <NewsImage
+              src={article.imageUrl}
+              alt={article.imageAlt}
+              sectionColor={cfg.color}
+              variant="compact"
+            />
+          )}
           {!article.imageUrl && (
             <div
               className="w-16 h-16 shrink-0 flex items-center justify-center rounded-sm"
@@ -278,7 +280,7 @@ export default function ArticleCard({
     );
   }
 
-  // Sponsored badge component (light green, right-aligned)
+  // Sponsored badge component (green, right-aligned)
   const sponsoredBadge = (
     <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981]/15 text-[#10b981]">
       Contenido patrocinado
@@ -288,11 +290,11 @@ export default function ArticleCard({
   // standard
   if (sponsored) {
     return (
-      <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+      <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
         <Link href={href} className="flex flex-col h-full">
           <div
             className="h-44 flex items-center justify-center relative overflow-hidden"
-            style={{ borderTop: `3px solid ${cfg.color}` }}
+            style={{ borderTop: `2px solid ${cfg.color}` }}
           >
             {article.imageUrl ? (
               <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
@@ -332,11 +334,11 @@ export default function ArticleCard({
 
   // standard
   return (
-    <article className="group bg-paper border border-border transition-shadow duration-200 hover:shadow-lg h-full">
+    <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
       <Link href={href} className="flex flex-col h-full">
         <div
           className="h-44 flex items-center justify-center relative overflow-hidden"
-          style={{ borderTop: `3px solid ${cfg.color}` }}
+          style={{ borderTop: `2px solid ${cfg.color}` }}
         >
           {article.imageUrl ? (
             <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
@@ -351,15 +353,15 @@ export default function ArticleCard({
               LV
             </span>
           )}
+        </div>
+        <div className="p-4 flex-1 flex flex-col">
           <span
-            className="absolute top-3 left-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 text-white z-20"
-            style={{ backgroundColor: cfg.color }}
+            className="text-[11px] font-bold tracking-widest uppercase"
+            style={{ color: cfg.color }}
           >
             {cfg.label}
           </span>
-        </div>
-        <div className="p-4 flex-1 flex flex-col">
-          <h3 className="text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
+          <h3 className="mt-0.5 text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
             {article.title}
           </h3>
           {article.excerpt && (

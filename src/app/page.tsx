@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import AnimateStagger from "@/components/animate/AnimateStagger";
 import StaggerItem from "@/components/animate/StaggerItem";
-import HeroSlider from "@/components/HeroSlider";
+import HeroEditorial from "@/components/HeroEditorial";
 import { sectionConfig } from "@/lib/types";
 import type { Section, Article, SponsoredContent } from "@/lib/types";
 import { articles as seedArticles, getArticlesBySection } from "@/lib/data";
@@ -123,9 +123,9 @@ export default async function Home() {
           </div>
         )}
 
-        {/* Hero Slider */}
+        {/* Hero Editorial */}
         <AnimateIn direction="up">
-          <HeroSlider articles={sliderArticles} interval={6000} />
+          <HeroEditorial articles={sliderArticles} />
         </AnimateIn>
 
         <div className="rule my-10" />
@@ -150,50 +150,57 @@ export default async function Home() {
           if (!sArticles || sArticles.length === 0) return null;
           const sponsoredItem = sponsoredPerSection[key as Section];
 
+          // First article is featured (larger), rest are standard
+          const featured = sArticles[0];
+          const rest = sArticles.slice(1);
+
           return (
             <AnimateIn key={key} direction="up" delay={0.1}>
               <section className="mb-10">
                 <div
-                  className="border-t-4 pt-2 mb-4 flex items-center justify-between"
+                  className="border-t-2 pt-2 mb-4 flex items-center justify-between"
                   style={{ borderTopColor: cfg.color }}
                 >
                   <h2
-                    className="text-lg font-bold tracking-wide uppercase font-[family-name:var(--font-heading)]"
+                    className="text-sm font-bold tracking-widest uppercase font-[family-name:var(--font-heading)]"
                     style={{ color: cfg.color }}
                   >
                     {cfg.label}
                   </h2>
                   <Link
                     href={cfg.path}
-                    className="text-sm font-semibold hover:underline"
+                    className="text-xs font-semibold hover:underline"
                     style={{ color: cfg.color }}
                   >
                     +{cfg.label}
                   </Link>
                 </div>
-                <AnimateStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sArticles.slice(0, 2).map((a) => (
-                    <StaggerItem key={a.id}>
-                      <ArticleCard article={a} variant="standard" />
-                    </StaggerItem>
-                  ))}
-                  {sponsoredItem ? (
-                    <StaggerItem key={sponsoredItem.id}>
-                      <ArticleCard article={sponsoredItem} variant="standard" sponsored />
-                    </StaggerItem>
-                  ) : (
-                    sArticles.slice(2, 3).map((a) => (
-                      <StaggerItem key={a.id}>
-                        <ArticleCard article={a} variant="standard" />
-                      </StaggerItem>
-                    ))
-                  )}
-                </AnimateStagger>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Featured article — spans 2 columns */}
+                  <div className="lg:col-span-2">
+                    <ArticleCard article={featured} variant="featured" />
+                  </div>
+                  {/* Side stack: sponsored or 2nd article + 1 more */}
+                  <div className="flex flex-col gap-6">
+                    {sponsoredItem ? (
+                      <>
+                        <ArticleCard article={sponsoredItem} variant="standard" sponsored />
+                        {rest.slice(0, 1).map((a) => (
+                          <ArticleCard key={a.id} article={a} variant="compact" />
+                        ))}
+                      </>
+                    ) : (
+                      rest.slice(0, 2).map((a) => (
+                        <ArticleCard key={a.id} article={a} variant="compact" />
+                      ))
+                    )}
+                  </div>
+                </div>
               </section>
 
               {/* Rectangle ads row after Deportes (index 1) */}
               {index === 1 && (
-                <div className="border-t border-[#d4cfc7] pt-6 mt-2 mb-10">
+                <div className="border-t border-border pt-6 mt-2 mb-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[0, 1, 2].map((i) => (
                       <AdSlot key={i} size="rectangle" ad={rectangleAds[i] || undefined} />
