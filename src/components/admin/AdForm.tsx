@@ -44,6 +44,7 @@ export default function AdForm({ ad }: AdFormProps) {
   const [linkUrl, setLinkUrl] = useState(ad?.link_url ?? "");
   const [active, setActive] = useState(ad?.active ?? true);
   const [priority, setPriority] = useState(ad?.priority ?? 0);
+  const [displayDuration, setDisplayDuration] = useState(ad?.display_duration ?? 15);
   const [startsAtDate, setStartsAtDate] = useState(
     ad?.starts_at ? ad.starts_at.slice(0, 10) : "",
   );
@@ -141,6 +142,7 @@ export default function AdForm({ ad }: AdFormProps) {
       mobile_image_url: mobileImageUrl,
       active,
       priority,
+      display_duration: displayDuration,
       starts_at: startsAtDate ? new Date(`${startsAtDate}T${startsAtTime}`).toISOString() : null,
       expires_at: expiresAtDate ? new Date(`${expiresAtDate}T${expiresAtTime}`).toISOString() : null,
     };
@@ -351,6 +353,22 @@ export default function AdForm({ ad }: AdFormProps) {
             type="number"
             value={priority}
             onChange={(e) => setPriority(Number(e.target.value))}
+            className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+            Duración (seg)
+          </label>
+          <p className="text-xs text-muted mb-1">
+            Tiempo de impresión en rotación. Default: 15s.
+          </p>
+          <input
+            type="number"
+            min={5}
+            max={60}
+            value={displayDuration}
+            onChange={(e) => setDisplayDuration(Number(e.target.value))}
             className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
           />
         </div>

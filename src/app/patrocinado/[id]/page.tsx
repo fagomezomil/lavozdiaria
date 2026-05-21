@@ -8,7 +8,7 @@ import ArticleDetail from "@/components/ArticleDetail";
 import AdStickyFooter from "@/components/AdStickyFooter";
 import { fetchSectionArticles, fetchBreakingNews } from "@/lib/api";
 import { getArticlesBySection, articles } from "@/lib/data";
-import { getActiveAds, pickAd } from "@/lib/ads";
+import { getActiveAds } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
 import { getSponsoredById, getActiveSponsored } from "@/lib/sponsored";
 import { sectionConfig, Section, Article, SponsoredContent } from "@/lib/types";
@@ -65,9 +65,9 @@ export default async function SponsoredDetailPage({ params }: PageProps) {
   const customBreaking = customRelated.filter((a) => a.breaking);
   const breaking = [...customBreaking, ...(breakingData ?? articles.filter((a) => a.breaking))];
 
-  const leaderboardAd = pickAd(ads, "leaderboard");
-  const sidebarAd = pickAd(ads, "sidebar");
-  const stickyFooterAd = pickAd(ads, "sticky_footer");
+  const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
+  const sidebarAds = ads.filter((a) => a.type === "sidebar");
+  const stickyFooterAd = ads.find((a) => a.type === "sticky_footer") || null;
 
   // Other sponsored content for sidebar (excluding current one)
   const sponsoredSidebar: Article[] = otherSponsored
@@ -94,7 +94,7 @@ export default async function SponsoredDetailPage({ params }: PageProps) {
       <Header />
       <Navbar />
       <BreakingNews articles={breaking} />
-      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} isCustom isSponsored sponsoredSidebar={sponsoredSidebar} sponsoredIds={sponsoredIds} />
+      <ArticleDetail article={article} related={related} leaderboardAds={leaderboardAds} sidebarAds={sidebarAds} isCustom isSponsored sponsoredSidebar={sponsoredSidebar} sponsoredIds={sponsoredIds} />
       <Footer />
       <AdStickyFooter ad={stickyFooterAd} />
     </>

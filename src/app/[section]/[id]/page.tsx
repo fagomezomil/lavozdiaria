@@ -8,7 +8,7 @@ import ArticleDetail from "@/components/ArticleDetail";
 import AdStickyFooter from "@/components/AdStickyFooter";
 import { fetchArticleDetail, fetchSectionArticles, fetchBreakingNews } from "@/lib/api";
 import { getArticleById as getSeedArticleById, getArticlesBySection, articles } from "@/lib/data";
-import { getActiveAds, pickAd } from "@/lib/ads";
+import { getActiveAds } from "@/lib/ads";
 import { getArticleById as getCustomArticleById, getActiveArticles } from "@/lib/articles";
 import { getActiveSponsored } from "@/lib/sponsored";
 import { sectionConfig, Section, Article, SponsoredContent } from "@/lib/types";
@@ -64,9 +64,9 @@ export default async function ArticlePage({ params }: PageProps) {
   const customBreaking = customRelated.filter((a) => a.breaking);
   const breaking = [...customBreaking, ...(breakingData ?? articles.filter((a) => a.breaking))];
 
-  const leaderboardAd = pickAd(ads, "leaderboard");
-  const sidebarAd = pickAd(ads, "sidebar");
-  const stickyFooterAd = pickAd(ads, "sticky_footer");
+  const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
+  const sidebarAds = ads.filter((a) => a.type === "sidebar");
+  const stickyFooterAd = ads.find((a) => a.type === "sticky_footer") || null;
 
   // Convert sponsored to Article format for sidebar
   const sponsoredSidebar: Article[] = sponsoredContent.slice(0, 2).map((s: SponsoredContent): Article => ({
@@ -90,7 +90,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <Header />
       <Navbar />
       <BreakingNews articles={breaking} />
-      <ArticleDetail article={article} related={related} leaderboardAd={leaderboardAd} sidebarAd={sidebarAd} isCustom={!!customArticle} sponsoredSidebar={sponsoredSidebar} sponsoredIds={sponsoredIds} />
+      <ArticleDetail article={article} related={related} leaderboardAds={leaderboardAds} sidebarAds={sidebarAds} isCustom={!!customArticle} sponsoredSidebar={sponsoredSidebar} sponsoredIds={sponsoredIds} />
       <Footer />
       <AdStickyFooter ad={stickyFooterAd} />
     </>

@@ -4,8 +4,7 @@ import BreakingNews from "@/components/BreakingNews";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
-import AdSlot from "@/components/AdSlot";
-import AdInFeed from "@/components/AdInFeed";
+import AdRotator from "@/components/AdRotator";
 import { Article, Ad, Section, sectionConfig } from "@/lib/types";
 
 interface SectionPageLayoutProps {
@@ -13,8 +12,8 @@ interface SectionPageLayoutProps {
   articles: Article[];
   subtitle: string;
   allArticles: Article[];
-  leaderboardAd?: Ad | null;
-  inFeedAd?: Ad | null;
+  leaderboardAds?: Ad[];
+  rectangleAds?: Ad[];
   sponsoredIds?: Set<string>;
 }
 
@@ -23,8 +22,8 @@ export default function SectionPageLayout({
   articles,
   subtitle,
   allArticles,
-  leaderboardAd,
-  inFeedAd,
+  leaderboardAds = [],
+  rectangleAds = [],
   sponsoredIds = new Set(),
 }: SectionPageLayoutProps) {
   const cfg = sectionConfig[section];
@@ -42,9 +41,6 @@ export default function SectionPageLayout({
   // Featured = first non-urgent article, rest = standard stack
   const featured = gridArticles[0];
   const rest = gridArticles.slice(1);
-
-  // Insert ad after 2nd grid article
-  const adIndex = 2;
 
   return (
     <>
@@ -73,7 +69,7 @@ export default function SectionPageLayout({
 
         {/* Leaderboard ad */}
         <div className="mb-8">
-          <AdSlot size="leaderboard" ad={leaderboardAd} />
+          <AdRotator ads={leaderboardAds} size="leaderboard" />
         </div>
 
         {/* Urgente articles — full width red alerts */}
@@ -157,14 +153,6 @@ export default function SectionPageLayout({
                   </Link>
                 );
 
-                if (i === 1 && inFeedAd) {
-                  elements.push(
-                    <div key="ad" className="my-1">
-                      <AdInFeed ad={inFeedAd} />
-                    </div>
-                  );
-                }
-
                 return elements;
               })}
             </div>
@@ -189,33 +177,49 @@ export default function SectionPageLayout({
               </span>
             </div>
 
+            {/* First 3 articles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rest.slice(4).map((a, i) => {
-                const elements: React.ReactNode[] = [];
+              {rest.slice(4, 7).map((a) => (
+                <ArticleCard
+                  key={a.id}
+                  article={a}
+                  variant="standard"
+                  sponsored={sponsoredIds.has(a.id)}
+                />
+              ))}
+            </div>
 
-                elements.push(
+            {/* Rectangle ad row — 3 rotating ads after first 3 articles */}
+            {rectangleAds.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                {rectangleAds.slice(0, 3).map((_, i) => (
+                  <div key={`rect-${i}`}>
+                    <AdRotator ads={rectangleAds} size="rectangle" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Remaining articles */}
+            {rest.length > 7 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                {rest.slice(7).map((a) => (
                   <ArticleCard
                     key={a.id}
                     article={a}
                     variant="standard"
                     sponsored={sponsoredIds.has(a.id)}
                   />
-                );
-
-                // Insert rectangle ad row after 3rd remaining article
-                if (i === 2) {
-                  elements.push(
-                    <div key="rectangle-ad" className="col-span-1 sm:col-span-2 lg:col-span-3">
-                      <AdSlot size="leaderboard" ad={null} />
-                    </div>
-                  );
-                }
-
-                return elements;
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </>
         )}
+
+        {/* Bottom leaderboard ad */}
+        <div className="mt-10">
+          <AdRotator ads={leaderboardAds} size="leaderboard" />
+        </div>
       </main>
 
       <Footer />

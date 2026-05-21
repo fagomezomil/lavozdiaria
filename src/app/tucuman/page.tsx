@@ -1,6 +1,6 @@
 import SectionPageLayout from "@/components/SectionPageLayout";
 import { fetchSectionArticles } from "@/lib/api";
-import { getActiveAds, pickAd } from "@/lib/ads";
+import { getActiveAds } from "@/lib/ads";
 import { getArticlesBySection, articles } from "@/lib/data";
 import { getActiveArticles } from "@/lib/articles";
 import { getActiveSponsored } from "@/lib/sponsored";
@@ -49,8 +49,8 @@ export default async function TucumanPage() {
     [...customArticles, ...(apiArticles ?? getArticlesBySection("tucuman"))],
     sponsoredContent.map(sponsoredToArticle),
   );
-  const leaderboardAd = pickAd(ads, "leaderboard");
-  const inFeedAd = pickAd(ads, "infeed");
+  const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
+  const rectangleAds = ads.filter((a) => a.type === "rectangle");
 
   return (
     <SectionPageLayout
@@ -58,8 +58,8 @@ export default async function TucumanPage() {
       articles={sectionArticles}
       subtitle="Noticias de la provincia de Tucumán y la región del NOA."
       allArticles={apiArticles ? [...customArticles, ...articles, ...apiArticles] : [...customArticles, ...articles]}
-      leaderboardAd={leaderboardAd}
-      inFeedAd={inFeedAd}
+      leaderboardAds={leaderboardAds}
+      rectangleAds={rectangleAds}
       sponsoredIds={sponsoredIds}
     />
   );

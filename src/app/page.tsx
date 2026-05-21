@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import BreakingNews from "@/components/BreakingNews";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
+import AdRotator from "@/components/AdRotator";
 import AdInFeed from "@/components/AdInFeed";
 import AdModal from "@/components/AdModal";
 import AdStickyFooter from "@/components/AdStickyFooter";
@@ -19,7 +20,7 @@ import {
   fetchBreakingNews,
   fetchHomepageArticles,
 } from "@/lib/api";
-import { getActiveAds, pickAd, pickAds } from "@/lib/ads";
+import { getActiveAds, pickAd } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
 import { getActiveSponsored } from "@/lib/sponsored";
 
@@ -51,11 +52,10 @@ export default async function Home() {
     getActiveSponsored(undefined, true),
   ]);
 
-  const [leaderboard1, leaderboard2, leaderboard3] = pickAds(ads, "leaderboard", 3);
-  const rectangleAds = pickAds(ads, "rectangle", 3);
+  const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
+  const rectangleAds = ads.filter((a) => a.type === "rectangle");
   const modalAd = pickAd(ads, "modal");
   const stickyFooterAd = pickAd(ads, "sticky_footer");
-  const inFeedAd = pickAd(ads, "infeed");
 
   // Merge custom breaking news with API breaking news
   const customBreaking = customArticles.filter((a) => a.breaking);
@@ -111,7 +111,7 @@ export default async function Home() {
       <BreakingNews articles={breaking} />
 
       {/* Leaderboard ad */}
-      <AdSlot size="leaderboard" className="max-w-7xl mx-auto my-4" ad={leaderboard1} />
+      <AdRotator ads={leaderboardAds} size="leaderboard" className="max-w-7xl mx-auto my-4" />
 
       <main className="max-w-7xl mx-auto pb-4">
         {/* Urgente articles — full-width red alerts */}
@@ -132,7 +132,7 @@ export default async function Home() {
 
         {/* Leaderboard ad */}
         <AnimateIn delay={0.1}>
-          <AdSlot size="leaderboard" className="mb-10" ad={leaderboard2} />
+          <AdRotator ads={leaderboardAds} size="leaderboard" className="mb-10" />
         </AnimateIn>
 
         {/* Secondary featured */}
@@ -203,7 +203,7 @@ export default async function Home() {
                 <div className="border-t border-border pt-6 mt-2 mb-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[0, 1, 2].map((i) => (
-                      <AdSlot key={i} size="rectangle" ad={rectangleAds[i] || undefined} />
+                      <AdRotator key={i} ads={rectangleAds} size="rectangle" />
                     ))}
                   </div>
                 </div>
@@ -214,7 +214,7 @@ export default async function Home() {
 
         {/* Bottom leaderboard ad */}
         <AnimateIn direction="up" delay={0.1}>
-          <AdSlot size="leaderboard" className="mb-10" ad={leaderboard3} />
+          <AdRotator ads={leaderboardAds} size="leaderboard" className="mb-10" />
         </AnimateIn>
       </main>
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Article, Ad, sectionConfig } from "@/lib/types";
 import AdSlot from "@/components/AdSlot";
+import AdRotator from "@/components/AdRotator";
 import AnimateIn from "@/components/animate/AnimateIn";
 import FontSizeControl from "@/components/FontSizeControl";
 import ShareButtons from "@/components/ShareButtons";
@@ -69,8 +70,8 @@ function extractHighlight(paragraphs: string[]): string | null {
 interface ArticleDetailProps {
   article: Article;
   related: Article[];
-  leaderboardAd?: Ad | null;
-  sidebarAd?: Ad | null;
+  leaderboardAds?: Ad[];
+  sidebarAds?: Ad[];
   isCustom?: boolean;
   isSponsored?: boolean;
   sponsoredSidebar?: Article[];
@@ -80,8 +81,8 @@ interface ArticleDetailProps {
 export default function ArticleDetail({
   article,
   related,
-  leaderboardAd,
-  sidebarAd,
+  leaderboardAds = [],
+  sidebarAds = [],
   isCustom = false,
   isSponsored = false,
   sponsoredSidebar = [],
@@ -345,7 +346,7 @@ export default function ArticleDetail({
 
           {/* Leaderboard ad — after all content */}
           <div className="mt-10">
-            <AdSlot size="leaderboard" ad={leaderboardAd} />
+            <AdRotator ads={leaderboardAds} size="leaderboard" />
           </div>
 
           {/* Share / back link */}
@@ -393,7 +394,11 @@ export default function ArticleDetail({
             ))}
           </div>
           <div className="mt-4">
-            <AdSlot size="sidebar" ad={sidebarAd} />
+            {/* 4 sidebar ad rotator slots — each rotates independently */}
+            {sidebarAds.length > 0 && <div className="mb-4"><AdRotator ads={sidebarAds} size="sidebar" /></div>}
+            {sidebarAds.length > 1 && <div className="mb-4"><AdRotator ads={sidebarAds} size="sidebar" /></div>}
+            {sidebarAds.length > 2 && <div className="mb-4"><AdRotator ads={sidebarAds} size="sidebar" /></div>}
+            {sidebarAds.length > 3 && <div className="mb-4"><AdRotator ads={sidebarAds} size="sidebar" /></div>}
           </div>
           {sponsoredSidebar.length > 0 && (
             <div className="mt-6">

@@ -16,6 +16,7 @@ export interface Ad {
   client_name?: string | null;
   active: boolean;
   priority: number;
+  display_duration: number;
   starts_at: string | null;
   expires_at: string | null;
   created_at: string;
