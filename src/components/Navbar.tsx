@@ -67,6 +67,20 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/clima"
+                className="block px-4 py-2.5 text-xs tracking-widest uppercase text-white font-bold transition-all hover:text-white"
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.backgroundColor = "#0ea5e9";
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.backgroundColor = "";
+                }}
+              >
+                Clima
+              </Link>
+            </li>
           </ul>
           <div
             className="shrink-0 ml-4 transition-all duration-300"
@@ -145,6 +159,16 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
+          <li>
+            <Link
+              href="/clima"
+              className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-bold transition-colors"
+              style={{ backgroundColor: "#0ea5e9" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              Clima
+            </Link>
+          </li>
           <li className="border-t border-white/10 px-6 py-3">
             {user ? (
               <div className="space-y-3">

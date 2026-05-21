@@ -1,7 +1,10 @@
 import Link from "next/link";
 import HeaderAuth from "@/components/HeaderAuth";
+import WeatherBadge from "@/components/WeatherBadge";
+import SocialLinks from "@/components/SocialLinks";
+import { fetchCurrentWeather, TUCUMAN_NAME } from "@/lib/weather";
 
-export default function Header() {
+export default async function Header() {
   const today = new Date().toLocaleDateString("es-ES", {
     weekday: "long",
     year: "numeric",
@@ -9,12 +12,26 @@ export default function Header() {
     day: "numeric",
   });
 
+  const weather = await fetchCurrentWeather();
+
   return (
     <header className="bg-ink text-white" style={{ overflow: "visible" }}>
       {/* Top bar */}
       <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs tracking-wider uppercase text-muted" style={{ overflow: "visible", position: "relative", zIndex: 60 }}>
-        <span>{today}</span>
-        <HeaderAuth />
+        <div className="flex items-center gap-3">
+          <span>{today}</span>
+          {weather && (
+            <WeatherBadge
+              temperature={weather.current.temperature}
+              weatherIcon={weather.current.weatherIcon}
+              cityName={TUCUMAN_NAME}
+            />
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          <SocialLinks />
+          <HeaderAuth />
+        </div>
       </div>
 
       {/* Masthead */}

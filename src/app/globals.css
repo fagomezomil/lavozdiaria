@@ -23,6 +23,7 @@
   --color-rule: #c8c3bb;
   --color-brand: #c8102e;
   --color-focus: #3b82f6;
+  --color-clima: #0ea5e9;
   --color-admin-bg: #f0efed;
 }
 
@@ -37,6 +38,7 @@
   --color-rule: #c8c3bb;
   --color-brand: #c8102e;
   --color-focus: #3b82f6;
+  --color-clima: #0ea5e9;
   --color-admin-bg: #f0efed;
   --color-politica: #e63946;
   --color-deportes: #3b82f6;
@@ -132,6 +134,14 @@ h6 {
   background-color: var(--color-tucuman);
 }
 
+.text-clima {
+  color: var(--color-clima);
+}
+
+.bg-clima {
+  background-color: var(--color-clima);
+}
+
 @keyframes marquee {
   0% {
     transform: translateX(0%);
@@ -182,6 +192,16 @@ article.group:hover {
 
 .article-body p:last-child {
   margin-bottom: 0;
+}
+
+/* Urgente pulse — red scan line */
+@keyframes urgente-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-urgente-pulse {
+  animation: urgente-pulse 1.5s ease-in-out infinite;
 }
 
 /* Ad overlay animation */

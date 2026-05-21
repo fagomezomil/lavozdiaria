@@ -207,35 +207,53 @@ export default function ArticleCard({
   if (variant === "urgente") {
     return (
       <article className="group">
-        <Link href={href} className="block relative w-full min-h-[400px] md:min-h-[530px] overflow-hidden">
+        <Link
+          href={href}
+          className="block relative w-full min-h-[550px] md:min-h-[680px] overflow-hidden border-t-4 border-[#c8102e]"
+        >
           {article.imageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={article.imageUrl}
               alt={article.imageAlt}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
             />
           ) : (
-            <div className="absolute inset-0 bg-[#e63946]" />
+            <div className="absolute inset-0 bg-[#1a1a1a]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 bg-[#e63946] p-4 md:p-6">
-            <span className="text-[10px] font-bold tracking-widest uppercase text-white/70">
-              {cfg.label}
-            </span>
-            <div className="mt-1">
-              <span className="text-[13px] font-bold tracking-widest uppercase bg-black text-white px-2 py-0.5">
+          {/* Double gradient: heavy bottom for text, subtle top vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+          {/* Red scan line — animated pulse at top */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#c8102e] animate-urgente-pulse" />
+          {/* Content */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 lg:p-10">
+            {/* Urgente label + section */}
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-[11px] font-bold tracking-[0.2em] uppercase bg-[#c8102e] text-white px-3 py-1">
                 URGENTE
               </span>
+              <span className="text-[11px] font-bold tracking-widest uppercase text-white/50">
+                {cfg.label}
+              </span>
             </div>
-            <h2 className="mt-1 text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white font-[family-name:var(--font-heading)] group-hover:underline decoration-2 underline-offset-4">
+            {/* Headline — massive, white, Playfair weight */}
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black leading-[1.1] tracking-tight text-white font-[family-name:var(--font-heading)] group-hover:underline decoration-2 underline-offset-4 decoration-[#c8102e]">
               {article.title}
             </h2>
-            <div className="mt-2 text-xs text-white/60">
+            {/* Excerpt — if present */}
+            {article.excerpt && (
+              <p className="mt-3 text-base md:text-lg text-white/70 leading-relaxed max-w-3xl line-clamp-2">
+                {article.excerpt}
+              </p>
+            )}
+            {/* Byline */}
+            <div className="mt-4 text-xs text-white/40 tracking-wide">
               {byline && <>{byline} · </>}
               {article.date}
             </div>
           </div>
+          {/* Bottom red rule */}
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#c8102e]" />
         </Link>
       </article>
     );

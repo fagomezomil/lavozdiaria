@@ -257,9 +257,9 @@ export async function backfillDetails(limit = 10): Promise<{ backfilled: number;
       // skip
     }
 
-    // 1 second delay between each article to avoid rate limits
+    // 1.5s delay between each article to avoid rate limits
     if (i < data.length - 1) {
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
@@ -327,17 +327,14 @@ export async function getCachedArticles(section: Section): Promise<Article[]> {
     (row) => !row.image_url && !row.body
   );
   if (incomplete.length > 0) {
-    // Backfill first 2 immediately, rest in background
-    const immediate = incomplete.slice(0, 2);
-    for (const row of immediate) {
-      backfillArticle(row).catch(() => {});
-    }
-    if (incomplete.length > 2) {
+    // Backfill first article immediately, rest in background with delay
+    backfillArticle(incomplete[0]).catch(() => {});
+    if (incomplete.length > 1) {
       setTimeout(async () => {
-        const rest = incomplete.slice(2);
+        const rest = incomplete.slice(1);
         for (const row of rest) {
           await backfillArticle(row).catch(() => {});
-          await new Promise((r) => setTimeout(r, 1000));
+          await new Promise((r) => setTimeout(r, 1500));
         }
       }, 3000);
     }
