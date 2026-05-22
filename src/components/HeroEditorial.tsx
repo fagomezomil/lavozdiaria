@@ -33,7 +33,7 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
       {/* Lead story — 2/3 width */}
       <Link
         href={`/${lead.section}/${lead.id}`}
-        className="lg:col-span-2 group relative overflow-hidden rounded-sm bg-paper min-h-[320px] md:min-h-[420px]"
+        className="lg:col-span-2 group relative overflow-hidden rounded-sm bg-paper min-h-[240px] md:min-h-[420px]"
       >
         {lead.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -63,7 +63,7 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Text overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
           {leadCfg && (
             <span
               className="text-[11px] font-bold tracking-widest uppercase"
@@ -72,7 +72,7 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
               {leadCfg.label}
             </span>
           )}
-          <h2 className="text-xl md:text-3xl font-bold text-white leading-tight font-[family-name:var(--font-heading)] line-clamp-3 mt-1">
+          <h2 className="text-lg md:text-3xl font-bold text-white leading-tight font-[family-name:var(--font-heading)] line-clamp-2 md:line-clamp-3 mt-1">
             {lead.title}
           </h2>
           {lead.excerpt && (
@@ -90,7 +90,7 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
         </div>
       </Link>
 
-      {/* Secondary stories — 1/3 width */}
+      {/* Secondary stories — 1/3 width (desktop) */}
       <aside className="hidden lg:flex flex-col">
         <h2 className="text-sm tracking-widest uppercase text-muted mb-4 font-bold border-b-2 border-ink pb-2">
           Destacadas
@@ -156,6 +156,49 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
           })}
         </div>
       </aside>
+
+      {/* Mobile: horizontal scroll for secondary stories */}
+      <div className="flex lg:hidden gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
+        {articles.map((a, i) => {
+          const aCfg = sectionConfig[a.section as keyof typeof sectionConfig];
+          return (
+            <Link
+              key={a.id}
+              href={`/${a.section}/${a.id}`}
+              className="shrink-0 w-[200px] snap-start group"
+            >
+              {a.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={a.imageUrl}
+                  alt={a.imageAlt}
+                  className="w-full h-28 object-cover rounded-sm border-t-2"
+                  style={{ borderTopColor: aCfg?.color }}
+                />
+              ) : (
+                <div
+                  className="w-full h-28 rounded-sm flex items-center justify-center border-t-2"
+                  style={{
+                    borderTopColor: aCfg?.color,
+                    background: aCfg ? `linear-gradient(135deg, ${aCfg.color}20, ${aCfg.color}08)` : undefined,
+                  }}
+                >
+                  <span className="text-xl font-[family-name:var(--font-heading)] opacity-20" style={{ color: aCfg?.color }}>LV</span>
+                </div>
+              )}
+              <span
+                className="text-[11px] font-bold tracking-widest uppercase mt-1.5 block"
+                style={{ color: aCfg?.color }}
+              >
+                {aCfg?.label}
+              </span>
+              <h3 className="text-[15px] font-semibold leading-snug font-[family-name:var(--font-heading)] line-clamp-2 mt-0.5">
+                {a.title}
+              </h3>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

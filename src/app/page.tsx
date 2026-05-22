@@ -23,6 +23,8 @@ import {
 import { getActiveAds, pickAd } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
 import { getActiveSponsored } from "@/lib/sponsored";
+import { fetchCurrentWeather } from "@/lib/weather";
+import WeatherStrip from "@/components/WeatherStrip";
 
 function sponsoredToArticle(s: SponsoredContent): Article {
   return {
@@ -44,12 +46,13 @@ function sponsoredToArticle(s: SponsoredContent): Article {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [breakingData, sectionData, ads, customArticles, sponsoredContent] = await Promise.all([
+  const [breakingData, sectionData, ads, customArticles, sponsoredContent, weather] = await Promise.all([
     fetchBreakingNews(),
     fetchHomepageArticles(),
     getActiveAds(),
     getActiveArticles(),
     getActiveSponsored(undefined, true),
+    fetchCurrentWeather(),
   ]);
 
   const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
@@ -202,10 +205,21 @@ export default async function Home() {
               {index === 1 && (
                 <div className="border-t border-border pt-6 mt-2 mb-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[0, 1, 2].map((i) => (
-                      <AdRotator key={i} ads={rectangleAds} size="rectangle" />
-                    ))}
+                    <AdRotator ads={rectangleAds} size="rectangle" />
+                    <div className="hidden sm:block">
+                      <AdRotator ads={rectangleAds} size="rectangle" />
+                    </div>
+                    <div className="hidden lg:block">
+                      <AdRotator ads={rectangleAds} size="rectangle" />
+                    </div>
                   </div>
+                </div>
+              )}
+
+              {/* Weather strip after Economia (index 2) */}
+              {index === 2 && (
+                <div className="mb-10">
+                  <WeatherStrip weather={weather} />
                 </div>
               )}
             </AnimateIn>

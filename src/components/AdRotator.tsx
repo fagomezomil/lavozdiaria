@@ -12,9 +12,9 @@ interface AdRotatorProps {
 }
 
 const sizeStyles: Record<string, string> = {
-  leaderboard: "w-full h-32 md:h-[90px]",
-  rectangle: "w-full h-[250px]",
-  sidebar: "w-full h-[250px]",
+  leaderboard: "w-full h-[50px] md:h-[90px]",
+  rectangle: "w-full h-[150px] md:h-[250px]",
+  sidebar: "w-full h-[150px] md:h-[250px]",
   infeed: "w-full",
   sticky_footer: "w-full h-[50px]",
 };
@@ -130,7 +130,7 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
       </picture>
       <button
         onClick={handleDismiss}
-        className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-0 group-hover/ad:opacity-100 transition-opacity"
+        className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-100 md:opacity-0 md:group-hover/ad:opacity-100 transition-opacity"
         aria-label="Ocultar aviso"
       >
         &times;
@@ -184,7 +184,7 @@ function SingleAd({
           e.stopPropagation();
           handleDismiss();
         }}
-        className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-0 group-hover/ad:opacity-100 transition-opacity"
+        className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-100 md:opacity-0 md:group-hover/ad:opacity-100 transition-opacity"
         aria-label="Ocultar aviso"
       >
         &times;

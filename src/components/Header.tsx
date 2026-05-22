@@ -19,7 +19,7 @@ export default async function Header() {
       {/* Top bar */}
       <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs tracking-wider uppercase text-muted" style={{ overflow: "visible", position: "relative", zIndex: 60 }}>
         <div className="flex items-center gap-3">
-          <span>{today}</span>
+          <span className="hidden md:inline">{today}</span>
           {weather && (
             <WeatherBadge
               temperature={weather.current.temperature}
