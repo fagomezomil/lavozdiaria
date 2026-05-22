@@ -124,24 +124,46 @@ if (typeof process !== "undefined" && process.env) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
 }
 
-async function fetchFromApi<T>(path: string): Promise<T | null> {
+// --- Rate limiter for FreeNews API ---
+let lastApiCall = 0;
+const MIN_API_INTERVAL = 1500; // 1.5s between API calls
+
+async function rateLimitedFetch(path: string, init?: RequestInit): Promise<Response> {
+  const now = Date.now();
+  const waitMs = Math.max(0, MIN_API_INTERVAL - (now - lastApiCall));
+  if (waitMs > 0) await new Promise((r) => setTimeout(r, waitMs));
+  lastApiCall = Date.now();
+  return fetch(`${API_BASE}${path}`, init);
+}
+
+async function fetchFromApi<T>(path: string, retries = 2): Promise<T | null> {
   if (!API_KEY) {
     console.error("[sync] FREENEWS_API_KEY is not set");
     return null;
   }
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: { "x-api-key": API_KEY },
-    });
-    if (!res.ok) {
-      console.error(`[sync] API error ${res.status} for ${path}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await rateLimitedFetch(path, {
+        headers: { "x-api-key": API_KEY },
+      });
+      if (res.status === 429 && attempt < retries) {
+        const backoff = 3000 * (attempt + 1); // 3s, 6s
+        console.warn(`[sync] Rate limited (429) for ${path}, retrying in ${backoff}ms...`);
+        await new Promise((r) => setTimeout(r, backoff));
+        continue;
+      }
+      if (!res.ok) {
+        console.error(`[sync] API error ${res.status} for ${path}`);
+        return null;
+      }
+      return (await res.json()) as T;
+    } catch (err) {
+      console.error(`[sync] Fetch failed for ${path}:`, err);
       return null;
     }
-    return (await res.json()) as T;
-  } catch (err) {
-    console.error(`[sync] Fetch failed for ${path}:`, err);
-    return null;
   }
+  console.error(`[sync] All retries exhausted for ${path}`);
+  return null;
 }
 
 async function syncSection(section: Section): Promise<number> {
@@ -248,18 +270,12 @@ export async function backfillDetails(limit = 10): Promise<{ backfilled: number;
   const errors: string[] = [];
   let backfilled = 0;
 
-  // Process one at a time with delay to avoid 429 rate limiting
   for (let i = 0; i < data.length; i++) {
     try {
       await backfillArticle({ id: data[i].id } as Record<string, unknown>);
       backfilled++;
     } catch {
       // skip
-    }
-
-    // 1.5s delay between each article to avoid rate limits
-    if (i < data.length - 1) {
-      await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
@@ -322,22 +338,17 @@ export async function getCachedArticles(section: Section): Promise<Article[]> {
 
   if (error || !data?.length) return [];
 
-  // Backfill articles missing details (sequential with delay to avoid 429)
+  // Backfill articles missing details (rate limiter handles throttling)
   const incomplete = (data as Record<string, unknown>[]).filter(
     (row) => !row.image_url && !row.body
   );
   if (incomplete.length > 0) {
-    // Backfill first article immediately, rest in background with delay
-    backfillArticle(incomplete[0]).catch(() => {});
-    if (incomplete.length > 1) {
-      setTimeout(async () => {
-        const rest = incomplete.slice(1);
-        for (const row of rest) {
-          await backfillArticle(row).catch(() => {});
-          await new Promise((r) => setTimeout(r, 1500));
-        }
-      }, 3000);
-    }
+    // Backfill in background — rate limiter handles delays between calls
+    (async () => {
+      for (const row of incomplete) {
+        await backfillArticle(row).catch(() => {});
+      }
+    })();
   }
 
   return data.map((row: Record<string, unknown>) => ({
@@ -432,14 +443,16 @@ export async function getCachedBreakingNews(): Promise<Article[] | null> {
 
   if (error || !data?.length) return null;
 
-  // Backfill incomplete breaking news (sequential to avoid 429)
+  // Backfill incomplete breaking news (rate limiter handles throttling)
   const incomplete = (data as Record<string, unknown>[]).filter(
     (row) => !row.image_url && !row.body
   );
   if (incomplete.length > 0) {
-    for (const row of incomplete.slice(0, 2)) {
-      backfillArticle(row).catch(() => {});
-    }
+    (async () => {
+      for (const row of incomplete.slice(0, 2)) {
+        await backfillArticle(row).catch(() => {});
+      }
+    })();
   }
 
   return data.map((row: Record<string, unknown>) => ({
