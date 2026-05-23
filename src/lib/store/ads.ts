@@ -2,10 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AdState {
-  dismissedIds: string[];
-  dismiss: (id: string) => void;
-  isDismissed: (id: string) => boolean;
-
   // Modal frequency capping
   modalShownSession: boolean;
   modalShownTimestamps: number[];
@@ -18,15 +14,6 @@ const MAX_MODAL_PER_DAY = 3;
 export const useAdStore = create<AdState>()(
   persist(
     (set, get) => ({
-      dismissedIds: [],
-      dismiss: (id: string) =>
-        set((state) => ({
-          dismissedIds: state.dismissedIds.includes(id)
-            ? state.dismissedIds
-            : [...state.dismissedIds, id],
-        })),
-      isDismissed: (id: string) => get().dismissedIds.includes(id),
-
       // Modal frequency capping
       modalShownSession: false,
       modalShownTimestamps: [],
@@ -49,7 +36,6 @@ export const useAdStore = create<AdState>()(
     }),
     {
       name: "lv-ads",
-      // Use sessionStorage so dismissed ads and modal caps reset on new sessions
       storage: {
         getItem: (name) => {
           const str = sessionStorage.getItem(name);
@@ -62,10 +48,8 @@ export const useAdStore = create<AdState>()(
           sessionStorage.removeItem(name);
         },
       },
-      // Only persist these fields to sessionStorage; modalShownSession resets each session
       partialize: (state) =>
         ({
-          dismissedIds: state.dismissedIds,
           modalShownTimestamps: state.modalShownTimestamps,
         }) as unknown as AdState,
     },

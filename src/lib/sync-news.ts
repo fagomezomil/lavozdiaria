@@ -118,10 +118,16 @@ function getSupabaseAdmin() {
   return createClient(url, key);
 }
 
-// Ensure SSL verification is disabled for FreeNewsApi (they have cert issues)
-// This is also set via Netlify env var NODE_TLS_REJECT_UNAUTHORIZED=0
-if (typeof process !== "undefined" && process.env) {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
+// FreeNewsApi has SSL cert issues — temporarily disable TLS verification only for those requests
+const FREENEWS_HOST = "api.freenewsapi.io";
+
+function withFreeNewsTls<T>(fn: () => Promise<T>): Promise<T> {
+  if (typeof window !== "undefined") return fn();
+  const orig = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  return fn().finally(() => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = orig;
+  });
 }
 
 // --- Rate limiter for FreeNews API ---
@@ -133,7 +139,7 @@ async function rateLimitedFetch(path: string, init?: RequestInit): Promise<Respo
   const waitMs = Math.max(0, MIN_API_INTERVAL - (now - lastApiCall));
   if (waitMs > 0) await new Promise((r) => setTimeout(r, waitMs));
   lastApiCall = Date.now();
-  return fetch(`${API_BASE}${path}`, init);
+  return withFreeNewsTls(() => fetch(`${API_BASE}${path}`, init));
 }
 
 async function fetchFromApi<T>(path: string, retries = 2): Promise<T | null> {

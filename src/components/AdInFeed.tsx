@@ -2,36 +2,16 @@
 
 import type { Ad } from "@/lib/types";
 import Link from "next/link";
-import { useAdStore } from "@/lib/store/ads";
 
 interface AdInFeedProps {
   ad: Ad;
 }
 
 export default function AdInFeed({ ad }: AdInFeedProps) {
-  const dismissed = useAdStore((s) => s.dismissedIds.includes(ad.id));
-  const dismiss = useAdStore((s) => s.dismiss);
-
-  if (dismissed) return null;
-
-  const handleDismiss = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dismiss(ad.id);
-  };
-
   const imgSrc = ad.mobile_image_url || ad.image_url;
 
   return (
     <div className="bg-paper border border-border overflow-hidden group/ad rounded-sm relative">
-      {/* Dismiss button */}
-      <button
-        onClick={handleDismiss}
-        className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-full text-white text-xs opacity-0 group-hover/ad:opacity-100 transition-opacity"
-        aria-label="Ocultar aviso"
-      >
-        &times;
-      </button>
       <Link
         href={ad.link_url || "#"}
         target={ad.link_url ? "_blank" : undefined}
