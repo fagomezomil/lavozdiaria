@@ -67,3 +67,33 @@ export async function requireEditor() {
 
   return { supabase, user, profile };
 }
+
+/** Returns the current user's role, or null if not authenticated.
+ *  Use in server actions where redirect() cannot be used. */
+export async function getUserRole(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  return profile?.role ?? null;
+}
+
+/** Verifies the current user is admin. Throws if not.
+ *  Use in server actions where redirect() cannot be used. */
+export async function requireAdminAction() {
+  const role = await getUserRole();
+  if (role !== "admin") throw new Error("No autorizado");
+}
+
+/** Verifies the current user is admin or editor. Throws if not.
+ *  Use in server actions where redirect() cannot be used. */
+export async function requireEditorAction() {
+  const role = await getUserRole();
+  if (role !== "admin" && role !== "editor") throw new Error("No autorizado");
+}

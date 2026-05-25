@@ -39,17 +39,15 @@ export default function WeatherStrip({ weather }: WeatherStripProps) {
           <span>Sensación {current.apparentTemperature}°</span>
           <span className="text-border">|</span>
           <span>{current.humidity}%</span>
-          <span className="text-border">|</span>
-          <span>{current.windSpeed} km/h</span>
         </div>
       </div>
 
       {/* Desktop layout */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 py-3 items-center gap-4">
         {/* Hoy label */}
-        <div className="flex flex-col items-center shrink-0">
+        <div className="flex flex-col items-center shrink-0 max-w-[90px]">
           <span className="text-xl font-black font-[family-name:var(--font-heading)] text-clima leading-none">Hoy</span>
-          <span className="text-xs text-muted leading-tight">{current.weatherDescription}</span>
+          <p className="text-xs text-muted leading-tight text-center">{current.weatherDescription}</p>
         </div>
 
         {/* Current temperature */}
@@ -70,11 +68,6 @@ export default function WeatherStrip({ weather }: WeatherStripProps) {
           <div className="flex flex-col items-center">
             <span className="text-muted/60">Humedad</span>
             <span className="font-semibold text-ink">{current.humidity}%</span>
-          </div>
-          <div className="w-px h-5 bg-border" />
-          <div className="flex flex-col items-center">
-            <span className="text-muted/60">Viento</span>
-            <span className="font-semibold text-ink">{current.windSpeed} km/h</span>
           </div>
         </div>
 

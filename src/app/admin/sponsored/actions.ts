@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, requireEditorAction } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 interface SponsoredPayload {
@@ -25,12 +25,13 @@ interface SponsoredPayload {
 }
 
 export async function saveSponsored(payload: SponsoredPayload) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return { error: "No autenticado" };
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado" };
   }
+
+  const supabase = await createClient();
 
   if (payload.id) {
     const { id, ...data } = payload;
@@ -63,12 +64,13 @@ export async function saveSponsored(payload: SponsoredPayload) {
 }
 
 export async function uploadSponsoredImage(formData: FormData) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return { error: "No autenticado", url: null };
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado", url: null };
   }
+
+  const supabase = await createClient();
 
   const file = formData.get("file") as File;
   if (!file) {

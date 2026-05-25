@@ -1,6 +1,6 @@
 import { requireEditor } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AdminLayout from "@/components/admin/AdminLayout";
+import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
 import ArticleForm from "@/components/admin/ArticleForm";
 import { getArticleById } from "@/lib/articles";
 import Link from "next/link";
@@ -18,7 +18,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
   if (!article) redirect("/admin/articles");
 
   return (
-    <AdminLayout role={profile.role} email={user.email!} activeTab="notas">
+    <AdminSiteLayout role={profile.role} email={user.email!}>
       <div className="mb-6">
         <Link href="/admin/articles" className="text-sm text-muted hover:text-foreground transition-colors">
           &larr; Volver a Notas
@@ -27,6 +27,6 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
 
       <h2 className="text-lg font-bold mb-6">Editar Nota</h2>
       <ArticleForm article={article} />
-    </AdminLayout>
+    </AdminSiteLayout>
   );
 }

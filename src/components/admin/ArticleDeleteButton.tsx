@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { deleteArticle } from "@/app/admin/articles/deleteAction";
 
 export default function ArticleDeleteButton({ id }: { id: string }) {
   const router = useRouter();
@@ -9,11 +9,9 @@ export default function ArticleDeleteButton({ id }: { id: string }) {
   const handleDelete = async () => {
     if (!confirm("¿Estás seguro de que querés eliminar esta nota?")) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from("articles").delete().eq("id", id);
-
-    if (error) {
-      alert("Error al eliminar: " + error.message);
+    const result = await deleteArticle(id);
+    if (result.error) {
+      alert("Error al eliminar: " + result.error);
       return;
     }
 

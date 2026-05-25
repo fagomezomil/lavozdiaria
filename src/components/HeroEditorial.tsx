@@ -80,10 +80,10 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
               {lead.excerpt}
             </p>
           )}
-          {(lead.author || lead.date) && (
+          {((lead.author ?? lead.publisher) || lead.date) && (
             <p className="mt-2 text-xs text-white/50">
-              {lead.author && <span>{lead.author}</span>}
-              {lead.author && lead.date && <span> · </span>}
+              {(lead.author ?? lead.publisher) && <span>{lead.author ?? lead.publisher}</span>}
+              {(lead.author ?? lead.publisher) && lead.date && <span> · </span>}
               {lead.date && <span>{lead.date}</span>}
             </p>
           )}
@@ -143,10 +143,10 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
                   >
                     {a.title}
                   </h3>
-                  {(a.author || a.date) && (
+                  {((a.author ?? a.publisher) || a.date) && (
                     <p className="text-xs text-muted mt-1.5">
-                      {a.author && <span>{a.author}</span>}
-                      {a.author && a.date && <span> · </span>}
+                      {(a.author ?? a.publisher) && <span>{a.author ?? a.publisher}</span>}
+                      {(a.author ?? a.publisher) && a.date && <span> · </span>}
                       {a.date && <span>{a.date}</span>}
                     </p>
                   )}

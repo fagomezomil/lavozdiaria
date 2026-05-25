@@ -1,5 +1,5 @@
 import { requireEditor } from "@/lib/supabase/server";
-import AdminLayout from "@/components/admin/AdminLayout";
+import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
 import SponsoredForm from "@/components/admin/SponsoredForm";
 import { getClients } from "@/lib/clients";
 import Link from "next/link";
@@ -10,12 +10,11 @@ interface NewSponsoredPageProps {
 
 export default async function NewSponsoredPage({ searchParams }: NewSponsoredPageProps) {
   const { user, profile } = await requireEditor();
-  const role = profile?.role ?? "editor";
   const { client_id } = await searchParams;
   const clients = await getClients();
 
   return (
-    <AdminLayout role={role} email={user.email!} activeTab="patrocinados">
+    <AdminSiteLayout role={profile.role} email={user.email!}>
       <div className="mb-6">
         <Link href="/admin/sponsored" className="text-sm text-muted hover:text-foreground transition-colors">
           &larr; Volver a Contenido Patrocinado
@@ -25,6 +24,6 @@ export default async function NewSponsoredPage({ searchParams }: NewSponsoredPag
       <div className="bg-white rounded-lg border border-border p-6">
         <SponsoredForm initialClientId={client_id} clients={clients.map((c) => ({ id: c.id, name: c.name }))} />
       </div>
-    </AdminLayout>
+    </AdminSiteLayout>
   );
 }

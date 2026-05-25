@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { deleteAd } from "@/app/admin/ads/deleteAction";
 
 export default function AdDeleteButton({ id }: { id: string }) {
   const router = useRouter();
@@ -9,11 +9,9 @@ export default function AdDeleteButton({ id }: { id: string }) {
   const handleDelete = async () => {
     if (!confirm("¿Estás seguro de que querés eliminar este aviso?")) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from("ads").delete().eq("id", id);
-
-    if (error) {
-      alert("Error al eliminar: " + error.message);
+    const result = await deleteAd(id);
+    if (result.error) {
+      alert("Error al eliminar: " + result.error);
       return;
     }
 

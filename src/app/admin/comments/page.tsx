@@ -1,6 +1,6 @@
 import { requireEditor } from "@/lib/supabase/server";
-import AdminLayout from "@/components/admin/AdminLayout";
-import CommentRow from "@/components/admin/CommentRow";
+import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
+import ComentariosDashboard from "@/components/admin/ComentariosDashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -33,36 +33,8 @@ export default async function AdminCommentsPage() {
   const comments = await getComments();
 
   return (
-    <AdminLayout role={profile.role} email={user.email!} activeTab="comentarios">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold">Comentarios</h2>
-        <span className="text-sm text-muted">{comments.length} comentarios</span>
-      </div>
-
-      {comments.length === 0 ? (
-        <div className="bg-white rounded-lg p-12 text-center border border-border">
-          <p className="text-muted">No hay comentarios aún.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-ink text-white">
-              <tr>
-                <th className="px-4 py-2.5 text-left font-semibold">Nota</th>
-                <th className="px-4 py-2.5 text-left font-semibold">Usuario</th>
-                <th className="px-4 py-2.5 text-left font-semibold">Comentario</th>
-                <th className="px-4 py-2.5 text-left font-semibold">Fecha</th>
-                <th className="px-4 py-2.5 text-right font-semibold">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {comments.map((comment: { id: string; article_id: string; user_name: string; content: string; created_at: string; article_title: string }) => (
-                <CommentRow key={comment.id} comment={comment} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </AdminLayout>
+    <AdminSiteLayout role={profile.role} email={user.email!}>
+      <ComentariosDashboard comments={comments} />
+    </AdminSiteLayout>
   );
 }

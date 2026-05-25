@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { CustomArticle, Section, ArticleLayout } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
-import { updateArticle } from "@/app/admin/articles/actions";
+import { updateArticle, createArticle, uploadArticleImage } from "@/app/admin/articles/actions";
 
 const sectionOptions: { value: Section; label: string }[] = Object.entries(sectionConfig).map(
   ([key, cfg]) => ({ value: key as Section, label: cfg.label })
@@ -66,23 +66,15 @@ export default function ArticleForm({ article }: ArticleFormProps) {
 
     // Upload image if a new file was selected
     if (imageFile) {
-      const ext = imageFile.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("articles")
-        .upload(path, imageFile, {
-          upsert: true,
-          contentType: imageFile.type,
-        });
-
-      if (uploadError) {
-        setError("Error al subir la imagen: " + uploadError.message);
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      const uploadResult = await uploadArticleImage(formData);
+      if (uploadResult.error || !uploadResult.url) {
+        setError("Error al subir la imagen: " + uploadResult.error);
         setSaving(false);
         return;
       }
-
-      const { data: urlData } = supabase.storage.from("articles").getPublicUrl(path);
-      imageUrl = urlData.publicUrl;
+      imageUrl = uploadResult.url;
     }
 
     const payload = {
@@ -113,13 +105,10 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         return;
       }
     } else {
-      const { error: insertError, data } = await supabase
-        .from("articles")
-        .insert(payload)
-        .select();
+      const result = await createArticle(payload);
 
-      if (insertError) {
-        setError("Error al crear: " + insertError.message + " (código: " + insertError.code + ")");
+      if (result.error) {
+        setError("Error al crear: " + result.error);
         setSaving(false);
         return;
       }

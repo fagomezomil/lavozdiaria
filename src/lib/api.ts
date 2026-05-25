@@ -13,12 +13,11 @@ const REVALIDATE_BREAKING = 60;
 const REVALIDATE_LISTING = 300;
 const REVALIDATE_DETAIL = 900;
 
-export const SECTION_TOPIC_MAP: Record<Section, string> = {
+export const SECTION_TOPIC_MAP: Partial<Record<Section, string>> = {
   politica: "politics",
   deportes: "sports",
   economia: "business",
   internacionales: "world",
-  tucuman: "tucuman",
 };
 
 // --- API response types ---
@@ -170,15 +169,15 @@ function mapArticleDetail(detail: ArticleDetailData): Article {
 export async function fetchSectionArticles(
   section: Section,
 ): Promise<Article[] | null> {
+  // Scraper handles tucuman — no FreeNewsApi for this section
+  if (section === "tucuman") return null;
+
   // Try cached articles from Supabase first
   const cached = await getCachedArticles(section);
   if (cached.length > 0) return cached;
 
   // Fallback to live API
-  const url =
-    section === "tucuman"
-      ? "/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=12"
-      : `/news?country=ar&language=es&topic=${SECTION_TOPIC_MAP[section]}&page_size=12`;
+  const url = `/news?country=ar&language=es&topic=${SECTION_TOPIC_MAP[section]}&page_size=12`;
 
   const data = await apiFetch<NewsListResponse>(url, REVALIDATE_LISTING);
   if (!data) return null;
@@ -242,13 +241,6 @@ export async function fetchHomepageArticles(): Promise<
 
 function inferSectionFromTitle(title: string): Section {
   const lower = title.toLowerCase();
-  if (
-    lower.includes("tucumán") ||
-    lower.includes("san miguel de tucumán") ||
-    lower.includes("tucumano") ||
-    lower.includes("tucumana")
-  )
-    return "tucuman";
   if (
     lower.includes("presidente") ||
     lower.includes("congreso") ||

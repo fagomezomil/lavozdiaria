@@ -1,23 +1,17 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { toggleRole } from "@/app/admin/users/actions";
 
 export function ToggleRoleForm({ userId, currentRole }: { userId: string; currentRole: string }) {
   const router = useRouter();
 
   const changeRole = async (newRole: string) => {
-    const supabase = createClient();
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({ role: newRole })
-      .eq("id", userId);
-
-    if (!error) {
-      router.refresh();
+    const result = await toggleRole(userId, newRole);
+    if (result.error) {
+      alert("Error al cambiar rol: " + result.error);
     } else {
-      alert("Error al cambiar rol: " + error.message);
+      router.refresh();
     }
   };
 

@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/supabase/server";
 import { getClientById, getClientAds } from "@/lib/clients";
 import { getClientSponsored } from "@/lib/sponsored";
-import AdminLayout from "@/components/admin/AdminLayout";
+import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sectionConfig } from "@/lib/types";
@@ -43,7 +43,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
   const sponsored = await getClientSponsored(id);
 
   return (
-    <AdminLayout role="admin" email={user.email!} activeTab="clientes">
+    <AdminSiteLayout role="admin" email={user.email!}>
       <div className="mb-6">
         <Link href="/admin/clients" className="text-sm text-muted hover:text-foreground transition-colors">
           &larr; Volver a Clientes
@@ -228,15 +228,13 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           })}
         </div>
       )}
-    </AdminLayout>
+    </AdminSiteLayout>
   );
 }
 
 function ToggleAdActiveButton({ adId, currentActive }: { adId: string; currentActive: boolean }) {
-  // This is rendered server-side, but we need client interactivity
-  // Using a simple form that posts to a server action
   return (
-    <form action={async () => { "use server"; const { createClient } = await import("@/lib/supabase/server"); const supabase = await createClient(); await supabase.from("ads").update({ active: !currentActive }).eq("id", adId); }}>
+    <form action={async () => { "use server"; const { toggleAdActive } = await import("@/app/admin/ads/actions"); await toggleAdActive(adId, currentActive); }}>
       <button
         type="submit"
         className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${

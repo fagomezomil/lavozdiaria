@@ -4,12 +4,11 @@ import { Section, ArticleLayout, sectionConfig } from "./types";
 const API_BASE = "https://api.freenewsapi.io/v1";
 const API_KEY = process.env.FREENEWS_API_KEY ?? "";
 
-const SECTION_TOPIC_MAP: Record<Section, string> = {
+const SECTION_TOPIC_MAP: Partial<Record<Section, string>> = {
   politica: "politics",
   deportes: "sports",
   economia: "business",
   internacionales: "world",
-  tucuman: "tucuman",
 };
 
 // --- API response types ---
@@ -118,16 +117,29 @@ function getSupabaseAdmin() {
   return createClient(url, key);
 }
 
-// FreeNewsApi has SSL cert issues — temporarily disable TLS verification only for those requests
+// FreeNewsApi has SSL cert issues — disable TLS verification only for
+// requests to their API. We use a mutex so that concurrent requests
+// don't leave TLS disabled for other connections.
 const FREENEWS_HOST = "api.freenewsapi.io";
 
-function withFreeNewsTls<T>(fn: () => Promise<T>): Promise<T> {
+let tlsMutex: Promise<unknown> = Promise.resolve();
+
+async function withFreeNewsTls<T>(fn: () => Promise<T>): Promise<T> {
   if (typeof window !== "undefined") return fn();
+  // Serialize TLS toggling so concurrent requests never overlap
+  let resolve!: () => void;
+  const next = new Promise<void>((r) => { resolve = r; });
+  const prev = tlsMutex;
+  tlsMutex = next;
+  await prev;
   const orig = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  return fn().finally(() => {
+  try {
+    return await fn();
+  } finally {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = orig;
-  });
+    resolve();
+  }
 }
 
 // --- Rate limiter for FreeNews API ---
@@ -174,10 +186,8 @@ async function fetchFromApi<T>(path: string, retries = 2): Promise<T | null> {
 
 async function syncSection(section: Section): Promise<number> {
   const topic = SECTION_TOPIC_MAP[section];
-  const url =
-    section === "tucuman"
-      ? `/news?country=ar&language=es&in_body=Tucum%C3%A1n&page_size=12`
-      : `/news?country=ar&language=es&topic=${topic}&page_size=12`;
+  if (!topic) return 0; // sections without topic mapping (e.g. tucuman) are skipped
+  const url = `/news?country=ar&language=es&topic=${topic}&page_size=12`;
 
   const listData = await fetchFromApi<NewsListResponse>(url);
   if (!listData?.data?.length) {
@@ -226,6 +236,8 @@ export async function syncAllSections(): Promise<{ synced: number; errors: strin
   let totalSynced = 0;
 
   for (const section of sections) {
+    // Scraper handles tucuman — skip FreeNewsApi for this section
+    if (section === "tucuman") continue;
     try {
       const count = await syncSection(section);
       console.log(`Synced ${count} articles for section ${section}`);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthStore } from "@/lib/store/auth";
 import { useCommentsStore } from "@/lib/store/comments";
 import Link from "next/link";
@@ -13,12 +13,16 @@ export default function CommentForm({ articleId }: CommentFormProps) {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  // Honeypot: hidden field that bots fill but humans don't
+  const honeypotRef = useRef<HTMLInputElement>(null);
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
   const addComment = useCommentsStore((s) => s.addComment);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Honeypot check: if filled, it's a bot
+    if (honeypotRef.current?.value) return;
     if (!content.trim()) return;
 
     setSubmitting(true);
@@ -56,6 +60,17 @@ export default function CommentForm({ articleId }: CommentFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Honeypot: invisible to humans, bots auto-fill hidden fields */}
+      <input
+        type="text"
+        ref={honeypotRef}
+        name="website"
+        autoComplete="off"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute opacity-0 h-0 w-0 pointer-events-none"
+        style={{ position: "absolute", left: "-9999px" }}
+      />
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">
           {profile?.avatar_url ? (

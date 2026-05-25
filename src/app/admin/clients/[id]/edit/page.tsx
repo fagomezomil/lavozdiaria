@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/supabase/server";
 import { getClientById } from "@/lib/clients";
-import AdminLayout from "@/components/admin/AdminLayout";
+import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
 import ClientForm from "@/components/admin/ClientForm";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -17,7 +17,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
   if (!client) redirect("/admin/clients");
 
   return (
-    <AdminLayout role="admin" email={user.email!} activeTab="clientes">
+    <AdminSiteLayout role="admin" email={user.email!}>
       <div className="mb-6">
         <Link href="/admin/clients" className="text-sm text-muted hover:text-foreground transition-colors">
           &larr; Volver a Clientes
@@ -27,6 +27,6 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
       <div className="bg-white rounded-lg border border-border p-6">
         <ClientForm client={client} />
       </div>
-    </AdminLayout>
+    </AdminSiteLayout>
   );
 }

@@ -142,10 +142,10 @@ export default function SectionPageLayout({
                       <h3 className="text-[15px] font-semibold leading-snug font-[family-name:var(--font-heading)] line-clamp-2 mt-0.5 group-hover:underline">
                         {a.title}
                       </h3>
-                      {(a.author || a.date) && (
+                      {((a.author ?? a.publisher) || a.date) && (
                         <p className="text-xs text-muted mt-1">
-                          {a.author && <span>{a.author}</span>}
-                          {a.author && a.date && <span> · </span>}
+                          {(a.author ?? a.publisher) && <span>{a.author ?? a.publisher}</span>}
+                          {(a.author ?? a.publisher) && a.date && <span> · </span>}
                           {a.date && <span>{a.date}</span>}
                         </p>
                       )}

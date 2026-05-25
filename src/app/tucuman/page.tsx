@@ -1,5 +1,4 @@
 import SectionPageLayout from "@/components/SectionPageLayout";
-import { fetchSectionArticles } from "@/lib/api";
 import { getActiveAds } from "@/lib/ads";
 import { getArticlesBySection, articles } from "@/lib/data";
 import { getActiveArticles } from "@/lib/articles";
@@ -37,16 +36,16 @@ function interleaveSponsored(articles: Article[], sponsored: Article[]): Article
 export const revalidate = 300;
 
 export default async function TucumanPage() {
-  const [apiArticles, ads, customArticles, sponsoredContent] = await Promise.all([
-    fetchSectionArticles("tucuman"),
+  const [ads, customArticles, sponsoredContent] = await Promise.all([
     getActiveAds(undefined, "tucuman"),
     getActiveArticles("tucuman"),
     getActiveSponsored("tucuman"),
   ]);
 
   const sponsoredIds = new Set(sponsoredContent.map((s) => s.id));
+  // Scraper provides tucuman articles via the articles table — no FreeNewsApi needed
   const sectionArticles = interleaveSponsored(
-    [...customArticles, ...(apiArticles ?? getArticlesBySection("tucuman"))],
+    [...customArticles, ...getArticlesBySection("tucuman")],
     sponsoredContent.map(sponsoredToArticle),
   );
   const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
@@ -57,7 +56,7 @@ export default async function TucumanPage() {
       section="tucuman"
       articles={sectionArticles}
       subtitle="Noticias de la provincia de Tucumán y la región del NOA."
-      allArticles={apiArticles ? [...customArticles, ...articles, ...apiArticles] : [...customArticles, ...articles]}
+      allArticles={[...customArticles, ...articles]}
       leaderboardAds={leaderboardAds}
       rectangleAds={rectangleAds}
       sponsoredIds={sponsoredIds}

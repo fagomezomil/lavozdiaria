@@ -1,20 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { toggleArticleActive } from "@/app/admin/articles/deleteAction";
 
 export default function ArticleToggleActive({ id, active }: { id: string; active: boolean }) {
   const router = useRouter();
 
   const handleToggle = async () => {
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("articles")
-      .update({ active: !active })
-      .eq("id", id);
-
-    if (error) {
-      alert("Error al actualizar: " + error.message);
+    const result = await toggleArticleActive(id, active);
+    if (result.error) {
+      alert("Error al actualizar: " + result.error);
       return;
     }
 
