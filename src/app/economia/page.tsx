@@ -36,7 +36,14 @@ function interleaveSponsored(articles: Article[], sponsored: Article[]): Article
 
 export const revalidate = 300;
 
-export default async function EconomiaPage() {
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function EconomiaPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const [apiArticles, ads, customArticles, sponsoredContent] = await Promise.all([
     fetchSectionArticles("economia"),
     getActiveAds(undefined, "economia"),
@@ -61,6 +68,7 @@ export default async function EconomiaPage() {
       leaderboardAds={leaderboardAds}
       rectangleAds={rectangleAds}
       sponsoredIds={sponsoredIds}
+      page={page}
     />
   );
 }

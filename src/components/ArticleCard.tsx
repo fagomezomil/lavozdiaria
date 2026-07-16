@@ -29,10 +29,10 @@ function NewsImage({
     if (variant === "compact") {
       return (
         <div
-          className="w-16 h-16 shrink-0 flex items-center justify-center rounded-sm"
-          style={{ background: `linear-gradient(135deg, ${sectionColor}20, ${sectionColor}08)` }}
+          className="w-16 h-16 shrink-0 flex items-center justify-center border-2 border-ink"
+          style={{ background: `linear-gradient(135deg, ${sectionColor}30, ${sectionColor}08)` }}
         >
-          <span className="text-lg font-[family-name:var(--font-heading)] opacity-20" style={{ color: sectionColor }}>
+          <span className="text-lg font-[family-name:var(--font-heading)] opacity-30" style={{ color: sectionColor }}>
             LV
           </span>
         </div>
@@ -40,10 +40,10 @@ function NewsImage({
     }
     return (
       <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ background: `linear-gradient(135deg, ${sectionColor}20, ${sectionColor}08)` }}
+        className="absolute inset-0 flex items-center justify-center halftone"
+        style={{ background: `linear-gradient(135deg, ${sectionColor}20, #0a0a0a 90%)` }}
       >
-        <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10" style={{ color: sectionColor }}>
+        <span className="text-5xl font-[family-name:var(--font-heading)] opacity-20 text-white" style={{ color: sectionColor }}>
           LV
         </span>
       </div>
@@ -52,7 +52,7 @@ function NewsImage({
 
   if (variant === "hero") {
     return (
-      <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden" style={{ borderTop: `2px solid ${sectionColor}` }}>
+      <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden" style={{ borderTop: `3px solid ${sectionColor}` }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
@@ -67,7 +67,7 @@ function NewsImage({
 
   if (variant === "compact") {
     return (
-      <div className="relative w-16 h-16 shrink-0 overflow-hidden rounded-sm">
+      <div className="relative w-16 h-16 shrink-0 overflow-hidden border-2 border-ink">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
@@ -113,26 +113,26 @@ export default function ArticleCard({
             <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="hero" />
           ) : (
             <div
-              className="border-t-2 pt-3"
+              className="border-t-[3px] pt-3"
               style={{ borderTopColor: cfg.color }}
             >
               <span
-                className="text-[11px] font-bold tracking-widest uppercase"
+                className="text-[11px] font-bold tracking-widest uppercase font-[family-name:var(--font-heading)]"
                 style={{ color: cfg.color }}
               >
                 {cfg.label}
               </span>
             </div>
           )}
-          <h2 className="mt-2 text-2xl md:text-3xl font-bold leading-tight font-[family-name:var(--font-heading)] group-hover:underline decoration-2 underline-offset-4">
+          <h2 className="display mt-2 text-2xl md:text-3xl leading-[1.05] group-hover:text-brand transition-colors">
             {article.title}
           </h2>
           {article.excerpt && (
-            <p className="mt-3 text-foreground/80 leading-relaxed">
+            <p className="mt-3 text-foreground/80 leading-relaxed font-[family-name:var(--font-body)]">
               {article.excerpt}
             </p>
           )}
-          <div className="mt-3 flex items-center gap-2 text-xs text-muted">
+          <div className="mt-3 flex items-center gap-2 text-xs text-muted uppercase tracking-wide font-[family-name:var(--font-heading)]">
             {byline && (
               <>
                 <span className="font-semibold text-foreground/70">{byline}</span>
@@ -159,42 +159,40 @@ export default function ArticleCard({
 
   if (variant === "featured") {
     return (
-      <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
+      <article className="group bg-paper border-ink-2 shadow-hard h-full">
         <Link href={href} className="flex flex-col sm:flex-row h-full">
           <div
             className="sm:w-1/2 h-36 sm:h-auto flex items-center justify-center relative overflow-hidden"
-            style={{ borderTop: `2px solid ${cfg.color}` }}
+            style={{ borderTop: `3px solid ${cfg.color}` }}
           >
             {article.imageUrl ? (
               <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
             ) : (
               <div
-                className="absolute inset-0"
-                style={{ background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)` }}
+                className="absolute inset-0 halftone"
+                style={{ background: `linear-gradient(135deg, ${cfg.color}20, #0a0a0a 90%)` }}
               />
             )}
             {!article.imageUrl && (
-              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10 relative z-10" style={{ color: cfg.color }}>
-                LV
-              </span>
+              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-30 text-white relative z-10 uppercase">LV</span>
             )}
           </div>
           <div className="sm:w-1/2 p-3 sm:p-5 flex flex-col justify-center">
             <span
-              className="text-[11px] font-bold tracking-widest uppercase"
+              className="text-[11px] font-bold tracking-widest uppercase font-[family-name:var(--font-heading)]"
               style={{ color: cfg.color }}
             >
               {cfg.label}
             </span>
-            <h2 className="mt-1 text-lg sm:text-xl md:text-2xl font-bold leading-tight font-[family-name:var(--font-heading)] group-hover:underline decoration-1 underline-offset-4 line-clamp-2 sm:line-clamp-3">
+            <h2 className="display mt-1 text-lg sm:text-xl md:text-2xl leading-tight line-clamp-2 sm:line-clamp-3 group-hover:text-brand transition-colors">
               {article.title}
             </h2>
             {article.excerpt && (
-              <p className="mt-2 text-sm text-muted line-clamp-2 sm:line-clamp-3">
+              <p className="mt-2 text-sm text-muted line-clamp-2 sm:line-clamp-3 font-[family-name:var(--font-body)]">
                 {article.excerpt}
               </p>
             )}
-            <div className="mt-3 text-xs text-muted">
+            <div className="mt-3 text-xs text-muted uppercase tracking-wide font-[family-name:var(--font-heading)]">
               {byline && <>{byline} · </>}
               {article.date}
             </div>
@@ -209,7 +207,7 @@ export default function ArticleCard({
       <article className="group">
         <Link
           href={href}
-          className="block relative w-full min-h-[280px] md:min-h-[420px] lg:min-h-[550px] overflow-hidden border-t-4 border-[#c8102e]"
+          className="block relative w-full min-h-[280px] md:min-h-[420px] lg:min-h-[550px] overflow-hidden bg-ink border-ink-3 shadow-hard-lg"
         >
           {article.imageUrl ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -219,41 +217,44 @@ export default function ArticleCard({
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
             />
           ) : (
-            <div className="absolute inset-0 bg-[#1a1a1a]" />
+            <div className="absolute inset-0 halftone" />
           )}
-          {/* Double gradient: heavy bottom for text, subtle top vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-          {/* Red scan line — animated pulse at top */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-[#c8102e] animate-urgente-pulse" />
+          {/* Halftone + charcoal overlay — comic noir ink */}
+          <div className="absolute inset-0 halftone-light opacity-60" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 45%, rgba(10,10,10,0.15) 100%)" }} />
+          {/* Burnt-sienna scan line — animated pulse at top */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-urgente animate-urgente-pulse" />
           {/* Content */}
           <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 lg:p-10">
-            {/* Urgente label + section */}
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[11px] font-bold tracking-[0.2em] uppercase bg-[#c8102e] text-white px-3 py-1">
+            {/* Urgente starburst badge + section stamp */}
+            <div className="flex items-center gap-4 mb-4">
+              <span className="starburst inline-flex items-center justify-center w-16 h-16 bg-urgente text-white text-[10px] font-black tracking-widest uppercase font-[family-name:var(--font-heading)] shrink-0">
                 URGENTE
               </span>
-              <span className="text-[11px] font-bold tracking-widest uppercase text-white/50">
+              <span
+                className="text-[11px] font-bold tracking-widest uppercase text-white/70 font-[family-name:var(--font-heading)]"
+              >
                 {cfg.label}
               </span>
             </div>
-            {/* Headline — massive, white, Playfair weight */}
-            <h2 className="text-2xl md:text-3xl lg:text-5xl font-black leading-[1.1] tracking-tight text-white font-[family-name:var(--font-heading)] group-hover:underline decoration-2 underline-offset-4 decoration-[#c8102e]">
+            {/* Headline — Oswald display */}
+            <h2 className="display text-2xl md:text-4xl lg:text-6xl leading-[1.0] text-white group-hover:text-brand transition-colors">
               {article.title}
             </h2>
-            {/* Excerpt — if present */}
+            {/* Excerpt */}
             {article.excerpt && (
-              <p className="mt-3 text-base md:text-lg text-white/70 leading-relaxed max-w-3xl line-clamp-2">
+              <p className="mt-4 text-base md:text-lg text-white/80 leading-relaxed max-w-3xl line-clamp-2 font-[family-name:var(--font-body)] font-medium">
                 {article.excerpt}
               </p>
             )}
             {/* Byline */}
-            <div className="mt-4 text-xs text-white/40 tracking-wide">
+            <div className="mt-4 text-xs text-white/60 tracking-wide uppercase font-[family-name:var(--font-heading)]">
               {byline && <>{byline} · </>}
               {article.date}
             </div>
           </div>
-          {/* Bottom red rule */}
-          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#c8102e]" />
+          {/* Bottom urgente rule */}
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-urgente" />
         </Link>
       </article>
     );
@@ -261,7 +262,7 @@ export default function ArticleCard({
 
   if (variant === "compact") {
     return (
-      <article className="group py-3 border-b border-rule last:border-0">
+      <article className="group py-3 border-b-2 border-ink last:border-0">
         <Link href={href} className="flex gap-3">
           {article.imageUrl && (
             <NewsImage
@@ -273,74 +274,65 @@ export default function ArticleCard({
           )}
           {!article.imageUrl && (
             <div
-              className="w-16 h-16 shrink-0 flex items-center justify-center rounded-sm"
-              style={{ background: `linear-gradient(135deg, ${cfg.color}20, ${cfg.color}08)` }}
+              className="w-16 h-16 shrink-0 flex items-center justify-center border-2 border-ink"
+              style={{ background: `linear-gradient(135deg, ${cfg.color}30, ${cfg.color}08)` }}
             >
-              <span className="text-lg font-[family-name:var(--font-heading)] opacity-20" style={{ color: cfg.color }}>
+              <span className="text-lg font-[family-name:var(--font-heading)] opacity-30" style={{ color: cfg.color }}>
                 LV
               </span>
             </div>
           )}
           <div className="min-w-0">
             <span
-              className="text-[10px] font-bold tracking-widest uppercase"
+              className="text-[10px] font-bold tracking-widest uppercase font-[family-name:var(--font-heading)]"
               style={{ color: cfg.color }}
             >
               {cfg.label}
             </span>
-            <h3 className="mt-0.5 text-sm font-semibold leading-snug font-[family-name:var(--font-heading)] group-hover:underline line-clamp-2">
+            <h3 className="display mt-0.5 text-sm leading-snug group-hover:text-brand line-clamp-2 transition-colors">
               {article.title}
             </h3>
-            <span className="text-xs text-muted">{article.date}</span>
+            <span className="text-xs text-muted uppercase tracking-wide font-[family-name:var(--font-heading)]">{article.date}</span>
           </div>
         </Link>
       </article>
     );
   }
 
-  // Sponsored badge component (green, right-aligned)
-  const sponsoredBadge = (
-    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981]/15 text-[#10b981]">
-      Contenido patrocinado
-    </span>
-  );
-
   // standard
   if (sponsored) {
     return (
-      <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
+      <article className="group bg-paper border-ink-2 shadow-hard h-full">
         <Link href={href} className="flex flex-col h-full">
           <div
             className="h-36 sm:h-44 flex items-center justify-center relative overflow-hidden"
-            style={{ borderTop: `2px solid ${cfg.color}` }}
+            style={{ borderTop: `3px solid ${cfg.color}` }}
           >
             {article.imageUrl ? (
               <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
             ) : (
               <div
-                className="absolute inset-0"
-                style={{ background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)` }}
+                className="absolute inset-0 halftone"
+                style={{ background: `linear-gradient(135deg, ${cfg.color}15, #0a0a0a 90%)` }}
               />
             )}
             {!article.imageUrl && (
-              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10 relative z-10" style={{ color: cfg.color }}>
-                LV
-              </span>
+              <span className="text-5xl font-[family-name:var(--font-heading)] opacity-30 text-white relative z-10 uppercase">LV</span>
             )}
-            <span className="absolute top-3 right-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#10b981] text-white z-20">
+            <span className="absolute top-3 right-3 text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 bg-[#16a34a] text-white z-20 font-[family-name:var(--font-heading)] border-2 border-ink">
               Contenido patrocinado
             </span>
           </div>
           <div className="p-4 flex-1 flex flex-col">
-            <h3 className="text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
+            <h3 className="display text-lg leading-snug group-hover:text-brand line-clamp-2 transition-colors">
               {article.title}
             </h3>
             {article.excerpt && (
-              <p className="mt-2 text-sm text-muted line-clamp-3">
+              <p className="mt-2 text-sm text-muted line-clamp-3 font-[family-name:var(--font-body)]">
                 {article.excerpt}
               </p>
             )}
-            <div className="mt-auto pt-3 text-xs text-muted">
+            <div className="mt-auto pt-3 text-xs text-muted uppercase tracking-wide font-[family-name:var(--font-heading)]">
               {byline && <>{byline} · </>}
               {article.date}
             </div>
@@ -352,42 +344,40 @@ export default function ArticleCard({
 
   // standard
   return (
-    <article className="group bg-paper transition-shadow duration-200 hover:shadow-lg h-full">
+    <article className="group bg-paper border-ink-2 shadow-hard h-full">
       <Link href={href} className="flex flex-col h-full">
         <div
           className="h-36 sm:h-44 flex items-center justify-center relative overflow-hidden"
-          style={{ borderTop: `2px solid ${cfg.color}` }}
+          style={{ borderTop: `3px solid ${cfg.color}` }}
         >
           {article.imageUrl ? (
             <NewsImage src={article.imageUrl} alt={article.imageAlt} sectionColor={cfg.color} variant="standard" />
           ) : (
             <div
-              className="absolute inset-0"
-              style={{ background: `linear-gradient(135deg, ${cfg.color}15, ${cfg.color}08)` }}
+              className="absolute inset-0 halftone"
+              style={{ background: `linear-gradient(135deg, ${cfg.color}15, #0a0a0a 90%)` }}
             />
           )}
           {!article.imageUrl && (
-            <span className="text-5xl font-[family-name:var(--font-heading)] opacity-10 relative z-10" style={{ color: cfg.color }}>
-              LV
-            </span>
+            <span className="text-5xl font-[family-name:var(--font-heading)] opacity-30 text-white relative z-10 uppercase">LV</span>
           )}
         </div>
         <div className="p-4 flex-1 flex flex-col">
           <span
-            className="text-[11px] font-bold tracking-widest uppercase"
+            className="text-[11px] font-bold tracking-widest uppercase font-[family-name:var(--font-heading)]"
             style={{ color: cfg.color }}
           >
             {cfg.label}
           </span>
-          <h3 className="mt-0.5 text-lg font-bold leading-snug font-[family-name:var(--font-heading)] group-hover:underline decoration-1 line-clamp-2">
+          <h3 className="display mt-0.5 text-lg leading-snug group-hover:text-brand line-clamp-2 transition-colors">
             {article.title}
           </h3>
           {article.excerpt && (
-            <p className="mt-2 text-sm text-muted line-clamp-3">
+            <p className="mt-2 text-sm text-muted line-clamp-3 font-[family-name:var(--font-body)]">
               {article.excerpt}
             </p>
           )}
-          <div className="mt-auto pt-3 text-xs text-muted">
+          <div className="mt-auto pt-3 text-xs text-muted uppercase tracking-wide font-[family-name:var(--font-heading)]">
             {byline && <>{byline} · </>}
             {article.date}
             {commentCount !== undefined && commentCount > 0 && (

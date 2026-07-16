@@ -10,7 +10,7 @@ export default function WeatherBadge({ temperature, weatherIcon, cityName }: Wea
   return (
     <Link
       href="/clima"
-      className="flex items-center gap-1.5 text-white/75 font-medium text-[10px] sm:text-xs hover:text-[#0ea5e9] transition-colors"
+      className="flex items-center gap-1.5 text-orange-600 font-[family-name:var(--font-heading)] font-semibold text-[10px] sm:text-xs uppercase tracking-wider hover:text-brand transition-colors"
       aria-label="Ver pronóstico del tiempo"
     >
       <span>{weatherIcon}</span>

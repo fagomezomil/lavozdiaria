@@ -29,25 +29,27 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-ink sticky top-0 z-50 border-t border-white/10">
+    <nav className="bg-ink sticky top-0 z-50 border-t-[3px] border-brand shadow-[0_4px_0_0_var(--color-ink)]">
       <div className="max-w-7xl mx-auto px-4">
         {/* Desktop navbar */}
         <div className="hidden md:flex items-center">
           <div
             className="shrink-0 mr-4 overflow-hidden transition-all duration-300"
-            style={{ width: scrolled ? 72 : 0, opacity: scrolled ? 1 : 0 }}
+            style={{ width: scrolled ? 180 : 0, opacity: scrolled ? 1 : 0 }}
           >
-            <Link href="/" className="whitespace-nowrap">
-              <span className="text-[16px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white">
-                L<span className="text-[#c8102e]">V</span>D
-              </span>
+            <Link
+              href="/"
+              className="whitespace-nowrap font-[family-name:var(--font-heading)] font-bold text-lg leading-none tracking-wider"
+              aria-label="¡QUE NOTICIA!"
+            >
+              <span className="text-white">¡</span><span className="text-brand">QUE</span><span className="text-white">NOTICIA!</span>
             </Link>
           </div>
-          <ul className="flex items-center justify-center gap-0 divide-x divide-white/10 flex-1">
+          <ul className="flex items-center justify-center gap-0 divide-x divide-white/15 flex-1">
             <li>
               <Link
                 href="/"
-                className="block px-4 py-2.5 text-xs tracking-widest uppercase text-white hover:bg-white/10 transition-colors"
+                className="block px-4 py-2.5 text-[13px] tracking-widest uppercase text-white hover:bg-brand font-[family-name:var(--font-heading)] font-semibold transition-colors"
               >
                 Portada
               </Link>
@@ -56,7 +58,7 @@ export default function Navbar() {
               <li key={key}>
                 <Link
                   href={cfg.path}
-                  className="block px-4 py-2.5 text-xs tracking-widest uppercase text-white font-bold transition-all hover:text-white"
+                  className="block px-4 py-2.5 text-[13px] tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-semibold transition-all hover:text-white"
                   style={{ "--section-color": cfg.color } as React.CSSProperties}
                   onMouseEnter={(e) => {
                     (e.target as HTMLElement).style.backgroundColor = cfg.color;
@@ -72,7 +74,7 @@ export default function Navbar() {
             <li>
               <Link
                 href="/clima"
-                className="block px-4 py-2.5 text-xs tracking-widest uppercase text-white font-bold transition-all hover:text-white"
+                className="block px-4 py-2.5 text-[13px] tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-semibold transition-all hover:text-white"
                 onMouseEnter={(e) => {
                   (e.target as HTMLElement).style.backgroundColor = "#0ea5e9";
                 }}
@@ -94,41 +96,26 @@ export default function Navbar() {
 
         {/* Mobile: hamburger button */}
         <div className="md:hidden flex items-center justify-between py-2.5">
-          <div
-            className="overflow-hidden transition-all duration-300"
-            style={{ width: scrolled ? 52 : 0, opacity: scrolled ? 1 : 0 }}
-          >
-            <Link href="/" className="whitespace-nowrap">
-              <span className="text-[16px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white">
-                L<span className="text-[#c8102e]">V</span>D
-              </span>
-            </Link>
-          </div>
           <Link
             href="/"
-            className="text-xs tracking-widest uppercase text-white font-bold transition-all duration-300"
-            style={{ opacity: scrolled ? 0 : 1, width: scrolled ? 0 : "auto", position: scrolled ? "absolute" : "relative" }}
+            className="whitespace-nowrap font-[family-name:var(--font-heading)] font-bold text-lg leading-none tracking-wider"
+            aria-label="¡QUE NOTICIA!"
           >
-            Portada
+            <span className="text-white">¡</span><span className="text-brand">QUE</span><span className="text-white">NOTICIA!</span>
           </Link>
           <div className="flex items-center gap-3">
-            <div
-              className="transition-all duration-300"
-              style={{ width: scrolled ? 36 : 0, opacity: scrolled ? 1 : 0, overflow: "visible" }}
-            >
-              {user && <UserDropdown />}
-            </div>
+            {user && <UserDropdown />}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="w-10 h-10 flex items-center justify-center text-white"
               aria-label="Menú"
             >
               {menuOpen ? (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
@@ -139,11 +126,11 @@ export default function Navbar() {
 
       {/* Mobile menu dropdown */}
       {menuOpen && (
-        <ul className="md:hidden border-t border-white/10">
+        <ul className="md:hidden border-t-2 border-brand">
           <li>
             <Link
               href="/"
-              className="block px-6 py-3 text-sm tracking-widest uppercase text-white hover:bg-white/10 transition-colors"
+              className="block px-6 py-3 text-sm tracking-widest uppercase text-white hover:bg-brand font-[family-name:var(--font-heading)] font-semibold transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               Portada
@@ -153,7 +140,7 @@ export default function Navbar() {
             <li key={key}>
               <Link
                 href={cfg.path}
-                className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-bold transition-colors"
+                className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-bold transition-colors"
                 style={{ backgroundColor: cfg.color }}
                 onClick={() => setMenuOpen(false)}
               >
@@ -164,14 +151,14 @@ export default function Navbar() {
           <li>
             <Link
               href="/clima"
-              className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-bold transition-colors"
+              className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-bold transition-colors"
               style={{ backgroundColor: "#0ea5e9" }}
               onClick={() => setMenuOpen(false)}
             >
               Clima
             </Link>
           </li>
-          <li className="border-t border-white/10 px-6 py-3">
+          <li className="border-t-2 border-brand px-6 py-3">
             {user ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
@@ -217,7 +204,7 @@ export default function Navbar() {
                     </a>}
                   </div>
                 </div>
-                <button onClick={handleLogout} className="block text-sm text-[#e63946] hover:text-[#e63946]/80 transition-colors">
+                <button onClick={handleLogout} className="block text-sm text-brand hover:text-brand/80 font-semibold transition-colors">
                   Cerrar sesión
                 </button>
               </div>

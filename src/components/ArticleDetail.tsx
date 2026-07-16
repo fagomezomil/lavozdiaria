@@ -14,14 +14,25 @@ import CommentSection from "@/components/CommentSection";
 import { useUIStore } from "@/lib/store/ui";
 import type { LocalArticleData } from "@/lib/store/likes";
 
-/** Strip HTML tags and decode common entities */
+/** Strip HTML tags and decode common entities. Converts block-level tags to newlines first. */
 function stripHtml(html: string): string {
   return html
+    // Block-level tags → paragraph breaks
     .replace(/<\/p>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n\n")
+    .replace(/<p[^>]*>/gi, "\n\n")
     .replace(/<\/div>/gi, "\n\n")
+    .replace(/<div[^>]*>/gi, "\n\n")
+    .replace(/<\/h[1-6]>/gi, "\n\n")
+    .replace(/<h[1-6][^>]*>/gi, "\n\n")
     .replace(/<\/li>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "\n• ")
+    .replace(/<\/blockquote>/gi, "\n\n")
+    .replace(/<blockquote[^>]*>/gi, "\n\n")
+    .replace(/<\/tr>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    // Strip remaining tags
     .replace(/<[^>]*>/g, "")
+    // Decode entities
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
@@ -32,16 +43,36 @@ function stripHtml(html: string): string {
     .replace(/&mdash;/g, "\u2014")
     .replace(/&rsquo;/g, "\u2019")
     .replace(/&lsquo;/g, "\u2018")
+    .replace(/\u00a0/g, " ")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
     .trim();
 }
 
-/** Parse body (HTML or plain text) into clean paragraphs */
+/** Parse body (HTML or plain text) into clean paragraphs.
+ *  If the source has no newline structure, falls back to splitting at sentence boundaries. */
 function parseBody(raw: string): string[] {
   const text = stripHtml(raw);
-  const paragraphs = text
+
+  let paragraphs = text
     .split(/\n{1,}/)                    // split on any newline (single or double)
-    .map((p) => p.replace(/\s+/g, " ").trim())
+    .map((p) => p.replace(/[ \t]+/g, " ").trim())
     .filter((p) => p.length > 5);
+
+  // Fallback: if everything collapsed into one giant paragraph, break at sentence
+  // boundaries — one sentence per paragraph for maximum readability.
+  if (paragraphs.length === 1 && paragraphs[0].length > 320) {
+    const big = paragraphs[0];
+    const sentenceParts =
+      big.match(/[^.!?…]+[.!?…]+(?:["'"”’\u201D\u2019])?|\S+$/g) || [];
+    if (sentenceParts.length > 1) {
+      const grouped: string[] = sentenceParts
+        .map((s) => s.trim())
+        .filter((s) => s.length > 5);
+      if (grouped.length > 1) paragraphs = grouped;
+    }
+  }
+
   return paragraphs;
 }
 

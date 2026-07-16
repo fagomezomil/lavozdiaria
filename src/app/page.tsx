@@ -96,13 +96,10 @@ export default async function Home() {
   const sliderArticles: Article[] = (Object.keys(sectionConfig) as Section[])
     .map((key) => sectionArticles[key]?.[0])
     .filter((a): a is Article => !!a);
-  const hero = allArticles.find((a) => a.featured) ?? allArticles[0];
-  const secondary = allArticles.filter(
-    (a) => hero && a.id !== hero.id && a.featured
-  );
-  const sidebar = allArticles
-    .filter((a) => hero && a.id !== hero.id && !a.featured)
-    .slice(0, 5);
+  // Secondary featured (portada 2-col grid) is driven by `layout === "destacada"`
+  // (the per-section "Destacada / 2 columnas" presentation), NOT by `featured`.
+  // `featured` is reserved for the header slide — see Header.tsx.
+  const secondary = allArticles.filter((a) => a.layout === "destacada");
 
   // Urgente articles from all sections (cross-section)
   const urgentArticles = allArticles.filter((a) => a.layout === "urgente");

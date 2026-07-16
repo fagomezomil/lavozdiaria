@@ -47,6 +47,25 @@ export async function getActiveArticles(section?: Section): Promise<CustomArticl
   }
 }
 
+/** Editor-featured articles (featured = true), newest first. */
+export async function getFeaturedArticles(limit = 6): Promise<CustomArticle[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("active", true)
+      .eq("featured", true)
+      .order("sort_date", { ascending: false })
+      .limit(limit);
+
+    if (error || !data) return [];
+    return data.map(mapRowToArticle);
+  } catch {
+    return [];
+  }
+}
+
 export async function getAllArticles(): Promise<CustomArticle[]> {
   try {
     const supabase = await createClient();

@@ -35,7 +35,14 @@ function interleaveSponsored(articles: Article[], sponsored: Article[]): Article
 
 export const revalidate = 300;
 
-export default async function TucumanPage() {
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function TucumanPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const [ads, customArticles, sponsoredContent] = await Promise.all([
     getActiveAds(undefined, "tucuman"),
     getActiveArticles("tucuman"),
@@ -60,6 +67,7 @@ export default async function TucumanPage() {
       leaderboardAds={leaderboardAds}
       rectangleAds={rectangleAds}
       sponsoredIds={sponsoredIds}
+      page={page}
     />
   );
 }

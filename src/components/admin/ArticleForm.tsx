@@ -350,6 +350,15 @@ export default function ArticleForm({ article }: ArticleFormProps) {
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
+            checked={featured}
+            onChange={(e) => setFeatured(e.target.checked)}
+            className="w-4 h-4 accent-[#f97316]"
+          />
+          <span className="text-sm font-semibold">Destacada en slide del header</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
             checked={commentsEnabled}
             onChange={(e) => setCommentsEnabled(e.target.checked)}
             className="w-4 h-4 accent-[#8b5cf6]"

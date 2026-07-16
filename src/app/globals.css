@@ -1,28 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #f8f5f0;
-  --foreground: #1a1a1a;
-  --font-heading: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --background: #f5efe4;
+  --foreground: #0a0a0a;
+  --font-heading: 'Oswald', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 
-  /* Section colors */
+  /* Section colors — section identities, kept distinct from brand naranja */
   --color-politica: #e63946;
   --color-deportes: #3b82f6;
   --color-economia: #10b981;
   --color-internacionales: #8b5cf6;
   --color-tucuman: #f59e0b;
 
-  /* Neutral palette */
-  --color-cream: #f8f5f0;
+  /* Neutral palette — comic noir */
+  --color-cream: #f5efe4;
   --color-paper: #fdfbf7;
-  --color-ink: #1a1a1a;
-  --color-muted: #6b6b6b;
-  --color-border: #d4cfc7;
-  --color-rule: #c8c3bb;
-  --color-brand: #c8102e;
-  --color-focus: #3b82f6;
+  --color-ink: #0a0a0a;
+  --color-muted: #6b5d4f;
+  --color-border: #0a0a0a;
+  --color-rule: #0a0a0a;
+  --color-brand: #f97316;
+  --color-urgente: #c2410c;
+  --color-focus: #f97316;
   --color-clima: #0ea5e9;
   --color-admin-bg: #f0efed;
 }
@@ -30,14 +31,15 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-cream: #f8f5f0;
+  --color-cream: #f5efe4;
   --color-paper: #fdfbf7;
-  --color-ink: #1a1a1a;
-  --color-muted: #6b6b6b;
-  --color-border: #d4cfc7;
-  --color-rule: #c8c3bb;
-  --color-brand: #c8102e;
-  --color-focus: #3b82f6;
+  --color-ink: #0a0a0a;
+  --color-muted: #6b5d4f;
+  --color-border: #0a0a0a;
+  --color-rule: #0a0a0a;
+  --color-brand: #f97316;
+  --color-urgente: #c2410c;
+  --color-focus: #f97316;
   --color-clima: #0ea5e9;
   --color-admin-bg: #f0efed;
   --color-politica: #e63946;
@@ -45,7 +47,7 @@
   --color-economia: #10b981;
   --color-internacionales: #8b5cf6;
   --color-tucuman: #f59e0b;
-  --font-heading: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-heading: 'Oswald', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -53,6 +55,9 @@ body {
   background: var(--color-cream);
   color: var(--color-ink);
   font-family: var(--font-body);
+  /* Halftone page texture — subtle dots over the cream */
+  background-image: radial-gradient(rgba(10, 10, 10, 0.035) 1px, transparent 1px);
+  background-size: 6px 6px;
 }
 
 h1,
@@ -62,94 +67,130 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
-/* Newspaper horizontal rules */
+/* Newspaper horizontal rules — comic ink, doubled */
 .rule {
-  border-top: 2px solid var(--color-ink);
+  border-top: 3px double var(--color-ink);
 }
 
 .rule-thin {
-  border-top: 1px solid var(--color-rule);
+  border-top: 1px solid var(--color-ink);
 }
 
 /* Section color accents */
-.section-politica {
-  border-top-color: var(--color-politica);
+.section-politica { border-top-color: var(--color-politica); }
+.section-deportes { border-top-color: var(--color-deportes); }
+.section-economia { border-top-color: var(--color-economia); }
+.section-internacionales { border-top-color: var(--color-internacionales); }
+.section-tucuman { border-top-color: var(--color-tucuman); }
+
+.text-politica { color: var(--color-politica); }
+.text-deportes { color: var(--color-deportes); }
+.text-economia { color: var(--color-economia); }
+.text-internacionales { color: var(--color-internacionales); }
+.text-tucuman { color: var(--color-tucuman); }
+
+.bg-politica { background-color: var(--color-politica); }
+.bg-deportes { background-color: var(--color-deportes); }
+.bg-economia { background-color: var(--color-economia); }
+.bg-internacionales { background-color: var(--color-internacionales); }
+.bg-tucuman { background-color: var(--color-tucuman); }
+
+.text-clima { color: var(--color-clima); }
+.bg-clima { background-color: var(--color-clima); }
+.text-brand { color: var(--color-brand); }
+.bg-brand { background-color: var(--color-brand); }
+.bg-urgente { background-color: var(--color-urgente); }
+
+/* ===== Comic noir utilities ===== */
+
+/* Halftone dot texture overlay — denser at edges via radial fade */
+.halftone {
+  background-image: radial-gradient(rgba(10, 10, 10, 0.18) 1.2px, transparent 1.2px);
+  background-size: 5px 5px;
 }
 
-.section-deportes {
-  border-top-color: var(--color-deportes);
+.halftone-sm {
+  background-image: radial-gradient(rgba(10, 10, 10, 0.12) 0.9px, transparent 0.9px);
+  background-size: 3px 3px;
 }
 
-.section-economia {
-  border-top-color: var(--color-economia);
+/* Halftone on dark surfaces — white dots over ink */
+.halftone-light {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 4px 4px;
 }
 
-.section-internacionales {
-  border-top-color: var(--color-internacionales);
+/* Hard offset shadows — comic panel pop, no blur */
+.shadow-hard {
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+.shadow-hard-sm {
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+.shadow-hard-lg {
+  box-shadow: 6px 6px 0 var(--color-ink);
+}
+.shadow-hard-brand {
+  box-shadow: 4px 4px 0 var(--color-brand);
 }
 
-.section-tucuman {
-  border-top-color: var(--color-tucuman);
+/* Ink panel border — heavy 2px black */
+.border-ink-2 {
+  border: 2px solid var(--color-ink);
+}
+.border-ink-3 {
+  border: 3px solid var(--color-ink);
 }
 
-.text-politica {
-  color: var(--color-politica);
+/* Display headline — Oswald uppercase tight */
+.display {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  font-weight: 700;
 }
 
-.text-deportes {
-  color: var(--color-deportes);
+/* Section stamp — rotated condensed label */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  border: 2px solid var(--color-ink);
+  padding: 1px 8px;
+  background: var(--color-paper);
 }
 
-.text-economia {
-  color: var(--color-economia);
+/* Starburst badge — polygon clip */
+.starburst {
+  clip-path: polygon(
+    50% 0%, 61% 12%, 76% 8%, 80% 24%, 95% 24%,
+    88% 38%, 100% 50%, 88% 62%, 95% 76%, 80% 76%,
+    76% 92%, 61% 88%, 50% 100%, 39% 88%, 24% 92%,
+    20% 76%, 5% 76%, 12% 62%, 0% 50%, 12% 38%,
+    5% 24%, 20% 24%, 24% 8%, 39% 12%
+  );
 }
 
-.text-internacionales {
-  color: var(--color-internacionales);
-}
-
-.text-tucuman {
-  color: var(--color-tucuman);
-}
-
-.bg-politica {
-  background-color: var(--color-politica);
-}
-
-.bg-deportes {
-  background-color: var(--color-deportes);
-}
-
-.bg-economia {
-  background-color: var(--color-economia);
-}
-
-.bg-internacionales {
-  background-color: var(--color-internacionales);
-}
-
-.bg-tucuman {
-  background-color: var(--color-tucuman);
-}
-
-.text-clima {
-  color: var(--color-clima);
-}
-
-.bg-clima {
-  background-color: var(--color-clima);
+/* Cross-hatch shadow lines (for noir shadow accents) */
+.hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-ink) 0,
+    var(--color-ink) 1px,
+    transparent 1px,
+    transparent 4px
+  );
 }
 
 @keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
 }
 
 .animate-marquee {
@@ -158,28 +199,22 @@ h6 {
 
 /* Skeleton loading animation */
 @keyframes skeleton-pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .animate-pulse {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* Smooth card transitions */
+/* Card hover — lift the hard shadow */
 article.group {
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 article.group:hover {
-  box-shadow: 0 4px 16px rgba(26, 26, 26, 0.08);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-ink);
 }
 
 /* Article body typography */
@@ -194,7 +229,7 @@ article.group:hover {
   margin-bottom: 0;
 }
 
-/* Urgente pulse — red scan line */
+/* Urgente pulse — burnt-sienna scan line */
 @keyframes urgente-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
@@ -206,13 +241,8 @@ article.group:hover {
 
 /* Ad overlay animation */
 @keyframes ad-overlay-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-ad-overlay-in {

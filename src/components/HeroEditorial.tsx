@@ -30,10 +30,10 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Lead story — 2/3 width */}
+      {/* Lead story — 2/3 width, comic panel */}
       <Link
         href={`/${lead.section}/${lead.id}`}
-        className="lg:col-span-2 group relative overflow-hidden rounded-sm bg-paper min-h-[240px] md:min-h-[420px]"
+        className="lg:col-span-2 group relative overflow-hidden bg-ink min-h-[260px] md:min-h-[440px] border-ink-3 shadow-hard"
       >
         {lead.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -46,42 +46,43 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
         ) : (
           <div
             key={lead.id}
-            className="w-full h-full flex items-center justify-center"
+            className="w-full h-full flex items-center justify-center halftone"
             style={{
               background: leadCfg
-                ? `linear-gradient(135deg, ${leadCfg.color}30, ${leadCfg.color}08)`
-                : "linear-gradient(135deg, #e6394630, #e6394608)",
+                ? `linear-gradient(135deg, ${leadCfg.color}30, #0a0a0a 80%)`
+                : "linear-gradient(135deg, #f9731630, #0a0a0a 80%)",
             }}
           >
-            <span className="text-8xl font-[family-name:var(--font-heading)] opacity-15" style={{ color: leadCfg?.color }}>
-              LV
-            </span>
+            <span className="text-8xl font-[family-name:var(--font-heading)] opacity-30 text-white uppercase">LV</span>
           </div>
         )}
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        {/* Halftone + charcoal overlay — comic noir ink */}
+        <div className="absolute inset-0 halftone-light opacity-60" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 45%, rgba(10,10,10,0.1) 100%)" }} />
+        {/* Naranja edge tint */}
+        <div className="absolute inset-0 opacity-30 mix-blend-multiply" style={{ background: "radial-gradient(ellipse at bottom right, var(--color-brand), transparent 55%)" }} />
 
         {/* Text overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
           {leadCfg && (
             <span
-              className="text-[11px] font-bold tracking-widest uppercase"
-              style={{ color: leadCfg.color }}
+              className="stamp text-[11px] md:text-xs"
+              style={{ color: leadCfg.color, borderColor: leadCfg.color }}
             >
               {leadCfg.label}
             </span>
           )}
-          <h2 className="text-lg md:text-3xl font-bold text-white leading-tight font-[family-name:var(--font-heading)] line-clamp-2 md:line-clamp-3 mt-1">
+          <h2 className="display text-2xl md:text-4xl lg:text-5xl text-white leading-[1.05] line-clamp-2 md:line-clamp-3 mt-3">
             {lead.title}
           </h2>
           {lead.excerpt && (
-            <p className="mt-2 text-sm text-white/70 line-clamp-2 hidden md:block">
+            <p className="mt-3 text-sm md:text-base text-white/75 line-clamp-2 hidden md:block font-[family-name:var(--font-body)] font-medium">
               {lead.excerpt}
             </p>
           )}
           {((lead.author ?? lead.publisher) || lead.date) && (
-            <p className="mt-2 text-xs text-white/50">
+            <p className="mt-3 text-xs text-white/60 tracking-wide uppercase font-[family-name:var(--font-heading)]">
               {(lead.author ?? lead.publisher) && <span>{lead.author ?? lead.publisher}</span>}
               {(lead.author ?? lead.publisher) && lead.date && <span> · </span>}
               {lead.date && <span>{lead.date}</span>}
@@ -92,10 +93,10 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
 
       {/* Secondary stories — 1/3 width (desktop) */}
       <aside className="hidden lg:flex flex-col">
-        <h2 className="text-sm tracking-widest uppercase text-muted mb-4 font-bold border-b-2 border-ink pb-2">
+        <h2 className="text-base tracking-widest uppercase text-ink mb-4 font-bold border-b-[3px] border-ink pb-2 font-[family-name:var(--font-heading)]">
           Destacadas
         </h2>
-        <div className="flex flex-col divide-y divide-rule">
+        <div className="flex flex-col divide-y-2 divide-ink">
           {articles.map((a, i) => {
             const aCfg = sectionConfig[a.section as keyof typeof sectionConfig];
             const isActive = i === activeIndex;
@@ -103,7 +104,7 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
               <Link
                 key={a.id}
                 href={`/${a.section}/${a.id}`}
-                className="group py-4 first:pt-0 flex gap-4 hover:bg-cream/50 transition-colors -mx-2 px-2 rounded-sm"
+                className="group py-4 first:pt-0 flex gap-4 hover:bg-brand/10 transition-colors -mx-2 px-2"
                 onMouseEnter={() => setActiveIndex(i)}
               >
                 {a.imageUrl ? (
@@ -111,40 +112,38 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
                   <img
                     src={a.imageUrl}
                     alt={a.imageAlt}
-                    className="w-24 h-20 object-cover rounded-sm shrink-0 border-t-2 transition-all duration-300"
+                    className="w-24 h-20 object-cover shrink-0 border-2 border-ink transition-all duration-300"
                     style={{
-                      borderTopColor: isActive ? aCfg?.color : "transparent",
-                      opacity: isActive ? 1 : 0.7,
+                      opacity: isActive ? 1 : 0.65,
                     }}
                   />
                 ) : (
                   <div
-                    className="w-24 h-20 rounded-sm shrink-0 flex items-center justify-center border-t-2 transition-all duration-300"
+                    className="w-24 h-20 shrink-0 flex items-center justify-center border-2 border-ink transition-all duration-300"
                     style={{
-                      borderTopColor: isActive ? aCfg?.color : "transparent",
-                      background: aCfg ? `linear-gradient(135deg, ${aCfg.color}20, ${aCfg.color}08)` : undefined,
-                      opacity: isActive ? 1 : 0.7,
+                      background: aCfg ? `linear-gradient(135deg, ${aCfg.color}30, ${aCfg.color}08)` : undefined,
+                      opacity: isActive ? 1 : 0.65,
                     }}
                   >
-                    <span className="text-xl font-[family-name:var(--font-heading)] opacity-20" style={{ color: aCfg?.color }}>
+                    <span className="text-xl font-[family-name:var(--font-heading)] opacity-30" style={{ color: aCfg?.color }}>
                       LV
                     </span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <span
-                    className="text-[11px] font-bold tracking-widest uppercase transition-colors duration-300"
+                    className="text-[11px] font-bold tracking-widest uppercase transition-colors duration-300 font-[family-name:var(--font-heading)]"
                     style={{ color: isActive ? aCfg?.color : undefined }}
                   >
                     {aCfg?.label}
                   </span>
                   <h3
-                    className={`text-[15px] font-semibold leading-snug font-[family-name:var(--font-heading)] line-clamp-2 mt-1 group-hover:underline transition-colors duration-300 ${isActive ? "text-ink" : "text-muted"}`}
+                    className={`display text-base leading-tight line-clamp-2 mt-1 group-hover:text-brand transition-colors duration-300 ${isActive ? "text-ink" : "text-muted"}`}
                   >
                     {a.title}
                   </h3>
                   {((a.author ?? a.publisher) || a.date) && (
-                    <p className="text-xs text-muted mt-1.5">
+                    <p className="text-xs text-muted mt-1.5 uppercase tracking-wide font-[family-name:var(--font-heading)]">
                       {(a.author ?? a.publisher) && <span>{a.author ?? a.publisher}</span>}
                       {(a.author ?? a.publisher) && a.date && <span> · </span>}
                       {a.date && <span>{a.date}</span>}
@@ -172,12 +171,12 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
                 <img
                   src={a.imageUrl}
                   alt={a.imageAlt}
-                  className="w-full h-28 object-cover rounded-sm border-t-2"
+                  className="w-full h-28 object-cover border-2 border-ink shadow-hard-sm"
                   style={{ borderTopColor: aCfg?.color }}
                 />
               ) : (
                 <div
-                  className="w-full h-28 rounded-sm flex items-center justify-center border-t-2"
+                  className="w-full h-28 flex items-center justify-center border-2 border-ink"
                   style={{
                     borderTopColor: aCfg?.color,
                     background: aCfg ? `linear-gradient(135deg, ${aCfg.color}20, ${aCfg.color}08)` : undefined,
@@ -187,12 +186,12 @@ export default function HeroEditorial({ articles }: HeroEditorialProps) {
                 </div>
               )}
               <span
-                className="text-[11px] font-bold tracking-widest uppercase mt-1.5 block"
+                className="text-[11px] font-bold tracking-widest uppercase mt-1.5 block font-[family-name:var(--font-heading)]"
                 style={{ color: aCfg?.color }}
               >
                 {aCfg?.label}
               </span>
-              <h3 className="text-[15px] font-semibold leading-snug font-[family-name:var(--font-heading)] line-clamp-2 mt-0.5">
+              <h3 className="display text-base leading-tight line-clamp-2 mt-0.5">
                 {a.title}
               </h3>
             </Link>
