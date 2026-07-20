@@ -9,12 +9,13 @@ interface AdSlotProps {
   ad?: Ad | null;
 }
 
+// Relaciones de aspecto estándar — mismas en desktop y mobile (ver AdRotator.tsx).
 const sizeStyles: Record<string, string> = {
-  leaderboard: "w-full h-[50px] md:h-[90px]",
-  rectangle: "w-full h-[150px] md:h-[250px]",
-  sidebar: "w-full h-[150px] md:h-[250px]",
-  infeed: "w-full",
-  sticky_footer: "w-full h-[50px]",
+  leaderboard: "w-full aspect-[8/1]",
+  rectangle: "w-full aspect-[8/5]",
+  sidebar: "w-full aspect-[8/5]",
+  infeed: "w-full aspect-[8/5]",
+  sticky_footer: "w-full aspect-[8/1]",
 };
 
 export default function AdSlot({ size = "leaderboard", className = "", ad }: AdSlotProps) {
@@ -23,13 +24,13 @@ export default function AdSlot({ size = "leaderboard", className = "", ad }: AdS
     const mobileSrc = ad.mobile_image_url || ad.image_url;
 
     const inner = (
-      <div className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className} group/ad`}>
+      <div className={`relative overflow-hidden rounded-sm bg-paper ${sizeStyles[size]} ${className} group/ad`}>
         <picture>
           <source media="(max-width: 767px)" srcSet={mobileSrc} />
           <img
             src={ad.image_url}
             alt={ad.title || "Aviso publicitario"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         </picture>
       </div>
@@ -51,7 +52,7 @@ export default function AdSlot({ size = "leaderboard", className = "", ad }: AdS
       className={`flex items-center justify-center border-2 border-dashed border-[#d4cfc7] rounded-sm bg-[#f0efed] ${sizeStyles[size]} ${className}`}
       aria-label="Espacio publicitario"
     >
-      <div className="text-center">
+      <div className="text-center px-4">
         <svg
           className="mx-auto mb-1 w-5 h-5 text-[#bbb]"
           fill="none"

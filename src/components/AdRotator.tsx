@@ -10,16 +10,48 @@ interface AdRotatorProps {
   className?: string;
 }
 
+// Relaciones de aspecto estándar — mismas en desktop y mobile.
+// Leader / sticky_footer: 8:1 (desktop 1280x160, mobile 320x40).
+// Rectangle / sidebar / infeed: 8:5 (desktop 400x250, mobile 320x200).
+// El cliente sube UNA sola imagen con la proporción del banner; se escala sin recortes.
 const sizeStyles: Record<string, string> = {
-  leaderboard: "w-full h-[50px] md:h-[90px]",
-  rectangle: "w-full h-[150px] md:h-[250px]",
-  sidebar: "w-full h-[150px] md:h-[250px]",
-  infeed: "w-full",
-  sticky_footer: "w-full h-[50px]",
+  leaderboard: "w-full aspect-[8/1]",
+  rectangle: "w-full aspect-[8/5]",
+  sidebar: "w-full aspect-[8/5]",
+  infeed: "w-full aspect-[8/5]",
+  sticky_footer: "w-full aspect-[8/1]",
 };
 
 const DEFAULT_DURATION = 15;
 const FADE_MS = 300;
+
+function Placeholder({ className, label }: { className: string; label: string }) {
+  return (
+    <div
+      className={`flex items-center justify-center border-2 border-dashed border-[#d4cfc7] rounded-sm bg-[#f0efed] ${className}`}
+      aria-label={label}
+    >
+      <div className="text-center px-4">
+        <svg
+          className="mx-auto mb-1 w-5 h-5 text-[#bbb]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span className="text-xs tracking-widest uppercase text-[#9a9a9a] font-medium">
+          Espacio publicitario
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function AdRotator({ ads, size, className = "" }: AdRotatorProps) {
   const [startIndex] = useState(() => Math.floor(Math.random() * 1000));
@@ -55,43 +87,16 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
     return () => clearTimeout(timer);
   }, [currentIndex, ready, activeAds.length, currentAd]);
 
+  const containerClass = `relative overflow-hidden rounded-sm bg-paper ${sizeStyles[size]} ${className}`;
+
   // Not ready yet (stagger delay) — show empty placeholder briefly
   if (!ready && activeAds.length > 0) {
-    return (
-      <div
-        className={`flex items-center justify-center border-2 border-dashed border-[#d4cfc7] rounded-sm bg-[#f0efed] ${sizeStyles[size]} ${className}`}
-        aria-label="Cargando aviso…"
-      />
-    );
+    return <Placeholder className={containerClass} label="Cargando aviso…" />;
   }
 
   // No ads — show placeholder
   if (activeAds.length === 0) {
-    return (
-      <div
-        className={`flex items-center justify-center border-2 border-dashed border-[#d4cfc7] rounded-sm bg-[#f0efed] ${sizeStyles[size]} ${className}`}
-        aria-label="Espacio publicitario"
-      >
-        <div className="text-center">
-          <svg
-            className="mx-auto mb-1 w-5 h-5 text-[#bbb]"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className="text-xs tracking-widest uppercase text-[#9a9a9a] font-medium">
-            Espacio publicitario
-          </span>
-        </div>
-      </div>
-    );
+    return <Placeholder className={containerClass} label="Espacio publicitario" />;
   }
 
   // Single ad — no rotation needed
@@ -104,7 +109,7 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
 
   const inner = (
     <div
-      className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className} group/ad`}
+      className={`${containerClass} group/ad`}
       style={{ transition: `opacity ${FADE_MS}ms ease-in-out`, opacity: visible ? 1 : 0 }}
     >
       <picture>
@@ -112,7 +117,7 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
         <img
           src={currentAd.image_url!}
           alt={currentAd.title || "Aviso publicitario"}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </picture>
     </div>
@@ -140,13 +145,13 @@ function SingleAd({
   const mobileSrc = ad.mobile_image_url || ad.image_url;
 
   const inner = (
-    <div className={`relative overflow-hidden rounded-sm ${sizeStyles[size]} ${className} group/ad`}>
+    <div className={`relative overflow-hidden rounded-sm bg-paper ${sizeStyles[size]} ${className} group/ad`}>
       <picture>
         <source media="(max-width: 767px)" srcSet={mobileSrc ?? undefined} />
         <img
           src={ad.image_url!}
           alt={ad.title || "Aviso publicitario"}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </picture>
     </div>

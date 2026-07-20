@@ -53,7 +53,7 @@ export default function AdModal({ ad }: AdModalProps) {
       onClick={() => setIsOpen(false)}
     >
       <div
-        className={`relative w-[95vw] md:w-[90vw] max-w-[900px] h-[80vh] md:h-[70vh] max-h-[600px] rounded-lg overflow-hidden ${
+        className={`relative w-[95vw] md:w-[90vw] max-w-[900px] h-[80vh] md:h-[70vh] max-h-[600px] rounded-lg overflow-hidden bg-white ${
           hasImage ? "" : "bg-[#f0efed] border-2 border-dashed border-[#d4cfc7] flex items-center justify-center"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -85,14 +85,14 @@ export default function AdModal({ ad }: AdModalProps) {
               <img
                 src={imgSrc}
                 alt={ad!.title || "Aviso publicitario"}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </a>
           ) : (
             <img
               src={imgSrc}
               alt={ad!.title || "Aviso publicitario"}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           )
         ) : (

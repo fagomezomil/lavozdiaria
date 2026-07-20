@@ -18,7 +18,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const fullUrl = origin ? `${origin}${url}` : url;
   const encodedUrl = encodeURIComponent(fullUrl);
   const encodedTitle = encodeURIComponent(title);
-  const shareText = `${title} - LaVozDiaria`;
+  const shareText = `${title} - ¡QUE NOTICIA!`;
 
   const handleCopy = async () => {
     try {

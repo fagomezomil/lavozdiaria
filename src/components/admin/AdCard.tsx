@@ -30,6 +30,15 @@ const TYPE_LABELS: Record<string, string> = {
   sticky_footer: "Sticky Footer",
 };
 
+const TYPE_MEASURES: Record<string, string> = {
+  leaderboard: "1280×160 · 8:1",
+  rectangle: "400×250 · 8:5",
+  sidebar: "400×250 · 8:5",
+  modal: "hasta 900×600",
+  infeed: "400×250 · 8:5",
+  sticky_footer: "1280×160 · 8:1",
+};
+
 export default function AdCard({ ad }: AdCardProps) {
   const cfg = ad.section ? sectionConfig[ad.section as Section] : null;
   const remaining = daysRemaining(ad.expires_at);
@@ -66,6 +75,12 @@ export default function AdCard({ ad }: AdCardProps) {
 
       {/* Card body */}
       <div className="p-3">
+        {/* Client name */}
+        {ad.client_name && (
+          <div className="text-[10px] font-bold tracking-widest uppercase text-brand mb-1">
+            {ad.client_name}
+          </div>
+        )}
         {/* Title */}
         <Link href={`/admin/ads/${ad.id}/edit`} className="block group-hover:underline">
           <h3 className="text-sm font-bold text-ink font-[family-name:var(--font-heading)] line-clamp-1">
@@ -77,6 +92,9 @@ export default function AdCard({ ad }: AdCardProps) {
         <div className="flex flex-wrap items-center gap-1.5 mt-2">
           <span className="text-[10px] font-bold tracking-wide uppercase px-1.5 py-0.5 rounded bg-ink/10 text-ink">
             {TYPE_LABELS[ad.type] || ad.type}
+          </span>
+          <span className="text-[10px] font-mono text-muted tracking-tight" title="Medida recomendada">
+            {TYPE_MEASURES[ad.type] || ""}
           </span>
           {cfg && (
             <span
@@ -104,7 +122,6 @@ export default function AdCard({ ad }: AdCardProps) {
 
         {/* Meta */}
         <div className="mt-2 text-[11px] text-muted space-y-0.5">
-          {ad.client_name && <div>Cliente: {ad.client_name}</div>}
           <div>
             {formatDate(ad.starts_at)} → {formatDate(ad.expires_at)}
             {remaining !== null && !isExpired && (

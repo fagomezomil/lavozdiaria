@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const sponsored = await getSponsoredById(id);
   if (!sponsored) return { title: "Contenido no encontrado" };
   return {
-    title: `${sponsored.title} - LaVozDiaria`,
+    title: `${sponsored.title} - ¡QUE NOTICIA!`,
     description: sponsored.excerpt || sponsored.title,
   };
 }

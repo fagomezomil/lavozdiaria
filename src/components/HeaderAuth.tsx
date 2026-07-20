@@ -51,10 +51,10 @@ function GuestDropdown() {
     <div ref={ref} className="relative" style={{ overflow: "visible" }}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+        className="w-7 h-7 rounded-full bg-white/60 flex items-center justify-center hover:bg-white/30 transition-colors"
         aria-label="Menú de usuario"
       >
-        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-4 h-4 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.215-.584-7.499-1.632z" />
         </svg>
       </button>
@@ -66,7 +66,7 @@ function GuestDropdown() {
         >
           {/* Suscribite + Social */}
           <div className="px-3 py-2.5 border-b border-border">
-            <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Suscribite a LaVozDiaria</p>
+            <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Suscribite a ¡QUE NOTICIA!</p>
             <p className="text-[10px] text-muted mt-0.5">Recibí las noticias más importantes</p>
             <SocialIcons className="mt-1.5" />
           </div>

@@ -57,13 +57,13 @@ export default async function Header() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo/logodesktop.png"
-              alt="LaVozDiaria"
+              alt="¡Qué Noticia!"
               className="hidden md:block w-auto h-[210px] py-2 object-contain"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo/logomobile.png"
-              alt="LaVozDiaria"
+              alt="¡Qué Noticia!"
               className="md:hidden w-auto h-[56px] object-contain mx-auto"
             />
           </Link>

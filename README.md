@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/logo/ilogoLVDlargo.jpg" alt="LaVozDiaria" width="400" />
+  <img src="public/logo/logodesktop.png" alt="¡QUE NOTICIA!" width="400" />
 </p>
 
-Portal de noticias argentino construido con Next.js, Supabase y Tailwind CSS. Información veraz sobre Política, Deportes, Economía, Internacionales y Tucumán.
+**¡QUE NOTICIA!** — Portal de noticias argentino construido con Next.js, Supabase y Tailwind CSS. Información veraz sobre Política, Deportes, Economía, Internacionales y Tucumán.
 
 ## Stack
 

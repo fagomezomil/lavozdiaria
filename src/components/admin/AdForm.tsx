@@ -12,12 +12,12 @@ interface ClientOption {
 }
 
 const adTypes: { value: AdType; label: string }[] = [
-  { value: "leaderboard", label: "Leaderboard (728x90)" },
-  { value: "rectangle", label: "Rectangle (300x250)" },
-  { value: "sidebar", label: "Sidebar (ancho completo x 250)" },
-  { value: "modal", label: "Modal (pantalla completa)" },
-  { value: "infeed", label: "In-Feed (entre artículos)" },
-  { value: "sticky_footer", label: "Sticky Footer (móvil, 320x50)" },
+  { value: "leaderboard", label: "Leaderboard (1280×160 · 8:1)" },
+  { value: "rectangle", label: "Rectangle (400×250 · 8:5)" },
+  { value: "sidebar", label: "Sidebar (400×250 · 8:5)" },
+  { value: "modal", label: "Modal (hasta 900×600)" },
+  { value: "infeed", label: "In-Feed (400×250 · 8:5)" },
+  { value: "sticky_footer", label: "Sticky Footer (1280×160 · 8:1, solo móvil)" },
 ];
 
 const sectionOptions: { value: Section | ""; label: string }[] = [
@@ -27,6 +27,26 @@ const sectionOptions: { value: Section | ""; label: string }[] = [
     label: cfg.label,
   })),
 ];
+
+// Medidas y relaciones estándar por tipo de banner.
+// Una sola imagen con la relación correcta escala sin recortes en todos los breakpoints.
+const AD_MEASURES: Record<AdType, string> = {
+  leaderboard: "1280 × 160 px",
+  rectangle: "400 × 250 px",
+  sidebar: "400 × 250 px",
+  modal: "hasta 900 × 600 px",
+  infeed: "400 × 250 px",
+  sticky_footer: "1280 × 160 px",
+};
+
+const AD_RATIOS: Record<AdType, string> = {
+  leaderboard: "8:1",
+  rectangle: "8:5",
+  sidebar: "8:5",
+  modal: "libre (se ajusta con object-contain)",
+  infeed: "8:5",
+  sticky_footer: "8:1",
+};
 
 interface AdFormProps {
   ad?: Ad;
@@ -96,82 +116,87 @@ export default function AdForm({ ad }: AdFormProps) {
     let imageUrl = ad?.image_url ?? null;
     let mobileImageUrl = ad?.mobile_image_url ?? null;
 
-    // Upload desktop image if a new file was selected
-    if (imageFile) {
-      const ext = imageFile.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("ads")
-        .upload(path, imageFile, { upsert: true });
+    try {
+      // Upload desktop image if a new file was selected
+      if (imageFile) {
+        const ext = imageFile.name.split(".").pop();
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("ads")
+          .upload(path, imageFile);
 
-      if (uploadError) {
-        setError("Error al subir la imagen: " + uploadError.message);
-        setSaving(false);
-        return;
+        if (uploadError) {
+          setError("Error al subir la imagen: " + uploadError.message);
+          setSaving(false);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+        imageUrl = urlData.publicUrl;
       }
 
-      const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
-      imageUrl = urlData.publicUrl;
+      // Upload mobile image if a new file was selected
+      if (mobileImageFile) {
+        const ext = mobileImageFile.name.split(".").pop();
+        const path = `${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("ads")
+          .upload(path, mobileImageFile);
+
+        if (uploadError) {
+          setError("Error al subir la imagen mobile: " + uploadError.message);
+          setSaving(false);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+        mobileImageUrl = urlData.publicUrl;
+      }
+
+      const payload = {
+        title,
+        type,
+        section: section || null,
+        client_id: clientId || null,
+        link_url: linkUrl || null,
+        image_url: imageUrl,
+        mobile_image_url: mobileImageUrl,
+        active,
+        priority,
+        display_duration: displayDuration,
+        starts_at: startsAtDate ? new Date(`${startsAtDate}T${startsAtTime}`).toISOString() : null,
+        expires_at: expiresAtDate ? new Date(`${expiresAtDate}T${expiresAtTime}`).toISOString() : null,
+      };
+
+      if (isEditing) {
+        const { error: updateError } = await supabase
+          .from("ads")
+          .update(payload)
+          .eq("id", ad.id);
+
+        if (updateError) {
+          setError("Error al actualizar: " + updateError.message);
+          setSaving(false);
+          return;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("ads")
+          .insert(payload);
+
+        if (insertError) {
+          setError("Error al crear: " + insertError.message);
+          setSaving(false);
+          return;
+        }
+      }
+
+      router.push("/admin");
+      router.refresh();
+    } catch (err) {
+      setError("Error inesperado: " + (err instanceof Error ? err.message : String(err)));
+      setSaving(false);
     }
-
-    // Upload mobile image if a new file was selected
-    if (mobileImageFile) {
-      const ext = mobileImageFile.name.split(".").pop();
-      const path = `${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("ads")
-        .upload(path, mobileImageFile, { upsert: true });
-
-      if (uploadError) {
-        setError("Error al subir la imagen mobile: " + uploadError.message);
-        setSaving(false);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
-      mobileImageUrl = urlData.publicUrl;
-    }
-
-    const payload = {
-      title,
-      type,
-      section: section || null,
-      client_id: clientId || null,
-      link_url: linkUrl || null,
-      image_url: imageUrl,
-      mobile_image_url: mobileImageUrl,
-      active,
-      priority,
-      display_duration: displayDuration,
-      starts_at: startsAtDate ? new Date(`${startsAtDate}T${startsAtTime}`).toISOString() : null,
-      expires_at: expiresAtDate ? new Date(`${expiresAtDate}T${expiresAtTime}`).toISOString() : null,
-    };
-
-    if (isEditing) {
-      const { error: updateError } = await supabase
-        .from("ads")
-        .update(payload)
-        .eq("id", ad.id);
-
-      if (updateError) {
-        setError("Error al actualizar: " + updateError.message);
-        setSaving(false);
-        return;
-      }
-    } else {
-      const { error: insertError } = await supabase
-        .from("ads")
-        .insert(payload);
-
-      if (insertError) {
-        setError("Error al crear: " + insertError.message);
-        setSaving(false);
-        return;
-      }
-    }
-
-    router.push("/admin");
-    router.refresh();
   };
 
   return (
@@ -248,8 +273,11 @@ export default function AdForm({ ad }: AdFormProps) {
 
       <div>
         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
-          Imagen (escritorio)
+          Imagen del aviso
         </label>
+        <p className="text-xs text-muted mb-1">
+          Medida recomendada: <span className="font-semibold text-ink">{AD_MEASURES[type]}</span>. Relación de aspecto {AD_RATIOS[type]}. La imagen se muestra entera (sin recortes) y escala proporcional en desktop y mobile.
+        </p>
         <input
           type="file"
           accept="image/*"
@@ -260,8 +288,8 @@ export default function AdForm({ ad }: AdFormProps) {
           <div className="mt-2">
             <img
               src={previewUrl}
-              alt="Preview escritorio"
-              className="max-h-32 rounded border border-border"
+              alt="Preview"
+              className="max-h-32 rounded border border-border object-contain"
             />
           </div>
         )}
@@ -269,10 +297,10 @@ export default function AdForm({ ad }: AdFormProps) {
 
       <div>
         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
-          Imagen mobile (opcional)
+          Imagen mobile alternativa (opcional)
         </label>
         <p className="text-xs text-muted mb-1">
-          Imagen optimizada para celulares. Recomendado: 320x100 para leaderboard.
+          Solo si querés usar una creatividad distinta para mobile. Si no se sube, se reutiliza la imagen de arriba con la misma relación de aspecto.
         </p>
         <input
           type="file"
@@ -285,7 +313,7 @@ export default function AdForm({ ad }: AdFormProps) {
             <img
               src={mobilePreviewUrl}
               alt="Preview mobile"
-              className="max-h-24 rounded border border-border"
+              className="max-h-24 rounded border border-border object-contain"
             />
           </div>
         )}

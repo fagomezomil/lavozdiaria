@@ -3,12 +3,12 @@
 import type { AdType, Ad } from "@/lib/types";
 
 const AD_TYPE_INFO: Record<AdType, { label: string; dimensions: string; description: string }> = {
-  leaderboard: { label: "Leaderboard", dimensions: "728 × 90 px", description: "Barra horizontal superior" },
-  rectangle: { label: "Rectangle", dimensions: "300 × 250 px", description: "Rectángulo medio" },
-  sidebar: { label: "Sidebar", dimensions: "300 × 600 px", description: "Columna lateral" },
-  modal: { label: "Modal", dimensions: "Overlay", description: "Ventana emergente" },
-  infeed: { label: "In-Feed", dimensions: "Ancho × 150 px", description: "Dentro del contenido" },
-  sticky_footer: { label: "Sticky Footer", dimensions: "320 × 50 px", description: "Barra inferior fija" },
+  leaderboard: { label: "Leaderboard", dimensions: "1280 × 160 · 8:1", description: "Barra horizontal superior" },
+  rectangle: { label: "Rectangle", dimensions: "400 × 250 · 8:5", description: "Rectángulo medio" },
+  sidebar: { label: "Sidebar", dimensions: "400 × 250 · 8:5", description: "Columna lateral" },
+  modal: { label: "Modal", dimensions: "hasta 900 × 600", description: "Ventana emergente" },
+  infeed: { label: "In-Feed", dimensions: "400 × 250 · 8:5", description: "Dentro del contenido" },
+  sticky_footer: { label: "Sticky Footer", dimensions: "1280 × 160 · 8:1", description: "Barra inferior fija (móvil)" },
 };
 
 // Silhouette proportions for each ad type on a miniature page

@@ -14,20 +14,18 @@ export default function AdStickyFooter({ ad }: AdStickyFooterProps) {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-border shadow-lg animate-ad-overlay-in">
-      <div className="flex items-center justify-center h-[50px]">
-        <a
-          href={ad.link_url || "#"}
-          target={ad.link_url ? "_blank" : undefined}
-          rel={ad.link_url ? "noopener noreferrer" : undefined}
-          className="block h-full"
-        >
-          <img
-            src={imgSrc}
-            alt={ad.title || "Aviso publicitario"}
-            className="h-[50px] w-auto object-contain"
-          />
-        </a>
-      </div>
+      <a
+        href={ad.link_url || "#"}
+        target={ad.link_url ? "_blank" : undefined}
+        rel={ad.link_url ? "noopener noreferrer" : undefined}
+        className="relative block w-full aspect-[8/1] overflow-hidden"
+      >
+        <img
+          src={imgSrc}
+          alt={ad.title || "Aviso publicitario"}
+          className="absolute inset-0 w-full h-full object-contain"
+        />
+      </a>
     </div>
   );
 }

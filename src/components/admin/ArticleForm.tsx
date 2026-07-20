@@ -32,7 +32,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
   const [subtitle, setSubtitle] = useState(article?.subtitle ?? "");
   const [section, setSection] = useState<Section>(article?.section ?? "politica");
   const [author, setAuthor] = useState(article?.author ?? "");
-  const [publisher, setPublisher] = useState(article?.publisher ?? "LaVozDiaria");
+  const [publisher, setPublisher] = useState(article?.publisher ?? "¡QUE NOTICIA!");
   const [date, setDate] = useState(article?.date ?? todayFormatted());
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? "");
   const [body, setBody] = useState(article?.body ?? "");

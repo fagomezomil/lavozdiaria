@@ -16,7 +16,7 @@ export default function Footer() {
               <span className="text-white">¡</span><span className="text-brand">QUE</span><span className="text-white">NOTICIA!</span>
             </h2>
             <p className="mt-1 text-xs tracking-[0.35em] uppercase text-white/50 font-[family-name:var(--font-heading)]">
-              Noticias · Análisis · Verdad
+              El Universo de las noticias en un clic
             </p>
             <p className="mt-4 text-sm leading-relaxed font-[family-name:var(--font-body)]">
               Comprometidos con la información veraz, el análisis profundo y
@@ -73,8 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t-2 border-ink text-center text-xs text-white/40 uppercase tracking-wider font-[family-name:var(--font-heading)]">
-          © {new Date().getFullYear()} ¡<span className="text-brand">QUE</span>NOTICIA!. Todos los derechos
-          reservados.
+          © {new Date().getFullYear()} <span className="text-white font-bold">¡</span><span className="text-brand font-bold">QUE</span><span className="text-white font-bold">NOTICIA!</span> Todos los derechos reservados.
         </div>
       </div>
     </footer>

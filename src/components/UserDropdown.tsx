@@ -147,7 +147,7 @@ export default function UserDropdown() {
           {/* Suscribite + Social */}
           <div className="border-t border-border my-1" />
           <div className="px-3 py-2">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Suscribite a LaVozDiaria</p>
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Suscribite a ¡QUE NOTICIA!</p>
             <p className="text-[11px] text-muted mt-0.5">Recibí las noticias más importantes</p>
             <SocialIcons className="mt-2" />
           </div>

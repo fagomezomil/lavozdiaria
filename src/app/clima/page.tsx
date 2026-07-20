@@ -11,7 +11,7 @@ import { getCachedBreakingNews } from "@/lib/sync-news";
 export const revalidate = 600;
 
 export const metadata = {
-  title: "Clima - LaVozDiaria",
+  title: "Clima - ¡QUE NOTICIA!",
   description: "Pronóstico del tiempo para San Miguel de Tucumán y las principales ciudades de Argentina.",
 };
 

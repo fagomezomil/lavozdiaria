@@ -187,7 +187,7 @@ export default function Navbar() {
                 )}
                 {/* Suscribite + Social */}
                 <div className="pt-2 border-t border-white/10">
-                  <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">Suscribite a LaVozDiaria</p>
+                  <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">Suscribite a ¡QUE NOTICIA!</p>
                   <p className="text-[10px] text-white/50 mt-0.5">Recibí las noticias más importantes</p>
                   <div className="flex items-center gap-2.5 mt-1.5">
                     <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-white/50 hover:text-white transition-colors">
@@ -211,7 +211,7 @@ export default function Navbar() {
             ) : (
               <div className="space-y-3">
                 <div>
-                  <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">Suscribite a LaVozDiaria</p>
+                  <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider">Suscribite a ¡QUE NOTICIA!</p>
                   <p className="text-[10px] text-white/50 mt-0.5">Recibí las noticias más importantes</p>
                   <div className="flex items-center gap-2.5 mt-1.5">
                     <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-white/50 hover:text-white transition-colors">

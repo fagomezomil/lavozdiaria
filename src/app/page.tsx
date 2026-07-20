@@ -111,9 +111,11 @@ export default async function Home() {
       <BreakingNews articles={breaking} />
 
       {/* Leaderboard ad */}
-      <AdRotator ads={leaderboardAds} size="leaderboard" className="max-w-7xl mx-auto my-4" />
+      <div className="max-w-7xl mx-auto px-4 my-4">
+        <AdRotator ads={leaderboardAds} size="leaderboard" />
+      </div>
 
-      <main className="max-w-7xl mx-auto pb-4">
+      <main className="max-w-7xl mx-auto px-4 pb-4">
         {/* Urgente articles — full-width red alerts */}
         {urgentArticles.length > 0 && (
           <div className="mb-8 space-y-4">
@@ -128,11 +130,11 @@ export default async function Home() {
           <HeroEditorial articles={sliderArticles} />
         </AnimateIn>
 
-        <div className="rule my-10" />
+        <div className="rule my-6" />
 
         {/* Leaderboard ad */}
         <AnimateIn delay={0.1}>
-          <AdRotator ads={leaderboardAds} size="leaderboard" className="mb-10" />
+          <AdRotator ads={leaderboardAds} size="leaderboard" />
         </AnimateIn>
 
         {/* Secondary featured */}

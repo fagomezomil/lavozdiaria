@@ -25,7 +25,7 @@ export async function generateMetadata({
   const article = customArticle ?? await fetchArticleDetail(id) ?? getSeedArticleById(id);
   if (!article) return { title: "Artículo no encontrado" };
   return {
-    title: `${article.title} - LaVozDiaria`,
+    title: `${article.title} - ¡QUE NOTICIA!`,
     description: article.excerpt || article.title,
   };
 }
