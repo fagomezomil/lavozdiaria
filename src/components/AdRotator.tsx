@@ -54,8 +54,10 @@ function Placeholder({ className, label }: { className: string; label: string })
 }
 
 export default function AdRotator({ ads, size, className = "" }: AdRotatorProps) {
-  const [startIndex] = useState(() => Math.floor(Math.random() * 1000));
-  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * (ads.length || 1)));
+  // Deterministic initial state to avoid hydration mismatch (server vs client Math.random()).
+  // Randomize after mount via useEffect.
+  const [startIndex, setStartIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [ready, setReady] = useState(false);
 
@@ -66,17 +68,19 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
 
   const currentAd = activeAds[currentIndex] ?? activeAds[0];
 
-  // Stagger initial appearance so rotators don't all change at the same time
+  // Randomize initial ad and stagger seed once mounted (client only)
   useEffect(() => {
-    const offset = (startIndex % (activeAds.length || 1)) * 3000 + Math.random() * 2000;
-    const t = setTimeout(() => setReady(true), offset);
-    return () => clearTimeout(t);
-  }, [startIndex, activeAds.length]);
+    if (activeAds.length === 0) return;
+    setStartIndex(Math.floor(Math.random() * 1000));
+    setCurrentIndex(Math.floor(Math.random() * activeAds.length));
+    setReady(true);
+  }, [activeAds.length]);
 
-  // Rotation timer
+  // Rotation timer — stagger across rotators so they don't all change at the same moment.
   useEffect(() => {
     if (!ready || activeAds.length <= 1) return;
-    const duration = (currentAd?.display_duration || DEFAULT_DURATION) * 1000;
+    const offset = (startIndex % activeAds.length) * 1500 + Math.random() * 1000;
+    const duration = (currentAd?.display_duration || DEFAULT_DURATION) * 1000 + offset;
     const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(() => {
@@ -85,14 +89,9 @@ export default function AdRotator({ ads, size, className = "" }: AdRotatorProps)
       }, FADE_MS);
     }, duration);
     return () => clearTimeout(timer);
-  }, [currentIndex, ready, activeAds.length, currentAd]);
+  }, [currentIndex, ready, activeAds.length, currentAd, startIndex]);
 
   const containerClass = `relative overflow-hidden rounded-sm bg-paper ${sizeStyles[size]} ${className}`;
-
-  // Not ready yet (stagger delay) — show empty placeholder briefly
-  if (!ready && activeAds.length > 0) {
-    return <Placeholder className={containerClass} label="Cargando aviso…" />;
-  }
 
   // No ads — show placeholder
   if (activeAds.length === 0) {
