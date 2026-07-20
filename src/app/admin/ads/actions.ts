@@ -50,10 +50,10 @@ export async function saveAd(prevState: { error: string } | null, formData: Form
       return { error: "La imagen no puede superar 5MB." };
     }
     const ext = imageFile.name.split(".").pop();
-    const path = `ads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("ads").upload(path, imageFile, { upsert: true });
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("media").upload(path, imageFile, { upsert: true });
     if (uploadError) return { error: "Error al subir imagen: " + uploadError.message };
-    const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
     imageUrl = urlData.publicUrl;
   } else if (isEditing) {
     imageUrl = formData.get("existing_image_url") as string | null;
@@ -69,10 +69,10 @@ export async function saveAd(prevState: { error: string } | null, formData: Form
       return { error: "La imagen mobile no puede superar 5MB." };
     }
     const ext = mobileFile.name.split(".").pop();
-    const path = `ads/${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("ads").upload(path, mobileFile, { upsert: true });
+    const path = `${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("media").upload(path, mobileFile, { upsert: true });
     if (uploadError) return { error: "Error al subir imagen mobile: " + uploadError.message };
-    const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
     mobileImageUrl = urlData.publicUrl;
   } else if (isEditing) {
     mobileImageUrl = formData.get("existing_mobile_image_url") as string | null;

@@ -122,7 +122,7 @@ export default function AdForm({ ad }: AdFormProps) {
         const ext = imageFile.name.split(".").pop();
         const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from("ads")
+          .from("media")
           .upload(path, imageFile);
 
         if (uploadError) {
@@ -131,7 +131,7 @@ export default function AdForm({ ad }: AdFormProps) {
           return;
         }
 
-        const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+        const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
         imageUrl = urlData.publicUrl;
       }
 
@@ -140,7 +140,7 @@ export default function AdForm({ ad }: AdFormProps) {
         const ext = mobileImageFile.name.split(".").pop();
         const path = `${Date.now()}-mobile-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from("ads")
+          .from("media")
           .upload(path, mobileImageFile);
 
         if (uploadError) {
@@ -149,7 +149,7 @@ export default function AdForm({ ad }: AdFormProps) {
           return;
         }
 
-        const { data: urlData } = supabase.storage.from("ads").getPublicUrl(path);
+        const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
         mobileImageUrl = urlData.publicUrl;
       }
 
