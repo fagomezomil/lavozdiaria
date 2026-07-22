@@ -23,6 +23,8 @@ function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
     comments_enabled: (row.comments_enabled as boolean) ?? true,
+    volanta: (row.volanta as string) || undefined,
+    columnistId: (row.columnist_id as string) || undefined,
   };
 }
 

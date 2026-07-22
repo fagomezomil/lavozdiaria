@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/supabase/server";
 import { getClientById, getClientAds } from "@/lib/clients";
 import { getClientSponsored } from "@/lib/sponsored";
 import AdminSiteLayout from "@/components/admin/AdminSiteLayout";
+import ToggleSponsoredActiveButton from "@/components/admin/ToggleSponsoredActiveButton";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sectionConfig } from "@/lib/types";
@@ -52,15 +53,8 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
 
       {/* Client info card */}
       <div className="bg-white rounded-lg border border-border p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-xl font-bold">{client.name}</h2>
-            <div className="mt-2 space-y-1 text-sm text-muted">
-              {client.email && <p>Email: {client.email}</p>}
-              {client.phone && <p>Teléfono: {client.phone}</p>}
-              {client.notes && <p className="text-foreground/80 mt-2">{client.notes}</p>}
-            </div>
-          </div>
+        <div className="flex items-start justify-between mb-4">
+          <h2 className="text-xl font-bold">{client.name}</h2>
           <Link
             href={`/admin/clients/${client.id}/edit`}
             className="px-3 py-1.5 text-sm font-semibold text-[#3b82f6] hover:bg-[#3b82f6]/10 rounded transition-colors"
@@ -68,6 +62,77 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
             Editar
           </Link>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+          {/* Contacto */}
+          <div>
+            <h3 className="text-[11px] font-bold tracking-widest uppercase text-muted mb-2">Contacto</h3>
+            <dl className="space-y-1.5">
+              {client.email && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">Email</dt>
+                  <dd className="text-ink break-all">{client.email}</dd>
+                </div>
+              )}
+              {client.phone && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">Teléfono</dt>
+                  <dd className="text-ink">{client.phone}</dd>
+                </div>
+              )}
+              {client.phone_landline && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">Tel. fijo</dt>
+                  <dd className="text-ink">{client.phone_landline}</dd>
+                </div>
+              )}
+              {!client.email && !client.phone && !client.phone_landline && (
+                <p className="text-muted italic">Sin datos de contacto</p>
+              )}
+            </dl>
+          </div>
+
+          {/* Facturación */}
+          <div>
+            <h3 className="text-[11px] font-bold tracking-widest uppercase text-muted mb-2">Facturación</h3>
+            <dl className="space-y-1.5">
+              {client.billing_name && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">Razón</dt>
+                  <dd className="text-ink">{client.billing_name}</dd>
+                </div>
+              )}
+              {client.cuit && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">CUIT</dt>
+                  <dd className="text-ink">{client.cuit}</dd>
+                </div>
+              )}
+              {client.billing_address && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">Dirección</dt>
+                  <dd className="text-ink">{client.billing_address}</dd>
+                </div>
+              )}
+              {client.postal_code && (
+                <div className="flex gap-2">
+                  <dt className="text-muted min-w-[72px]">C.P.</dt>
+                  <dd className="text-ink">{client.postal_code}</dd>
+                </div>
+              )}
+              {!client.billing_name && !client.cuit && !client.billing_address && !client.postal_code && (
+                <p className="text-muted italic">Sin datos de facturación</p>
+              )}
+            </dl>
+          </div>
+        </div>
+
+        {client.notes && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <h3 className="text-[11px] font-bold tracking-widest uppercase text-muted mb-2">Notas</h3>
+            <p className="text-sm text-foreground/80 whitespace-pre-line">{client.notes}</p>
+          </div>
+        )}
       </div>
 
       {/* Client ads */}
@@ -221,6 +286,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                     >
                       Editar
                     </Link>
+                    <ToggleSponsoredActiveButton sponsoredId={item.id} currentActive={item.active} />
                   </div>
                 </div>
               </div>

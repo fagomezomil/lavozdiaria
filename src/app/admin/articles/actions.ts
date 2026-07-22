@@ -3,6 +3,33 @@
 import { createClient, requireEditorAction } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+// Whitelist de campos permitidos en create/update — todo lo que no esté acá se descarta.
+const ARTICLE_FIELDS = [
+  "title", "subtitle", "section", "author", "publisher", "date",
+  "image_url", "image_alt", "excerpt", "body", "original_url",
+  "featured", "breaking", "active", "comments_enabled",
+  "volanta", "columnist_id",
+] as const;
+
+function pickAllowedFields(payload: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const key of ARTICLE_FIELDS) {
+    if (key in payload) {
+      out[key] = payload[key];
+    }
+  }
+  return out;
+}
+
+const ALLOWED_SECTIONS = ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion"];
+
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
 interface UpdateArticlePayload {
   id: string;
   title: string;
@@ -20,6 +47,8 @@ interface UpdateArticlePayload {
   breaking: boolean;
   active: boolean;
   comments_enabled: boolean;
+  volanta?: string | null;
+  columnist_id?: string | null;
 }
 
 export async function updateArticle(payload: UpdateArticlePayload) {
@@ -29,9 +58,27 @@ export async function updateArticle(payload: UpdateArticlePayload) {
     return { error: "No autorizado" };
   }
 
+  // Validar section contra whitelist
+  if (!ALLOWED_SECTIONS.includes(payload.section)) {
+    return { error: "Sección no válida" };
+  }
+
   const supabase = await createClient();
 
-  const { id, ...data } = payload;
+  // Validar columnist_id activo si viene
+  if (payload.columnist_id) {
+    const { data: col } = await supabase
+      .from("columnists")
+      .select("id, active")
+      .eq("id", payload.columnist_id)
+      .maybeSingle();
+    if (!col || !col.active) {
+      return { error: "El columnista seleccionado no existe o está inactivo." };
+    }
+  }
+
+  const { id, ...raw } = payload;
+  const data = pickAllowedFields(raw);
 
   const { error } = await supabase
     .from("articles")
@@ -43,6 +90,7 @@ export async function updateArticle(payload: UpdateArticlePayload) {
   }
 
   revalidatePath("/admin/articles");
+  revalidatePath("/admin/opinion");
   revalidatePath("/");
   revalidatePath(`/${payload.section}`);
   revalidatePath(`/${payload.section}/${id}`);
@@ -67,6 +115,8 @@ interface CreateArticlePayload {
   layout: string;
   active: boolean;
   comments_enabled: boolean;
+  volanta?: string | null;
+  columnist_id?: string | null;
 }
 
 export async function createArticle(payload: CreateArticlePayload) {
@@ -76,11 +126,30 @@ export async function createArticle(payload: CreateArticlePayload) {
     return { error: "No autorizado", id: null };
   }
 
+  // Validar section contra whitelist
+  if (!ALLOWED_SECTIONS.includes(payload.section)) {
+    return { error: "Sección no válida", id: null };
+  }
+
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  // Validar columnist_id activo si viene
+  if (payload.columnist_id) {
+    const { data: col } = await supabase
+      .from("columnists")
+      .select("id, active")
+      .eq("id", payload.columnist_id)
+      .maybeSingle();
+    if (!col || !col.active) {
+      return { error: "El columnista seleccionado no existe o está inactivo.", id: null };
+    }
+  }
+
+  const data = pickAllowedFields(payload as unknown as Record<string, unknown>);
+
+  const { data: result, error } = await supabase
     .from("articles")
-    .insert(payload)
+    .insert(data)
     .select("id")
     .single();
 
@@ -89,10 +158,11 @@ export async function createArticle(payload: CreateArticlePayload) {
   }
 
   revalidatePath("/admin/articles");
+  revalidatePath("/admin/opinion");
   revalidatePath("/");
   revalidatePath(`/${payload.section}`);
 
-  return { error: null, id: data.id };
+  return { error: null, id: result.id };
 }
 
 export async function uploadArticleImage(formData: FormData) {
@@ -119,7 +189,11 @@ export async function uploadArticleImage(formData: FormData) {
     return { error: "La imagen no puede superar 5MB.", url: null };
   }
 
-  const ext = file.name.split(".").pop();
+  // Ext derivada del MIME (whitelist) — nunca del filename del user
+  const ext = MIME_TO_EXT[file.type];
+  if (!ext) {
+    return { error: "Tipo de archivo no permitido.", url: null };
+  }
   const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   const { error: uploadError } = await supabase.storage

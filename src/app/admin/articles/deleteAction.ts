@@ -18,6 +18,7 @@ export async function deleteArticle(id: string) {
   }
 
   revalidatePath("/admin/articles");
+  revalidatePath("/admin/opinion");
   revalidatePath("/");
   return { error: null };
 }
@@ -40,6 +41,7 @@ export async function toggleArticleActive(id: string, active: boolean) {
   }
 
   revalidatePath("/admin/articles");
+  revalidatePath("/admin/opinion");
   revalidatePath("/");
   return { error: null };
 }

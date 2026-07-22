@@ -6,7 +6,7 @@ export async function getClients(): Promise<(Client & { ad_count: number; active
 
   const { data, error } = await supabase
     .from("clients")
-    .select("id, name, email, phone, notes, created_at, updated_at")
+    .select("id, name, email, phone, phone_landline, postal_code, billing_address, billing_name, cuit, notes, created_at, updated_at")
     .order("name", { ascending: true });
 
   if (error || !data) return [];
@@ -36,7 +36,7 @@ export async function getClientById(id: string): Promise<Client | null> {
 
   const { data, error } = await supabase
     .from("clients")
-    .select("id, name, email, phone, notes, created_at, updated_at")
+    .select("id, name, email, phone, phone_landline, postal_code, billing_address, billing_name, cuit, notes, created_at, updated_at")
     .eq("id", id)
     .single();
 

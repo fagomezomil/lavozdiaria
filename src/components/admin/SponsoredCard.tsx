@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { SponsoredContent, Section } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
+import ToggleSponsoredActiveButton from "./ToggleSponsoredActiveButton";
 
 interface SponsoredCardProps {
   content: SponsoredContent;
@@ -100,13 +101,15 @@ export default function SponsoredCard({ content }: SponsoredCardProps) {
           </div>
         </div>
 
-        <div className="mt-2 pt-2 border-t border-border">
+        <div className="mt-2 pt-2 border-t border-border flex items-center gap-3">
           <Link
             href={`/admin/sponsored/${content.id}/edit`}
             className="text-xs font-semibold text-ink hover:text-[var(--color-brand)] transition-colors"
           >
             Editar
           </Link>
+          <span className="text-border">·</span>
+          <ToggleSponsoredActiveButton sponsoredId={content.id} currentActive={content.active} />
         </div>
       </div>
     </div>
