@@ -12,6 +12,8 @@
   --color-economia: #10b981;
   --color-internacionales: #8b5cf6;
   --color-tucuman: #f59e0b;
+  --color-opinion: #0d9488;
+  --color-opinion-deep: #0f766e;
 
   /* Neutral palette — comic noir */
   --color-cream: #f5efe4;
@@ -46,6 +48,8 @@
   --color-economia: #10b981;
   --color-internacionales: #8b5cf6;
   --color-tucuman: #f59e0b;
+  --color-opinion: #0d9488;
+  --color-opinion-deep: #0f766e;
   --font-heading: 'Oswald', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
@@ -106,6 +110,90 @@ h6 {
 .bg-urgente { background-color: var(--color-urgente); }
 .fade-urgente-r { background: linear-gradient(to right, var(--color-urgente), transparent); }
 .fade-urgente-l { background: linear-gradient(to left, var(--color-urgente), transparent); }
+
+/* ===== Opinion section — print-editorial tropes over Comic Noir ===== */
+
+.text-opinion { color: var(--color-opinion); }
+.bg-opinion { background-color: var(--color-opinion); }
+.border-opinion { border-color: var(--color-opinion); }
+.section-opinion { border-top-color: var(--color-opinion); }
+
+/* B&W treatment for columnist portraits — editorial press-card feel */
+.portrait-bw {
+  filter: grayscale(100%) contrast(1.08) brightness(0.96);
+}
+
+/* Opinion hairline rule — thin teal, more delicate than the comic .rule */
+.rule-opinion {
+  border-top: 1px solid var(--color-opinion);
+  opacity: 0.35;
+}
+
+/* Drop cap — huge Oswald initial, teal. Floats left of the first paragraph.
+   Invoked via .drop-cap on the <p> element. */
+.drop-cap::first-letter {
+  float: left;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 4.25rem;
+  line-height: 0.82;
+  padding-right: 0.12em;
+  padding-top: 0.08em;
+  margin-bottom: -0.1em;
+  color: var(--color-opinion);
+  text-transform: uppercase;
+}
+
+/* Pull quote — typographic open quote in teal, Oswald italic body.
+   Used in OpinionArticleDetail to break long body text. */
+.pull-quote-opinion {
+  position: relative;
+  margin: 2.5rem 0 2.5rem 0;
+  padding: 0.5rem 0 0.5rem 2.5rem;
+  border-left: 3px solid var(--color-opinion);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.35;
+  color: var(--color-ink);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.pull-quote-opinion::before {
+  content: "\201C";
+  position: absolute;
+  left: 0.25rem;
+  top: -1.75rem;
+  font-size: 5.5rem;
+  color: var(--color-opinion);
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 700;
+  opacity: 0.55;
+}
+
+/* Opinion columnist stamp — small teal-bordered seal for portraits */
+.stamp-opinion {
+  border: 2px solid var(--color-opinion);
+  box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 3px var(--color-opinion);
+}
+
+/* Opinion body — slightly more generous line-height for long-read feel */
+.opinion-body p {
+  margin-bottom: 1.875rem;
+  line-height: 1.85;
+  font-size: 1.09375rem;
+  text-align: justify;
+  overflow-wrap: break-word;
+}
+.opinion-body p:first-child {
+  margin-top: 0;
+}
+.opinion-body p:last-child {
+  margin-bottom: 0;
+}
 
 /* ===== Comic noir utilities ===== */
 

@@ -20,6 +20,7 @@ interface SectionHeaderProps {
   filters?: FilterOption[];
   activeFilter?: string;
   onFilterChange?: (value: string) => void;
+  toolbarRight?: React.ReactNode;
 }
 
 export default function SectionHeader({
@@ -33,6 +34,7 @@ export default function SectionHeader({
   filters,
   activeFilter,
   onFilterChange,
+  toolbarRight,
 }: SectionHeaderProps) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const hasSearch = !!onSearchChange;
@@ -67,16 +69,25 @@ export default function SectionHeader({
         )}
       </div>
 
-      {/* Search */}
+      {/* Search + toolbar right */}
       {hasSearch && (
-        <div className="mb-4">
-          <input
-            type="text"
-            value={localSearch}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder={searchPlaceholder}
-            className="w-full max-w-md px-4 py-2 text-sm border border-border rounded bg-paper focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:border-transparent"
-          />
+        <div className="mb-4 flex items-center gap-2 flex-wrap">
+          <div className="relative flex-1 max-w-md min-w-[200px]">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded bg-paper focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)] focus:border-transparent"
+            />
+          </div>
+          {toolbarRight}
         </div>
       )}
 
@@ -89,7 +100,7 @@ export default function SectionHeader({
               onClick={() => onFilterChange?.(filter.value)}
               className={`px-3 py-1.5 text-xs font-bold tracking-wide rounded transition-colors ${
                 activeFilter === filter.value
-                  ? "text-white"
+                  ? "bg-ink text-white"
                   : "bg-paper border border-border text-muted hover:text-ink hover:border-ink/30"
               }`}
               style={activeFilter === filter.value && filter.color ? { backgroundColor: filter.color } : undefined}

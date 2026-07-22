@@ -8,6 +8,7 @@ import ArticleDeleteButton from "./ArticleDeleteButton";
 
 interface AdminArticleCardProps {
   article: CustomArticle;
+  editHref?: string;
 }
 
 const LAYOUT_LABELS: Record<string, { label: string; color: string }> = {
@@ -16,15 +17,16 @@ const LAYOUT_LABELS: Record<string, { label: string; color: string }> = {
   normal: { label: "Normal", color: "#6b6b6b" },
 };
 
-export default function AdminArticleCard({ article }: AdminArticleCardProps) {
+export default function AdminArticleCard({ article, editHref }: AdminArticleCardProps) {
   const cfg = sectionConfig[article.section as Section];
   const layoutInfo = LAYOUT_LABELS[article.layout || "normal"] || LAYOUT_LABELS.normal;
+  const editUrl = editHref ?? `/admin/articles/${article.id}/edit`;
 
   return (
     <div className="bg-paper rounded-lg border border-border p-3 hover:shadow-md transition-shadow group">
       <div className="flex gap-3">
         {/* Thumbnail */}
-        <Link href={`/admin/articles/${article.id}/edit`} className="shrink-0">
+        <Link href={editUrl} className="shrink-0">
           {article.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -62,7 +64,7 @@ export default function AdminArticleCard({ article }: AdminArticleCardProps) {
             </span>
           </div>
 
-          <Link href={`/admin/articles/${article.id}/edit`} className="block group-hover:underline">
+          <Link href={editUrl} className="block group-hover:underline">
             <h3 className="text-sm font-bold text-ink font-[family-name:var(--font-heading)] line-clamp-1">
               {article.title}
             </h3>
@@ -84,7 +86,7 @@ export default function AdminArticleCard({ article }: AdminArticleCardProps) {
         {/* Actions */}
         <div className="flex flex-col gap-1 shrink-0">
           <Link
-            href={`/admin/articles/${article.id}/edit`}
+            href={editUrl}
             className="text-xs font-semibold text-ink hover:text-[var(--color-brand)] transition-colors"
           >
             Editar

@@ -24,7 +24,9 @@ import { getActiveAds, pickAd } from "@/lib/ads";
 import { getActiveArticles } from "@/lib/articles";
 import { getActiveSponsored } from "@/lib/sponsored";
 import { fetchCurrentWeather } from "@/lib/weather";
+import { getActiveColumnists } from "@/lib/columnists";
 import WeatherStrip from "@/components/WeatherStrip";
+import OpinionBlock from "@/components/OpinionBlock";
 
 function sponsoredToArticle(s: SponsoredContent): Article {
   return {
@@ -46,13 +48,14 @@ function sponsoredToArticle(s: SponsoredContent): Article {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [breakingData, sectionData, ads, customArticles, sponsoredContent, weather] = await Promise.all([
+  const [breakingData, sectionData, ads, customArticles, sponsoredContent, weather, columnists] = await Promise.all([
     fetchBreakingNews(),
     fetchHomepageArticles(),
     getActiveAds(),
     getActiveArticles(),
     getActiveSponsored(undefined, true),
     fetchCurrentWeather(),
+    getActiveColumnists(),
   ]);
 
   const leaderboardAds = ads.filter((a) => a.type === "leaderboard");
@@ -66,12 +69,14 @@ export default async function Home() {
   const breaking = [...customBreaking, ...apiBreaking];
 
   // Build section articles: custom first, then API/seed
-  const apiSectionArticles: Record<Section, Article[]> = sectionData ?? {
+  // opinion is manual-only — FreeNewsApi doesn't supply it, so it defaults to [].
+  const apiSectionArticles: Partial<Record<Section, Article[]>> = sectionData ?? {
     politica: getArticlesBySection("politica"),
     deportes: getArticlesBySection("deportes"),
     economia: getArticlesBySection("economia"),
     internacionales: getArticlesBySection("internacionales"),
     tucuman: getArticlesBySection("tucuman"),
+    opinion: [],
   };
 
   const sectionArticles: Record<Section, Article[]> = {} as Record<Section, Article[]>;
@@ -87,19 +92,21 @@ export default async function Home() {
     } else {
       sponsoredPerSection[key] = null;
     }
-    sectionArticles[key] = [...custom, ...apiSectionArticles[key]];
+    sectionArticles[key] = [...custom, ...(apiSectionArticles[key] ?? [])];
   }
 
   // Flatten all articles for hero/sidebar logic
   const allArticles = Object.values(sectionArticles).flat();
-  // Pick 1 article per section for the hero slider (5 sections = 5 slides)
+  // Pick 1 article per section for the hero slider — opinion excluded (it has its own block)
   const sliderArticles: Article[] = (Object.keys(sectionConfig) as Section[])
+    .filter((key) => key !== "opinion")
     .map((key) => sectionArticles[key]?.[0])
     .filter((a): a is Article => !!a);
   // Secondary featured (portada 2-col grid) is driven by `layout === "destacada"`
   // (the per-section "Destacada / 2 columnas" presentation), NOT by `featured`.
   // `featured` is reserved for the header slide — see Header.tsx.
-  const secondary = allArticles.filter((a) => a.layout === "destacada");
+  // Opinion articles have their own 4-card block on the home, so they don't appear here.
+  const secondary = allArticles.filter((a) => a.layout === "destacada" && a.section !== "opinion");
 
   // Urgente articles from all sections (cross-section)
   const urgentArticles = allArticles.filter((a) => a.layout === "urgente");
@@ -146,8 +153,10 @@ export default async function Home() {
           ))}
         </AnimateStagger>
 
-        {/* Section grids */}
-        {Object.entries(sectionConfig).map(([key, cfg], index) => {
+        {/* Section grids — opinion is rendered separately as a 4-card block */}
+        {Object.entries(sectionConfig)
+          .filter(([key]) => key !== "opinion")
+          .map(([key, cfg], index) => {
           const sArticles = sectionArticles[key as Section];
           if (!sArticles || sArticles.length === 0) return null;
           const sponsoredItem = sponsoredPerSection[key as Section];
@@ -199,6 +208,13 @@ export default async function Home() {
                   </div>
                 </div>
               </section>
+
+              {/* Opinion block after Política (index 0) — 4 cards with columnist avatars */}
+              {index === 0 && sectionArticles.opinion && sectionArticles.opinion.length > 0 && (
+                <AnimateIn direction="up" delay={0.1}>
+                  <OpinionBlock articles={sectionArticles.opinion} columnists={columnists} />
+                </AnimateIn>
+              )}
 
               {/* Rectangle ads row after Deportes (index 1) */}
               {index === 1 && (

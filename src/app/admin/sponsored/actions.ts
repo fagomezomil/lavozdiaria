@@ -24,6 +24,32 @@ interface SponsoredPayload {
   expires_at: string | null;
 }
 
+export async function toggleSponsoredActive(sponsoredId: string, currentActive: boolean) {
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("sponsored_contents")
+    .update({ active: !currentActive })
+    .eq("id", sponsoredId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/sponsored");
+  revalidatePath("/");
+  revalidatePath("/patrocinado");
+  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion"]) {
+    revalidatePath(`/${key}`);
+  }
+  return { error: null };
+}
+
 export async function saveSponsored(payload: SponsoredPayload) {
   try {
     await requireEditorAction();
@@ -56,7 +82,7 @@ export async function saveSponsored(payload: SponsoredPayload) {
   revalidatePath("/admin/sponsored");
   revalidatePath("/");
   revalidatePath("/patrocinado");
-  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman"]) {
+  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion"]) {
     revalidatePath(`/${key}`);
   }
 

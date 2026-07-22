@@ -1,4 +1,4 @@
-export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman";
+export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion";
 
 export type ArticleLayout = "urgente" | "destacada" | "normal";
 
@@ -28,6 +28,11 @@ export interface Client {
   name: string;
   email: string | null;
   phone: string | null;
+  phone_landline: string | null;
+  postal_code: string | null;
+  billing_address: string | null;
+  billing_name: string | null;
+  cuit: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -49,6 +54,8 @@ export interface Article {
   featured?: boolean;
   breaking?: boolean;
   layout?: ArticleLayout;
+  volanta?: string;
+  columnistId?: string;
 }
 
 export interface CustomArticle extends Article {
@@ -95,6 +102,17 @@ export interface Comment {
   created_at: string;
 }
 
+export interface Columnist {
+  id: string;
+  name: string;
+  slug: string;
+  photoUrl?: string;
+  bio?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SectionConfig {
   label: string;
   color: string;
@@ -107,4 +125,5 @@ export const sectionConfig: Record<Section, SectionConfig> = {
   economia: { label: "Economía", color: "#10b981", path: "/economia" },
   internacionales: { label: "Internacionales", color: "#8b5cf6", path: "/internacionales" },
   tucuman: { label: "Tucumán", color: "#f59e0b", path: "/tucuman" },
+  opinion: { label: "Opinión", color: "#0d9488", path: "/opinion" },
 };

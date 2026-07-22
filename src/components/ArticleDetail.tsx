@@ -49,28 +49,45 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+/** Split text into sentences at sentence-ending punctuation (. ! ? …),
+ *  but NEVER split when the period sits between digits (decimals, thousands,
+ *  dates like 3.14, 12.05.2026, 1.500.000). Preserves the trailing punctuation. */
+function splitSentences(text: string): string[] {
+  // Mask periods between digits so they aren't treated as sentence ends.
+  // Only digit-period-digit is masked — "12." at end of sentence is kept.
+  const MASK = "\u0000";
+  const masked = text.replace(/(\d)\.(?=\d)/g, `$1${MASK}`);
+  const parts = masked.split(/([.!?…]+(?:["'”’\u201D\u2019])?)/);
+  const out: string[] = [];
+  for (let i = 0; i < parts.length; i += 2) {
+    const chunk = ((parts[i] ?? "") + (parts[i + 1] ?? "")).trim();
+    if (chunk.length > 0) out.push(chunk.replaceAll(MASK, "."));
+  }
+  return out;
+}
+
 /** Parse body (HTML or plain text) into clean paragraphs.
- *  If the source has no newline structure, falls back to splitting at sentence boundaries. */
+ *  Paragraph breaks (punto aparte) — in priority order:
+ *    1. Double newline (\n\n) — the admin UI convention ("Usá doble enter para separar párrafos")
+ *    2. Period followed by 2+ spaces and an uppercase letter (typewriter convention)
+ *  Everything else stays in the same paragraph — single \n is a soft break joined with a space,
+ *  period + single space is "punto seguido" (same paragraph). */
 function parseBody(raw: string): string[] {
   const text = stripHtml(raw);
 
-  let paragraphs = text
-    .split(/\n{1,}/)                    // split on any newline (single or double)
-    .map((p) => p.replace(/[ \t]+/g, " ").trim())
-    .filter((p) => p.length > 5);
+  // 1) Split on \n\n (or more) — explicit paragraph breaks.
+  const chunks = text.split(/\n{2,}/);
 
-  // Fallback: if everything collapsed into one giant paragraph, break at sentence
-  // boundaries — one sentence per paragraph for maximum readability.
-  if (paragraphs.length === 1 && paragraphs[0].length > 320) {
-    const big = paragraphs[0];
-    const sentenceParts =
-      big.match(/[^.!?…]+[.!?…]+(?:["'"”’\u201D\u2019])?|\S+$/g) || [];
-    if (sentenceParts.length > 1) {
-      const grouped: string[] = sentenceParts
-        .map((s) => s.trim())
-        .filter((s) => s.length > 5);
-      if (grouped.length > 1) paragraphs = grouped;
-    }
+  // 2) Within each chunk, detect "punto aparte" via the typewriter convention
+  //    (period + 2+ spaces + uppercase). IMPORTANT: do this BEFORE collapsing runs of
+  //    spaces, otherwise the double-space marker is lost.
+  const paragraphs: string[] = [];
+  for (const chunk of chunks) {
+    const parts = chunk
+      .split(/(?<=\.["'”’\u201D\u2019]?)\s{2,}(?=[A-ZÁÉÍÓÚÑ¿¡(])/u)
+      .map((p) => p.replace(/[ \t]+/g, " ").replace(/\n/g, " ").trim())
+      .filter((p) => p.length > 5);
+    paragraphs.push(...parts);
   }
 
   return paragraphs;
@@ -86,8 +103,7 @@ function extractHighlight(paragraphs: string[]): string | null {
   let best = "";
 
   candidates.forEach((para) => {
-    const sentences = para.match(/[^.!?]+[.!?]+/g) || [para];
-    for (const s of sentences) {
+    for (const s of splitSentences(para)) {
       const trimmed = s.trim();
       if (trimmed.length > best.length && trimmed.length > 30) {
         best = trimmed;

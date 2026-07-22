@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { CustomArticle, Section, ArticleLayout } from "@/lib/types";
+import type { CustomArticle, Section, ArticleLayout, Columnist } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
 import { updateArticle, createArticle, uploadArticleImage } from "@/app/admin/articles/actions";
 
@@ -22,15 +22,17 @@ function todayFormatted(): string {
 
 interface ArticleFormProps {
   article?: CustomArticle;
+  columnists?: Columnist[];
+  defaultSection?: Section;
 }
 
-export default function ArticleForm({ article }: ArticleFormProps) {
+export default function ArticleForm({ article, columnists = [], defaultSection }: ArticleFormProps) {
   const router = useRouter();
   const isEditing = !!article;
 
   const [title, setTitle] = useState(article?.title ?? "");
   const [subtitle, setSubtitle] = useState(article?.subtitle ?? "");
-  const [section, setSection] = useState<Section>(article?.section ?? "politica");
+  const [section, setSection] = useState<Section>(article?.section ?? defaultSection ?? "politica");
   const [author, setAuthor] = useState(article?.author ?? "");
   const [publisher, setPublisher] = useState(article?.publisher ?? "¡QUE NOTICIA!");
   const [date, setDate] = useState(article?.date ?? todayFormatted());
@@ -43,6 +45,8 @@ export default function ArticleForm({ article }: ArticleFormProps) {
   const [layout, setLayout] = useState<ArticleLayout>(article?.layout ?? "normal");
   const [active, setActive] = useState(article?.active ?? true);
   const [commentsEnabled, setCommentsEnabled] = useState(article?.comments_enabled ?? true);
+  const [volanta, setVolanta] = useState(article?.volanta ?? "");
+  const [columnistId, setColumnistId] = useState(article?.columnistId ?? "");
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState(article?.imageUrl ?? "");
@@ -94,6 +98,8 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       layout,
       active,
       comments_enabled: commentsEnabled,
+      volanta: volanta || null,
+      columnist_id: columnistId || null,
     };
 
     if (isEditing) {
@@ -114,7 +120,10 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       }
     }
 
-    router.push("/admin/articles");
+    // After save, go back to the opinion dashboard if we came from there,
+    // otherwise to the regular articles dashboard.
+    const ref = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("ref");
+    router.push(ref === "opinion" ? "/admin/opinion" : "/admin/articles");
     router.refresh();
   };
 
@@ -125,6 +134,21 @@ export default function ArticleForm({ article }: ArticleFormProps) {
           {error}
         </div>
       )}
+
+      <div>
+        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+          Volanta
+        </label>
+        <input
+          type="text"
+          value={volanta}
+          onChange={(e) => setVolanta(e.target.value)}
+          maxLength={120}
+          className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#0d9488]"
+          placeholder="Kicker arriba del título (opcional, típico de opinión)"
+        />
+        <p className="text-[10px] text-muted mt-1">Aparece como etiqueta corta arriba del título en las cards de opinión.</p>
+      </div>
 
       <div>
         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
@@ -182,6 +206,44 @@ export default function ArticleForm({ article }: ArticleFormProps) {
           />
         </div>
       </div>
+
+      {section === "opinion" && (
+        <div>
+          <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">
+            Columnista
+          </label>
+          {columnists.length === 0 ? (
+            <p className="text-xs text-[#e63946] bg-[#e63946]/10 px-3 py-2 rounded">
+              No hay columnistas activos. Creá uno primero en{" "}
+              <a href="/admin/columnists/new" className="underline font-bold">Columnistas → Nuevo</a>.
+            </p>
+          ) : (
+            <select
+              value={columnistId}
+              onChange={(e) => {
+                const nextId = e.target.value;
+                setColumnistId(nextId);
+                const picked = columnists.find((c) => c.id === nextId);
+                // Auto-fill author if empty or matching a previous columnist name
+                if (picked && (!author || columnists.some((c) => c.name === author))) {
+                  setAuthor(picked.name);
+                }
+              }}
+              className="w-full px-3 py-2 border border-border rounded bg-white text-ink focus:outline-none focus:ring-2 focus:ring-[#0d9488]"
+            >
+              <option value="">— Sin columnista (solo texto libre en Autor) —</option>
+              {columnists.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
+          <p className="text-[10px] text-muted mt-1">
+            Al elegir un columnista, su nombre se copia al campo Autor (editable igual).
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>

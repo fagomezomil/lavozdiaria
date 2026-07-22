@@ -37,24 +37,6 @@ export default function AdTypeSelector({ ads, selectedType, onSelectType }: AdTy
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-      {/* "All" card */}
-      <button
-        onClick={() => onSelectType("all")}
-        className={`rounded-lg border-2 p-3 text-left transition-all ${
-          selectedType === "all"
-            ? "border-[var(--color-brand)] bg-[var(--color-brand)]/5"
-            : "border-border bg-paper hover:border-ink/30"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold tracking-wide uppercase text-ink">Todos</span>
-          <span className="text-[10px] text-muted">{ads.length}</span>
-        </div>
-        <div className="text-[10px] text-muted leading-tight">
-          {ads.filter((a) => a.active).length} activos
-        </div>
-      </button>
-
       {types.map((type) => {
         const info = AD_TYPE_INFO[type];
         const silhouette = AD_TYPE_SILHOUETTES[type];
