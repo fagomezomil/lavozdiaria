@@ -17,6 +17,8 @@ const adminTabs = [
   { label: "Notas", href: "/admin/articles", key: "notas" },
   { label: "Notas de Opinión", href: "/admin/opinion", key: "opinion" },
   { label: "Columnistas", href: "/admin/columnists", key: "columnistas" },
+  { label: "Agenda", href: "/admin/agenda", key: "agenda" },
+  { label: "Propuestas", href: "/admin/agenda/submissions", key: "propuestas" },
   { label: "Comentarios", href: "/admin/comments", key: "comentarios" },
   { label: "Usuarios", href: "/admin/users", key: "usuarios" },
   { label: "Estadísticas", href: "/admin/stats", key: "estadisticas" },
@@ -25,6 +27,8 @@ const adminTabs = [
 const editorTabs = [
   { label: "Notas", href: "/admin/articles", key: "notas" },
   { label: "Notas de Opinión", href: "/admin/opinion", key: "opinion" },
+  { label: "Agenda", href: "/admin/agenda", key: "agenda" },
+  { label: "Propuestas", href: "/admin/agenda/submissions", key: "propuestas" },
   { label: "Comentarios", href: "/admin/comments", key: "comentarios" },
 ];
 

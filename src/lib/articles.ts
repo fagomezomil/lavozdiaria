@@ -49,7 +49,23 @@ export async function getActiveArticles(section?: Section): Promise<CustomArticl
   }
 }
 
-/** Editor-featured articles (featured = true), newest first. */
+/** Articles by columnist, newest first. */
+export async function getArticlesByColumnist(columnistId: string): Promise<CustomArticle[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("active", true)
+      .eq("columnist_id", columnistId)
+      .order("sort_date", { ascending: false });
+
+    if (error || !data) return [];
+    return data.map(mapRowToArticle);
+  } catch {
+    return [];
+  }
+}
 export async function getFeaturedArticles(limit = 6): Promise<CustomArticle[]> {
   try {
     const supabase = await createClient();

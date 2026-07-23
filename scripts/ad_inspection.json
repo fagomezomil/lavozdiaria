@@ -1,0 +1,581 @@
+{
+  "desktop": {
+    "label": "Desktop",
+    "total_imgs": 36,
+    "ad_imgs": [
+      {
+        "i": 2,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564715567-4jettq.jpg",
+        "alt": "Leaderboard Test 4 - Global",
+        "naturalW": 1280,
+        "naturalH": 160,
+        "complete": true
+      },
+      {
+        "i": 3,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 4,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 5,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 6,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 7,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 8,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": true
+      },
+      {
+        "i": 9,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 10,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 11,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 12,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 13,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": true
+      },
+      {
+        "i": 14,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564715567-4jettq.jpg",
+        "alt": "Leaderboard Test 4 - Global",
+        "naturalW": 1280,
+        "naturalH": 160,
+        "complete": true
+      },
+      {
+        "i": 15,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 16,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/0fba7312d9fa.jpg",
+        "alt": "",
+        "naturalW": 900,
+        "naturalH": 504,
+        "complete": true
+      },
+      {
+        "i": 17,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/af74a1f4c378.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 503,
+        "complete": true
+      },
+      {
+        "i": 18,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 19,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/6fdef09881d0.webp",
+        "alt": "",
+        "naturalW": 1440,
+        "naturalH": 809,
+        "complete": true
+      },
+      {
+        "i": 20,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/0d7248a97d87.webp",
+        "alt": "",
+        "naturalW": 1440,
+        "naturalH": 809,
+        "complete": true
+      },
+      {
+        "i": 21,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565017873-m2abdi.jpg",
+        "alt": "Rectangle Test 2",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 22,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565017873-m2abdi.jpg",
+        "alt": "Rectangle Test 2",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 23,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565017873-m2abdi.jpg",
+        "alt": "Rectangle Test 2",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 24,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 25,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/5591a70eda3d.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 26,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/0b9f89d89c2c.jpg",
+        "alt": "",
+        "naturalW": 765,
+        "naturalH": 703,
+        "complete": true
+      },
+      {
+        "i": 27,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 28,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/7748dbabe33b.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 29,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/f85865b921e3.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 665,
+        "complete": true
+      },
+      {
+        "i": 30,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": true
+      },
+      {
+        "i": 31,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/3fb3754465b3.jpg",
+        "alt": "",
+        "naturalW": 900,
+        "naturalH": 520,
+        "complete": true
+      },
+      {
+        "i": 32,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/8d2826ffc70f.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 585,
+        "complete": true
+      },
+      {
+        "i": 33,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784574900319-a51ifs.jpg",
+        "alt": "Que Noticia Leader",
+        "naturalW": 1280,
+        "naturalH": 160,
+        "complete": true
+      },
+      {
+        "i": 34,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565282034-9ehg94.jpg",
+        "alt": "Modal Test 1",
+        "naturalW": 900,
+        "naturalH": 600,
+        "complete": true
+      }
+    ],
+    "failed": [],
+    "console_errors": [],
+    "page_errors": []
+  },
+  "mobile": {
+    "label": "Mobile",
+    "total_imgs": 36,
+    "ad_imgs": [
+      {
+        "i": 2,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564715567-4jettq.jpg",
+        "alt": "Leaderboard Test 4 - Global",
+        "naturalW": 320,
+        "naturalH": 100,
+        "complete": true
+      },
+      {
+        "i": 3,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 4,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 5,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 6,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 7,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 8,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": true
+      },
+      {
+        "i": 9,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 10,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 11,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 12,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 13,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": true
+      },
+      {
+        "i": 14,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784574900319-a51ifs.jpg",
+        "alt": "Que Noticia Leader",
+        "naturalW": 1280,
+        "naturalH": 160,
+        "complete": true
+      },
+      {
+        "i": 15,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/565cf921b85c.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 16,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/0fba7312d9fa.jpg",
+        "alt": "",
+        "naturalW": 900,
+        "naturalH": 504,
+        "complete": true
+      },
+      {
+        "i": 17,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/af74a1f4c378.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 503,
+        "complete": true
+      },
+      {
+        "i": 18,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/cbebbb95a7fc.webp",
+        "alt": "",
+        "naturalW": 416,
+        "naturalH": 234,
+        "complete": true
+      },
+      {
+        "i": 19,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/6fdef09881d0.webp",
+        "alt": "",
+        "naturalW": 1440,
+        "naturalH": 809,
+        "complete": true
+      },
+      {
+        "i": 20,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/tycsports/0d7248a97d87.webp",
+        "alt": "",
+        "naturalW": 1440,
+        "naturalH": 809,
+        "complete": true
+      },
+      {
+        "i": 21,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565036026-t1mu3v.jpg",
+        "alt": "Rectangle Test 3",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 22,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564766683-qznumx.jpg",
+        "alt": "Rectangle Test 1",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 23,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564766683-qznumx.jpg",
+        "alt": "Rectangle Test 1",
+        "naturalW": 400,
+        "naturalH": 250,
+        "complete": true
+      },
+      {
+        "i": 24,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/2d1879d53944.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 25,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/5591a70eda3d.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 26,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/0b9f89d89c2c.jpg",
+        "alt": "",
+        "naturalW": 765,
+        "naturalH": 703,
+        "complete": true
+      },
+      {
+        "i": 27,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/62e9b86cf807.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 499,
+        "complete": true
+      },
+      {
+        "i": 28,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/comunicaciontucuman/7748dbabe33b.jpg",
+        "alt": "",
+        "naturalW": 730,
+        "naturalH": 473,
+        "complete": true
+      },
+      {
+        "i": 29,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/f85865b921e3.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      },
+      {
+        "i": 30,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": false
+      },
+      {
+        "i": 31,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/3fb3754465b3.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      },
+      {
+        "i": 32,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/8d2826ffc70f.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      },
+      {
+        "i": 33,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784564715567-4jettq.jpg",
+        "alt": "Leaderboard Test 4 - Global",
+        "naturalW": 320,
+        "naturalH": 100,
+        "complete": true
+      },
+      {
+        "i": 34,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/media/1784565282034-9ehg94.jpg",
+        "alt": "Modal Test 1",
+        "naturalW": 900,
+        "naturalH": 600,
+        "complete": true
+      }
+    ],
+    "failed": [
+      {
+        "i": 29,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/f85865b921e3.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      },
+      {
+        "i": 30,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/b397c813f8e9.jpg",
+        "alt": "",
+        "naturalW": 999,
+        "naturalH": 595,
+        "complete": false
+      },
+      {
+        "i": 31,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/3fb3754465b3.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      },
+      {
+        "i": 32,
+        "src": "https://uhuidlistqoonyqtpyvh.supabase.co/storage/v1/object/public/articles/contextotucuman/8d2826ffc70f.jpg",
+        "alt": "",
+        "naturalW": 0,
+        "naturalH": 0,
+        "complete": false
+      }
+    ],
+    "console_errors": [],
+    "page_errors": []
+  }
+}

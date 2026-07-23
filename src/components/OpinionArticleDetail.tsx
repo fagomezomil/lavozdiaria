@@ -263,7 +263,7 @@ export default function OpinionArticleDetail({
                   {columnist.bio || "Columnista de ¡QUE NOTICIA!."}
                 </p>
                 <Link
-                  href="/opinion"
+                  href={`/opinion/columnista/${columnist.slug}`}
                   className="text-xs font-bold uppercase tracking-widest text-opinion hover:underline font-[family-name:var(--font-heading)]"
                 >
                   Ver todas sus columnas →

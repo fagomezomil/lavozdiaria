@@ -89,7 +89,7 @@ export default function UserDropdown() {
         {avatarUrl ? (
           <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-white/30" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white border border-white/30">
+          <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-xs font-bold text-brand border border-brand/20">
             {initial}
           </div>
         )}

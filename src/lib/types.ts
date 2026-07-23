@@ -1,5 +1,54 @@
 export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion";
 
+export type AgendaCategory = "cultural" | "turistico" | "deportivo";
+
+export interface AgendaEvent {
+  id: string;
+  title: string;
+  category: AgendaCategory;
+  subcategory?: string;
+  date: string;
+  dateLabel: { num: string; name: string };
+  time: string;
+  venueName: string;
+  venueCity: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  excerpt?: string;
+  description?: string;
+  price?: string;
+  isFree?: boolean;
+  ticketUrl?: string;
+  sourceName: string;
+  featured?: boolean;
+}
+
+export type SubmissionStatus = "pending" | "approved" | "rejected";
+
+export interface EventSubmission {
+  id: string;
+  title: string;
+  category: AgendaCategory;
+  subcategory?: string;
+  date: string; // YYYY-MM-DD
+  time?: string;
+  endDate?: string;
+  venueName?: string;
+  venueCity?: string;
+  venueAddress?: string;
+  imageUrl?: string;
+  description?: string;
+  priceRange?: string;
+  ticketUrl?: string;
+  contactEmail?: string;
+  submittedBy?: string;
+  submittedAt: string;
+  status: SubmissionStatus;
+  reviewedAt?: string;
+  rejectionReason?: string;
+  publishedEventId?: string;
+}
+
 export type ArticleLayout = "urgente" | "destacada" | "normal";
 
 export type AdType = "leaderboard" | "rectangle" | "sidebar" | "modal" | "infeed" | "sticky_footer";
