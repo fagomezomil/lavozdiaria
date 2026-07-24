@@ -91,8 +91,8 @@ export default function ActualizarPasswordPage() {
       <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center px-4">
         <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-8 text-center">
           <Link href="/" className="block mb-2 group">
-            <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:text-ink/70 transition-colors">
-              La<span className="text-[#c8102e] group-hover:text-[#c8102e]/80 transition-colors">Voz</span>Diaria
+            <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:opacity-80 transition-opacity tracking-wider">
+              <span className="text-ink">¡</span><span className="text-brand">QUE</span><span className="text-ink">NOTICIA!</span>
             </h1>
           </Link>
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#e63946]/15 flex items-center justify-center">

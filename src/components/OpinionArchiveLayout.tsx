@@ -190,7 +190,7 @@ export default function OpinionArchiveLayout({
               <ul className="space-y-3">
                 {columnists.map((c) => (
                   <li key={c.id}>
-                    <div className="flex items-center gap-3">
+                    <Link href={`/opinion/columnista/${c.slug}`} className="flex items-center gap-3 -mx-2 px-2 py-1 rounded transition-colors hover:bg-opinion/5 group">
                       {c.photoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -204,7 +204,7 @@ export default function OpinionArchiveLayout({
                         </span>
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-ink font-[family-name:var(--font-heading)] uppercase tracking-wide leading-tight truncate">
+                        <p className="text-sm font-bold text-ink font-[family-name:var(--font-heading)] uppercase tracking-wide leading-tight truncate group-hover:text-opinion transition-colors">
                           {c.name}
                         </p>
                         {c.bio && (
@@ -213,7 +213,7 @@ export default function OpinionArchiveLayout({
                           </p>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   </li>
                 ))}
               </ul>

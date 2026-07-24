@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginCard() {
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get("redirect") || "/";
+  // Solo paths internos: debe empezar con "/" y no "//" (protocol-relative)
+  const redirectTo = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -46,7 +50,7 @@ export default function LoginPage() {
       }
     }
 
-    router.push("/");
+    router.push(redirectTo);
     router.refresh();
   };
 
@@ -54,8 +58,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
         <Link href="/" className="block text-center mb-2 group">
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:text-ink/70 transition-colors">
-            La<span className="text-[#c8102e] group-hover:text-[#c8102e]/80 transition-colors">Voz</span>Diaria
+          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:opacity-80 transition-opacity tracking-wider">
+            <span className="text-ink">¡</span><span className="text-brand">QUE</span><span className="text-ink">NOTICIA!</span>
           </h1>
         </Link>
         <Link
@@ -145,5 +149,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginCard />
+    </Suspense>
   );
 }

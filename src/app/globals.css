@@ -27,6 +27,13 @@
   --color-focus: #f97316;
   --color-clima: #0ea5e9;
   --color-admin-bg: #f0efed;
+
+  /* Agenda — cartelera de Tucumán. Pink-600, distinto a las 6 secciones + opinion teal */
+  --color-agenda: #db2777;
+  --color-agenda-deep: #be185d;
+  --color-cat-cultural: #db2777;
+  --color-cat-turistico: #0891b2;
+  --color-cat-deportivo: #65a30d;
 }
 
 @theme inline {
@@ -50,6 +57,11 @@
   --color-tucuman: #f59e0b;
   --color-opinion: #0d9488;
   --color-opinion-deep: #0f766e;
+  --color-agenda: #db2777;
+  --color-agenda-deep: #be185d;
+  --color-cat-cultural: #db2777;
+  --color-cat-turistico: #0891b2;
+  --color-cat-deportivo: #65a30d;
   --font-heading: 'Oswald', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
@@ -104,6 +116,18 @@ h6 {
 
 .text-clima { color: var(--color-clima); }
 .bg-clima { background-color: var(--color-clima); }
+
+/* Agenda — cartelera */
+.text-agenda { color: var(--color-agenda); }
+.bg-agenda { background-color: var(--color-agenda); }
+.border-agenda { border-color: var(--color-agenda); }
+.text-agenda-deep { color: var(--color-agenda-deep); }
+.bg-cat-cultural { background-color: var(--color-cat-cultural); }
+.bg-cat-turistico { background-color: var(--color-cat-turistico); }
+.bg-cat-deportivo { background-color: var(--color-cat-deportivo); }
+.text-cat-cultural { color: var(--color-cat-cultural); }
+.text-cat-turistico { color: var(--color-cat-turistico); }
+.text-cat-deportivo { color: var(--color-cat-deportivo); }
 .text-brand { color: var(--color-brand); }
 .bg-brand { background-color: var(--color-brand); }
 .text-urgente { color: var(--color-urgente); }

@@ -19,6 +19,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**" },
     ],
   },
+  // @resvg/resvg-js y sharp usan bindings nativos — deben quedar fuera del bundler.
+  serverExternalPackages: ["@resvg/resvg-js", "sharp"],
   async headers() {
     return [
       // Article pages: limited snippets to reduce scraping value

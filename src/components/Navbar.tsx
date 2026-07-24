@@ -85,6 +85,20 @@ export default function Navbar() {
                 Clima
               </Link>
             </li>
+            <li>
+              <Link
+                href="/agenda"
+                className="block px-4 py-2.5 text-[13px] tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-semibold transition-all hover:text-white"
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.backgroundColor = "#db2777";
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.backgroundColor = "";
+                }}
+              >
+                Agenda
+              </Link>
+            </li>
           </ul>
           <div
             className="shrink-0 ml-4 transition-all duration-300"
@@ -158,6 +172,16 @@ export default function Navbar() {
               Clima
             </Link>
           </li>
+          <li>
+            <Link
+              href="/agenda"
+              className="block px-6 py-3 text-sm tracking-widest uppercase text-white font-[family-name:var(--font-heading)] font-bold transition-colors"
+              style={{ backgroundColor: "#db2777" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              Agenda
+            </Link>
+          </li>
           <li className="border-t-2 border-brand px-6 py-3">
             {user ? (
               <div className="space-y-3">
@@ -165,7 +189,7 @@ export default function Navbar() {
                   {profile?.avatar_url ? (
                     <img src={profile.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover border border-white/30" />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold text-white border border-white/30">
+                    <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-xs font-bold text-brand border border-brand/20">
                       {(profile?.full_name || user.email || "").charAt(0).toUpperCase()}
                     </div>
                   )}

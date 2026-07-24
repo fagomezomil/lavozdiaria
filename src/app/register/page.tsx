@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Turnstile from "@/components/Turnstile";
+import { registerUser } from "@/lib/actions/auth";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -18,17 +20,10 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-      },
-    });
+    const result = await registerUser(fullName, email, password, turnstileToken);
 
-    if (authError) {
-      setError(authError.message);
+    if (!result.ok) {
+      setError(result.error || "Error al crear la cuenta");
       setLoading(false);
       return;
     }
@@ -41,8 +36,8 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-8">
         <Link href="/" className="block text-center mb-2 group">
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:text-ink/70 transition-colors">
-            La<span className="text-[#c8102e] group-hover:text-[#c8102e]/80 transition-colors">Voz</span>Diaria
+          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] group-hover:opacity-80 transition-opacity tracking-wider">
+            <span className="text-ink">¡</span><span className="text-brand">QUE</span><span className="text-ink">NOTICIA!</span>
           </h1>
         </Link>
         <Link
@@ -99,14 +94,16 @@ export default function RegisterPage() {
             />
           </div>
 
+          <Turnstile onToken={setTurnstileToken} className="min-h-[65px] flex items-center justify-center" />
+
           {error && (
             <p className="text-sm text-[#e63946] text-center">{error}</p>
           )}
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-ink text-white font-bold rounded hover:bg-ink/80 transition-colors disabled:opacity-50"
+            disabled={loading || !turnstileToken}
+            className="w-full py-2.5 bg-ink text-white font-bold rounded hover:bg-ink/80 transition-colors disabled:opacity-50 disabled:cursor-default"
           >
             {loading ? "Creando cuenta..." : "Registrarme"}
           </button>

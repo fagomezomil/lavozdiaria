@@ -13,19 +13,48 @@ interface ComentariosDashboardProps {
     user_avatar_url: string | null;
     content: string;
     created_at: string;
+    status: string;
+    toxicity_score: number | null;
+    report_count: number;
   }[];
 }
 
 type SortMode = "recent" | "oldest";
+type StatusFilter = "all" | "pending" | "flagged" | "approved" | "rejected";
+
+const STATUS_LABELS: Record<StatusFilter, string> = {
+  all: "Todos",
+  pending: "Pendientes",
+  flagged: "Reportados",
+  approved: "Aprobados",
+  rejected: "Rechazados",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  pending: "bg-[var(--color-urgente)]/15 text-[var(--color-urgente)] border-[var(--color-urgente)]/30",
+  flagged: "bg-[#e63946]/10 text-[#e63946] border-[#e63946]/30",
+  approved: "bg-[#10b981]/10 text-[#10b981] border-[#10b981]/30",
+  rejected: "bg-ink/10 text-ink/60 border-ink/20",
+};
 
 export default function ComentariosDashboard({ comments }: ComentariosDashboardProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortMode>("recent");
   const [viewMode, setViewMode] = useState<"cards" | "list">("list");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
+
+  const counts = useMemo(() => {
+    const c = { all: comments.length, pending: 0, flagged: 0, approved: 0, rejected: 0 };
+    for (const cm of comments) {
+      if (cm.status in c) c[cm.status as keyof typeof c]++;
+    }
+    return c;
+  }, [comments]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     const filteredList = comments.filter((comment) => {
+      if (statusFilter !== "all" && comment.status !== statusFilter) return false;
       if (search === "") return true;
       return (
         comment.content.toLowerCase().includes(q) ||
@@ -39,7 +68,7 @@ export default function ComentariosDashboard({ comments }: ComentariosDashboardP
       return sort === "recent" ? tb - ta : ta - tb;
     });
     return sorted;
-  }, [comments, search, sort]);
+  }, [comments, search, sort, statusFilter]);
 
   const viewToggle = (
     <div className="ml-auto flex items-center gap-1 p-1 bg-ink/5 rounded">
@@ -78,11 +107,12 @@ export default function ComentariosDashboard({ comments }: ComentariosDashboardP
     </div>
   );
 
-  const hasActiveFilters = search !== "" || sort !== "recent";
+  const hasActiveFilters = search !== "" || sort !== "recent" || statusFilter !== "pending";
 
   const clearFilters = () => {
     setSearch("");
     setSort("recent");
+    setStatusFilter("pending");
   };
 
   return (
@@ -96,8 +126,32 @@ export default function ComentariosDashboard({ comments }: ComentariosDashboardP
         toolbarRight={viewToggle}
       />
 
+      {/* Filtros por status */}
+      <div className="flex items-center gap-1 flex-wrap mb-3 -mt-3">
+        {(Object.keys(STATUS_LABELS) as StatusFilter[]).map((key) => {
+          const count = counts[key];
+          const isActive = statusFilter === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`px-3 py-1 text-xs font-semibold tracking-wide rounded-full border transition-colors ${
+                isActive
+                  ? "bg-ink text-white border-ink"
+                  : "bg-paper border-border text-muted hover:text-ink hover:border-ink/30"
+              }`}
+            >
+              {STATUS_LABELS[key]}
+              <span className={`ml-1.5 ${isActive ? "text-white/70" : "text-muted/70"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filtros secundarios: orden + borrar + count */}
-      <div className="flex items-center gap-3 flex-wrap mb-4 -mt-3">
+      <div className="flex items-center gap-3 flex-wrap mb-4">
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortMode)}
@@ -128,7 +182,9 @@ export default function ComentariosDashboard({ comments }: ComentariosDashboardP
 
       {filtered.length === 0 ? (
         <div className="bg-paper rounded-lg p-12 text-center border border-border">
-          <p className="text-muted">No se encontraron comentarios.</p>
+          <p className="text-muted">
+            {statusFilter === "pending" ? "No hay comentarios pendientes. 🎉" : "No se encontraron comentarios."}
+          </p>
         </div>
       ) : viewMode === "cards" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
