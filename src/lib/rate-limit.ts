@@ -10,8 +10,10 @@ const buckets = new Map<string, RateBucket>();
 
 // 10 requests per minute for auth endpoints (strict)
 const AUTH_LIMIT = { max: 10, windowMs: 60_000 };
-// 30 requests per minute for comments (medium)
+// 30 requests per minute for comments via API (medium, per IP)
 const COMMENT_LIMIT = { max: 30, windowMs: 60_000 };
+// 5 comments per minute per user (server action rate limit, by user_id)
+const COMMENT_USER_LIMIT = { max: 5, windowMs: 60_000 };
 
 type LimitConfig = typeof AUTH_LIMIT;
 
@@ -50,4 +52,9 @@ export function rateLimit(ip: string): boolean {
 /** Check comment rate limit (30 req/min per IP) */
 export function rateLimitComment(ip: string): boolean {
   return checkLimit(`comment:${ip}`, COMMENT_LIMIT);
+}
+
+/** Check comment rate limit per user (5 req/min per user_id) — for server actions */
+export function rateLimitCommentByUser(userId: string): boolean {
+  return checkLimit(`comment-user:${userId}`, COMMENT_USER_LIMIT);
 }

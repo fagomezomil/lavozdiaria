@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import { createClient } from "@/lib/supabase/client";
 import type { Comment } from "@/lib/types";
+import { submitComment, reportComment, type CommentStatus } from "@/lib/actions/comments";
 
 interface CommentsState {
   commentsByArticle: Record<string, Comment[]>;
   loading: Record<string, boolean>;
 
   fetchComments: (articleId: string) => Promise<void>;
-  addComment: (articleId: string, content: string) => Promise<boolean>;
+  addComment: (articleId: string, content: string) => Promise<{ ok: boolean; error?: string; status?: CommentStatus }>;
   deleteComment: (commentId: string, articleId: string) => Promise<void>;
+  reportCommentById: (commentId: string, reason: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export const useCommentsStore = create<CommentsState>()((set, get) => ({
@@ -22,9 +24,10 @@ export const useCommentsStore = create<CommentsState>()((set, get) => ({
 
     try {
       const supabase = createClient();
+      // RLS expone: status='approved' + propios pending/flagged + admins ven todo
       const { data, error } = await supabase
         .from("comments")
-        .select("id, article_id, user_id, content, created_at, profiles!comments_user_id_fkey(full_name, avatar_url)")
+        .select("id, article_id, user_id, content, created_at, status, toxicity_score, profiles!comments_user_id_fkey(full_name, avatar_url)")
         .eq("article_id", articleId)
         .order("created_at", { ascending: true });
 
@@ -37,6 +40,8 @@ export const useCommentsStore = create<CommentsState>()((set, get) => ({
           user_avatar_url: ((row.profiles as Record<string, unknown>)?.avatar_url as string) || null,
           content: row.content as string,
           created_at: row.created_at as string,
+          status: row.status as CommentStatus | undefined,
+          toxicity_score: row.toxicity_score as number | null | undefined,
         }));
 
         set((s) => ({
@@ -55,30 +60,22 @@ export const useCommentsStore = create<CommentsState>()((set, get) => ({
 
   addComment: async (articleId: string, content: string) => {
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
+      const result = await submitComment(articleId, content);
 
-      const { data, error } = await supabase
-        .from("comments")
-        .insert({ article_id: articleId, user_id: user.id, content })
-        .select("id, article_id, user_id, content, created_at, profiles!comments_user_id_fkey(full_name, avatar_url)")
-        .single();
-
-      if (error || !data) {
-        console.error("Error adding comment:", error);
-        return false;
+      if (!result.ok || !result.comment) {
+        return { ok: false, error: result.error };
       }
 
-      const profileData = data.profiles as unknown as Record<string, unknown>;
       const newComment: Comment = {
-        id: data.id as string,
-        article_id: data.article_id as string,
-        user_id: (data.user_id as string) || null,
-        user_name: (profileData?.full_name as string) || user?.email || "Anónimo",
-        user_avatar_url: (profileData?.avatar_url as string) || null,
-        content: data.content as string,
-        created_at: data.created_at as string,
+        id: result.comment.id,
+        article_id: result.comment.article_id,
+        user_id: result.comment.user_id,
+        user_name: result.comment.user_name,
+        user_avatar_url: result.comment.user_avatar_url,
+        content: result.comment.content,
+        created_at: result.comment.created_at,
+        status: result.comment.status,
+        toxicity_score: result.comment.toxicity_score,
       };
 
       set((s) => ({
@@ -88,10 +85,10 @@ export const useCommentsStore = create<CommentsState>()((set, get) => ({
         },
       }));
 
-      return true;
+      return { ok: true, status: result.status };
     } catch (err) {
       console.error("Error adding comment:", err);
-      return false;
+      return { ok: false, error: "Error inesperado al enviar" };
     }
   },
 
@@ -121,6 +118,16 @@ export const useCommentsStore = create<CommentsState>()((set, get) => ({
       }));
     } catch (err) {
       console.error("Error deleting comment:", err);
+    }
+  },
+
+  reportCommentById: async (commentId: string, reason: string) => {
+    try {
+      const result = await reportComment(commentId, reason);
+      return { ok: result.ok, error: result.error };
+    } catch (err) {
+      console.error("Error reporting comment:", err);
+      return { ok: false, error: "Error inesperado al reportar" };
     }
   },
 }));

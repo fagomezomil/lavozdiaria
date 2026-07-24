@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteComment } from "@/app/admin/comments/actions";
+import { useState } from "react";
+import { deleteComment, moderateComment } from "@/lib/actions/comments";
 
 interface CommentCardProps {
   comment: {
@@ -13,6 +14,9 @@ interface CommentCardProps {
     user_avatar_url: string | null;
     content: string;
     created_at: string;
+    status: string;
+    toxicity_score: number | null;
+    report_count: number;
   };
 }
 
@@ -30,9 +34,41 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("es-AR", { day: "numeric", month: "short" });
 }
 
+const STATUS_BADGE: Record<string, { label: string; class: string }> = {
+  pending: { label: "Pendiente", class: "bg-[var(--color-urgente)]/15 text-[var(--color-urgente)]" },
+  flagged: { label: "Reportado", class: "bg-[#e63946]/15 text-[#e63946]" },
+  approved: { label: "Aprobado", class: "bg-[#10b981]/15 text-[#10b981]" },
+  rejected: { label: "Rechazado", class: "bg-ink/10 text-ink/60" },
+};
+
 export default function CommentCard({ comment }: CommentCardProps) {
   const router = useRouter();
   const initials = comment.user_name.charAt(0).toUpperCase();
+  const [acting, setActing] = useState<string | null>(null);
+
+  const badge = STATUS_BADGE[comment.status] ?? STATUS_BADGE.approved;
+  const isHighToxicity = comment.toxicity_score !== null && comment.toxicity_score >= 0.4;
+
+  const runModeration = async (action: "approve" | "reject" | "flag") => {
+    setActing(action);
+    const result = await moderateComment(comment.id, action);
+    setActing(null);
+    if (result.error) {
+      alert("Error: " + result.error);
+    } else {
+      router.refresh();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("¿Eliminar este comentario permanentemente?")) return;
+    const result = await deleteComment(comment.id);
+    if (result.error) {
+      alert("Error: " + result.error);
+    } else {
+      router.refresh();
+    }
+  };
 
   return (
     <div className="bg-paper rounded-lg border border-border p-4 hover:shadow-sm transition-shadow">
@@ -47,9 +83,29 @@ export default function CommentCard({ comment }: CommentCardProps) {
         )}
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="text-sm font-semibold text-ink">{comment.user_name}</span>
             <span className="text-[11px] text-muted">{timeAgo(comment.created_at)}</span>
+            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${badge.class}`}>
+              {badge.label}
+            </span>
+            {comment.toxicity_score !== null && (
+              <span
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                  isHighToxicity
+                    ? "bg-[var(--color-urgente)]/20 text-[var(--color-urgente)]"
+                    : "bg-ink/5 text-muted"
+                }`}
+                title="Puntaje de toxicidad (Perspective API)"
+              >
+                Tox: {Math.round(comment.toxicity_score * 100)}%
+              </span>
+            )}
+            {comment.report_count > 0 && (
+              <span className="text-[10px] font-semibold text-[#e63946] bg-[#e63946]/10 px-1.5 py-0.5 rounded">
+                {comment.report_count} reporte{comment.report_count > 1 ? "s" : ""}
+              </span>
+            )}
           </div>
 
           <p className="text-xs text-muted">
@@ -61,18 +117,37 @@ export default function CommentCard({ comment }: CommentCardProps) {
 
           <p className="text-sm text-ink/80 mt-1.5 leading-relaxed">{comment.content}</p>
 
-          <div className="mt-2 pt-2 border-t border-border">
+          <div className="mt-2 pt-2 border-t border-border flex items-center gap-3 flex-wrap">
+            {comment.status !== "approved" && (
+              <button
+                onClick={() => runModeration("approve")}
+                disabled={acting !== null}
+                className="text-xs font-semibold text-[#10b981] hover:text-[#10b981]/80 transition-colors disabled:opacity-50"
+              >
+                {acting === "approve" ? "..." : "Aprobar"}
+              </button>
+            )}
+            {comment.status !== "rejected" && (
+              <button
+                onClick={() => runModeration("reject")}
+                disabled={acting !== null}
+                className="text-xs font-semibold text-[var(--color-urgente)] hover:opacity-80 transition-colors disabled:opacity-50"
+              >
+                {acting === "reject" ? "..." : "Rechazar"}
+              </button>
+            )}
+            {comment.status !== "flagged" && (
+              <button
+                onClick={() => runModeration("flag")}
+                disabled={acting !== null}
+                className="text-xs font-semibold text-[#e63946] hover:opacity-80 transition-colors disabled:opacity-50"
+              >
+                {acting === "flag" ? "..." : "Marcar"}
+              </button>
+            )}
             <button
-              onClick={async () => {
-                if (!confirm("¿Eliminar este comentario?")) return;
-                const result = await deleteComment(comment.id);
-                if (result.error) {
-                  alert("Error: " + result.error);
-                } else {
-                  router.refresh();
-                }
-              }}
-              className="text-xs font-semibold text-[#e63946] hover:text-[#e63946]/80 transition-colors"
+              onClick={handleDelete}
+              className="text-xs font-semibold text-muted hover:text-[#e63946] transition-colors ml-auto"
             >
               Eliminar
             </button>

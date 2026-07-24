@@ -13,6 +13,7 @@ export default function CommentForm({ articleId }: CommentFormProps) {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [pendingNotice, setPendingNotice] = useState(false);
   // Honeypot: hidden field that bots fill but humans don't
   const honeypotRef = useRef<HTMLInputElement>(null);
   const user = useAuthStore((s) => s.user);
@@ -27,15 +28,19 @@ export default function CommentForm({ articleId }: CommentFormProps) {
 
     setSubmitting(true);
     setError("");
+    setPendingNotice(false);
 
-    const ok = await addComment(articleId, content.trim());
+    const result = await addComment(articleId, content.trim());
 
-    if (!ok) {
-      setError("Error al enviar el comentario");
+    if (!result.ok) {
+      setError(result.error || "Error al enviar el comentario");
       setSubmitting(false);
       return;
     }
 
+    if (result.status === "pending") {
+      setPendingNotice(true);
+    }
     setContent("");
     setSubmitting(false);
   };
@@ -101,6 +106,11 @@ export default function CommentForm({ articleId }: CommentFormProps) {
             </button>
           </div>
           {error && <p className="text-xs text-[#e63946] mt-1">{error}</p>}
+          {pendingNotice && (
+            <p className="text-xs text-[var(--color-urgente)] mt-1 font-semibold">
+              Tu comentario está en revisión. Aparecerá cuando el equipo lo apruebe.
+            </p>
+          )}
         </div>
       </div>
     </form>

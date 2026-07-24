@@ -37,8 +37,8 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-ink flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-paper rounded-lg p-8 shadow-xl">
         <Link href="/" className="block group">
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] text-center mb-1 group-hover:opacity-80 transition-opacity">
-            La<span className="text-[#c8102e]">Voz</span>Diaria
+          <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] text-center mb-1 group-hover:opacity-80 transition-opacity tracking-wider">
+            <span className="text-ink">¡</span><span className="text-brand">QUE</span><span className="text-ink">NOTICIA!</span>
           </h1>
         </Link>
         <p className="text-center text-sm text-muted mb-2">Panel de Administración</p>

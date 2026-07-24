@@ -12,8 +12,8 @@ export default function Error({
     <div className="min-h-screen bg-[#f8f5f0]">
       <header className="bg-ink text-white py-4 text-center border-b border-white/10">
         <Link href="/">
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)]">
-            La<span className="text-[#c8102e]">Voz</span>Diaria
+          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] tracking-wider">
+            <span className="text-white">¡</span><span className="text-brand">QUE</span><span className="text-white">NOTICIA!</span>
           </h1>
         </Link>
       </header>

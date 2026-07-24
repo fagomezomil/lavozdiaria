@@ -20,6 +20,7 @@ const adminTabs = [
   { label: "Agenda", href: "/admin/agenda", key: "agenda" },
   { label: "Propuestas", href: "/admin/agenda/submissions", key: "propuestas" },
   { label: "Comentarios", href: "/admin/comments", key: "comentarios" },
+  { label: "Redes", href: "/admin/redes", key: "redes" },
   { label: "Usuarios", href: "/admin/users", key: "usuarios" },
   { label: "Estadísticas", href: "/admin/stats", key: "estadisticas" },
 ];

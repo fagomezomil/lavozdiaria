@@ -141,6 +141,8 @@ export interface SponsoredContent {
   updatedAt: string;
 }
 
+export type CommentStatus = "pending" | "approved" | "rejected" | "flagged";
+
 export interface Comment {
   id: string;
   article_id: string;
@@ -149,6 +151,8 @@ export interface Comment {
   user_avatar_url: string | null;
   content: string;
   created_at: string;
+  status?: CommentStatus;
+  toxicity_score?: number | null;
 }
 
 export interface Columnist {
