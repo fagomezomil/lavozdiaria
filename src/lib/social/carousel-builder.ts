@@ -4,6 +4,8 @@ import { generateSlidePng, generateStoryPng } from "./generate-slide";
 import { buildCaption } from "./caption-builder";
 import type { Section } from "@/lib/types";
 import { r2Upload } from "@/lib/r2";
+import { planSlides } from "./extract-slide-content";
+import type { SlideDataV2 } from "./slide-template-v2";
 
 // Concurrency de generación de PNGs — satori/resvg son CPU-intensivos. VPS 4 vCPU,
 // 10 PNGs en paralelo saturan. Limitamos a 3 para no matar la app.
@@ -147,20 +149,29 @@ export async function buildCarousel(): Promise<CarouselResult> {
 
   const sections: Section[] = notes.map((n) => (n ? n.section : ("politica" as Section)));
 
-  // Generar slides en paralelo (máx 5)
+  // Generar slides en paralelo (máx 5) — layout content-aware con dedup, CTA último
+  const plans = planSlides(
+    notes.map((n) => (n ? { body: n.body, image_url: n.image_url, title: n.title } : { body: null, image_url: null, title: "" })),
+    { forceLastCta: true },
+  );
+
   const slideResults = await Promise.all(
-    notes.map(async (note): Promise<string | null> => {
+    notes.map(async (note, i): Promise<string | null> => {
       if (!note || !note.title) return null;
       try {
-        const imageDataUrl = note.image_url ?? "";
-        const png = await generateSlidePng({
+        const plan = plans[i];
+        const slideData: SlideDataV2 = {
           title: note.title,
           section: note.section,
-          imageDataUrl,
+          imageDataUrl: note.image_url ?? "",
           excerpt: note.excerpt ?? undefined,
           dateLabel: formatDateLabel(note.created_at),
           sourceLabel: note.author ?? undefined,
-        });
+          layout: plan.layout,
+          quote: plan.quote,
+          stat: plan.stat,
+        };
+        const png = await generateSlidePng(slideData);
         return await uploadSlidePng(png, note.section, timestamp);
       } catch (err) {
         console.error(`buildCarousel: slide falló para ${note.section}:`, err);
@@ -194,21 +205,30 @@ export async function buildStories(): Promise<StoriesResult> {
   // Generar stories 9:16 como PNG directo (sin MP4/ffmpeg).
   // Fede 2026-08-31: sacamos el MP4 (antes con MP3, luego sin audio) para reducir
   // CPU (ffmpeg), storage y egress. IG/FB aceptan PNG como asset de story.
+  // Layout content-aware con dedup (sin forceLastCta — stories no tienen cierre fijo)
+  const plans = planSlides(
+    notes.map((n) => (n ? { body: n.body, image_url: n.image_url, title: n.title } : { body: null, image_url: null, title: "" })),
+  );
+
   const slideResults = await mapWithConcurrency(
     notes,
     PNG_GEN_CONCURRENCY,
     async (note, i): Promise<string | null> => {
       if (!note || !note.title) return null;
       try {
-        const imageDataUrl = note.image_url ?? "";
-        const png = await generateStoryPng({
+        const plan = plans[i];
+        const slideData: SlideDataV2 = {
           title: note.title,
           section: note.section,
-          imageDataUrl,
+          imageDataUrl: note.image_url ?? "",
           excerpt: note.excerpt ?? undefined,
           dateLabel: formatDateLabel(note.created_at),
           sourceLabel: note.author ?? undefined,
-        });
+          layout: plan.layout,
+          quote: plan.quote,
+          stat: plan.stat,
+        };
+        const png = await generateStoryPng(slideData);
         return await uploadStoryPosterPng(png, note.section, i + 1, timestamp);
       } catch (err) {
         console.error(`buildStories: story falló para ${note.section} #${i + 1}:`, err);

@@ -17,6 +17,7 @@ export interface SelectedNote {
   image_url: string | null;
   original_url: string | null;
   excerpt: string | null;
+  body?: string | null;
   created_at: string;
   author?: string | null;
 }
@@ -28,6 +29,7 @@ type DbRow = {
   image_url: string | null;
   original_url: string | null;
   excerpt: string | null;
+  body: string | null;
   created_at: string;
   author: string | null;
 };
@@ -55,7 +57,7 @@ export async function selectNotesForCarousel(
   const fallbackSince = new Date(Date.now() - FALLBACK_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
   const excludeFilter = buildExcludeFilter(excludeIds);
 
-  const cols = "id, title, section, image_url, original_url, excerpt, created_at, author";
+  const cols = "id, title, section, image_url, original_url, excerpt, body, created_at, author";
 
   const results = await Promise.all(
     CAROUSEL_SECTIONS.map(async (section): Promise<SelectedNote | null> => {
@@ -107,7 +109,7 @@ export async function selectNotesForStories(
   const fallbackSince = new Date(Date.now() - FALLBACK_WINDOW_HOURS * 60 * 60 * 1000).toISOString();
   const excludeFilter = buildExcludeFilter(excludeIds);
 
-  const cols = "id, title, section, image_url, original_url, excerpt, created_at, author";
+  const cols = "id, title, section, image_url, original_url, excerpt, body, created_at, author";
 
   const results = await Promise.all(
     CAROUSEL_SECTIONS.map(async (section): Promise<(SelectedNote | null)[]> => {
