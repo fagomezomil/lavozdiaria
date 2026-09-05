@@ -2,6 +2,16 @@ import type { SportsMatch, SportType } from "@/lib/types";
 
 export type Tournament = "apertura" | "clausura";
 
+/** Devuelve "hoy" en Argentina (UTC-3) como YYYY-MM-DD.
+ *  new Date().toISOString() devuelve UTC → entre 21:00-00:00 ART salta al día
+ *  siguiente y rompe currentTournament / currentMatchday. */
+function artToday(): string {
+  const now = new Date();
+  // UTC-3 sin DST desde 2009. Restamos 3 horas al tiempo UTC y cortamos a YYYY-MM-DD.
+  const art = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+  return art.toISOString().slice(0, 10);
+}
+
 /** Determina el torneo (Apertura/Clausura) al que pertenece un partido por mes.
  *  Apertura = primera mitad del año (mes 1-6), Clausura = segunda (mes 7-12).
  *  Convención LPF 2026: Apertura ene-jun, Clausura jul-nov. */
@@ -13,7 +23,7 @@ export function tournamentOf(matchDate: string): Tournament {
 /** Torneo "actual": el que tiene partidos upcoming (scheduled/live) más cercanos a today.
  *  Si solo uno tiene upcoming → ese. Si ambos o ninguno → por mes del año. */
 export function currentTournament(matches: SportsMatch[]): Tournament {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = artToday();
   const aperturaUpcoming = matches.some(
     (m) =>
       tournamentOf(m.match_date) === "apertura" &&
@@ -49,7 +59,7 @@ export function filterByTournament(
 export function currentMatchday(matches: SportsMatch[], sport?: SportType): number {
   const filtered = sport ? matches.filter((m) => m.sport === sport) : matches;
   if (filtered.length === 0) return 1;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = artToday();
 
   // Agrupar por matchday con su rango de fechas
   const byMatchday = new Map<number, { min: string; max: string; hasUpcoming: boolean }>();

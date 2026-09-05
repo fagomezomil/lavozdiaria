@@ -286,8 +286,8 @@ function HeroEvent({ e, onOpen }: { e: AgendaEvent; onOpen: (e: AgendaEvent) => 
       className="group block w-full text-left border-2 border-ink bg-paper shadow-hard-lg"
       style={{ boxShadow: "6px 6px 0 var(--color-agenda)" }}
     >
-      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr]">
-        <div className="w-full h-[280px] md:h-[320px] overflow-hidden bg-ink/5">
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <div className="w-full h-[330px] md:h-[370px] overflow-hidden bg-ink/5 md:col-span-1">
           {e.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -299,7 +299,7 @@ function HeroEvent({ e, onOpen }: { e: AgendaEvent; onOpen: (e: AgendaEvent) => 
             <div className="w-full h-full" style={{ background: cat.color }} />
           )}
         </div>
-        <div className="p-6 flex flex-col gap-3 justify-center">
+        <div className="p-6 flex flex-col gap-3 justify-center md:col-span-2">
           <span className={`self-start inline-flex items-center gap-2 text-white text-[10px] font-bold uppercase tracking-[0.14em] px-2.5 py-1 ${cat.bgClass}`}>
             {cat.label} · Destacado de la semana
           </span>
@@ -353,7 +353,7 @@ function HeroSlider({ events, onOpen }: { events: AgendaEvent[]; onOpen: (e: Age
   const current = events[activeIndex];
 
   return (
-    <div className="mb-10">
+    <div>
       <HeroEvent e={current} onOpen={onOpen} />
       {events.length > 1 && (
         <div className="flex justify-center gap-2 mt-4">
@@ -496,10 +496,22 @@ export default function AgendaLayout({
         </div>
       </AnimateIn>
 
-      {/* Hero slider — 6 eventos (2 por cat), rota cada 10s, respeta filtro */}
+      {/* Hero slider + Próximos 7 días — grid 4-col (hero 3 + sidebar 1) */}
       {heroEvents.length > 0 && (
         <AnimateIn direction="up" delay={0.1}>
-          <HeroSlider events={heroEvents} onOpen={open} />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-2.5">
+            <div className="lg:col-span-3">
+              <HeroSlider events={heroEvents} onOpen={open} />
+            </div>
+            <aside className="lg:col-span-1">
+              <section className="border-2 border-ink bg-paper p-4 shadow-hard-sm">
+                <h2 className="text-[11px] uppercase tracking-[0.18em] text-agenda font-bold font-[family-name:var(--font-heading)] border-b border-agenda pb-2 mb-3">
+                  Próximos 7 días
+                </h2>
+                {upcoming.map((e) => <MiniRow key={e.id} e={e} onOpen={open} />)}
+              </section>
+            </aside>
+          </div>
         </AnimateIn>
       )}
 
@@ -522,15 +534,8 @@ export default function AgendaLayout({
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar — avisos + CTA */}
         <aside className="lg:col-span-1 space-y-6">
-          <section className="border-2 border-ink bg-paper p-4 shadow-hard-sm">
-            <h2 className="text-[11px] uppercase tracking-[0.18em] text-agenda font-bold font-[family-name:var(--font-heading)] border-b border-agenda pb-2 mb-3">
-              Próximos 7 días
-            </h2>
-            {upcoming.map((e) => <MiniRow key={e.id} e={e} onOpen={open} />)}
-          </section>
-
           <Link href="/agenda/submit" className="block w-full text-center font-[family-name:var(--font-heading)] uppercase tracking-[0.14em] font-semibold text-[11px] px-3.5 py-2.5 bg-agenda text-white border-2 border-ink shadow-hard-sm">
             Envianos tu evento
           </Link>
