@@ -3,11 +3,102 @@
  *  Si no encuentra nada, devuelve null y el caller cae al fallback (titular XL). */
 
 import type { SlideLayout } from "./slide-template-v2";
+import type { Section } from "@/lib/types";
 
 export interface PlannedSlide {
   layout: SlideLayout;
   quote?: { text: string; author?: string };
   stat?: { value: string; label: string };
+}
+
+/** Composición deseada para una tanda de slides. */
+export interface SlideComposition {
+  fullbleedCount: number;
+  mixCount: number;
+  ctaCount: number;
+  /** Orden permutado de layouts mix a aplicar (cita/dato/titular). */
+  mixLayouts: SlideLayout[];
+}
+
+/** Asigna layouts por composición (v3).
+ *
+ *  Algoritmo:
+ *  1. De las notas con imagen, asignar fullbleed a las primeras N, una por sección.
+ *  2. Las restantes → mix. Iterar mixLayouts en orden; cita si hay quote, dato si
+ *     hay stat, titular como fallback. Si una nota no tiene contenido para el
+ *     layout actual, salta al siguiente en la permutación.
+ *  3. CTA al final (ctaCount veces).
+ *
+ *  Fallback: si hay menos notas con imagen que fullbleedCount, las que falcan
+ *  se asignan como mix (titular). Si hay menos notas que el total esperado,
+ *  se asigna lo que haya. */
+export function planSlidesV3(
+  notes: Array<{ body?: string | null; image_url: string | null; title: string; section: Section }>,
+  composition: SlideComposition,
+): PlannedSlide[] {
+  const { fullbleedCount, ctaCount, mixLayouts } = composition;
+  const total = notes.length;
+  const results: PlannedSlide[] = new Array(total);
+
+  // 1. Asignar fullbleed: notas con imagen, una por sección (distintas secciones).
+  const usedSections = new Set<Section>();
+  const fbIndices: number[] = [];
+  for (let i = 0; i < total && fbIndices.length < fullbleedCount; i++) {
+    const note = notes[i];
+    if (note.image_url && !usedSections.has(note.section)) {
+      fbIndices.push(i);
+      usedSections.add(note.section);
+      results[i] = { layout: "fullbleed" };
+    }
+  }
+
+  // 2. Asignar mix a las restantes (excepto los últimos ctaCount slots que son CTA).
+  const ctaStartIndex = total - ctaCount;
+  let mixLayoutIdx = 0;
+  for (let i = 0; i < total; i++) {
+    if (results[i] !== undefined) continue; // ya asignado (fullbleed)
+    if (i >= ctaStartIndex && ctaCount > 0) {
+      results[i] = { layout: "cta" };
+      continue;
+    }
+
+    const note = notes[i];
+    const quote = extractQuote(note.body);
+    const stat = extractStat(note.body, note.title);
+
+    // Iterar mixLayouts desde el offset actual hasta encontrar uno que calce.
+    let chosen: SlideLayout | null = null;
+    for (let attempt = 0; attempt < mixLayouts.length; attempt++) {
+      const layout = mixLayouts[(mixLayoutIdx + attempt) % mixLayouts.length];
+      if (layout === "cita" && quote) { chosen = "cita"; break; }
+      if (layout === "dato" && stat) { chosen = "dato"; break; }
+      if (layout === "titular") { chosen = "titular"; break; }
+    }
+    // Fallback: si ningún mixLayout calce con contenido, usar titular.
+    chosen = chosen ?? "titular";
+    mixLayoutIdx = (mixLayoutIdx + 1) % mixLayouts.length;
+
+    results[i] = {
+      layout: chosen,
+      quote: chosen === "cita" ? quote ?? undefined : undefined,
+      stat: chosen === "dato" ? stat ?? undefined : undefined,
+    };
+  }
+
+  return results;
+}
+
+/** Permuta un array usando un seed determinístico (Fisher-Yates con PRNG lineal). */
+export function shuffleWithSeed<T>(arr: T[], seed: number): T[] {
+  const result = [...arr];
+  let s = seed >>> 0;
+  for (let i = result.length - 1; i > 0; i--) {
+    // PRNG lineal congruencial (Numerical Recipes)
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
 /** Asigna layouts content-aware con dedup.

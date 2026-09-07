@@ -51,6 +51,7 @@ function buildExcludeFilter(excludeIds: Set<string>): string | null {
 export async function selectNotesForCarousel(
   since: Date,
   excludeIds: Set<string>,
+  sections: Section[] = CAROUSEL_SECTIONS,
 ): Promise<(SelectedNote | null)[]> {
   const admin = await getSupabaseAdmin();
   const sinceIso = since.toISOString();
@@ -60,7 +61,7 @@ export async function selectNotesForCarousel(
   const cols = "id, title, section, image_url, original_url, excerpt, body, created_at, author";
 
   const results = await Promise.all(
-    CAROUSEL_SECTIONS.map(async (section): Promise<SelectedNote | null> => {
+    sections.map(async (section): Promise<SelectedNote | null> => {
       // 1. Nota nueva desde `since` (excluyendo ya publicadas)
       let freshQuery = admin
         .from("articles")
@@ -103,6 +104,7 @@ export async function selectNotesForCarousel(
 export async function selectNotesForStories(
   since: Date,
   excludeIds: Set<string>,
+  sections: Section[] = CAROUSEL_SECTIONS,
 ): Promise<Array<SelectedNote | null>> {
   const admin = await getSupabaseAdmin();
   const sinceIso = since.toISOString();
@@ -112,7 +114,7 @@ export async function selectNotesForStories(
   const cols = "id, title, section, image_url, original_url, excerpt, body, created_at, author";
 
   const results = await Promise.all(
-    CAROUSEL_SECTIONS.map(async (section): Promise<(SelectedNote | null)[]> => {
+    sections.map(async (section): Promise<(SelectedNote | null)[]> => {
       // 1. Notas nuevas desde `since`, hasta 2 (excluyendo ya publicadas)
       let freshQuery = admin
         .from("articles")

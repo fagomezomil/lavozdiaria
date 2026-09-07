@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { loadFonts } from "./fonts";
 import { SlideTemplate, SlideTemplateStory, STORY_WIDTH, STORY_HEIGHT, type SlideData } from "./slide-template";
 import { SlideTemplateV2, SlideTemplateStoryV2, type SlideDataV2 } from "./slide-template-v2";
+import { SeparadorTemplate, type SeparadorData, type SeparadorLayout } from "./separador-template";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOGO_DARK_PATH = join(__dirname, "..", "..", "..", "public", "logo", "logodesktop.png");
@@ -132,5 +133,23 @@ export async function generateStoryPng(data: SlideDataV2): Promise<Buffer> {
     />,
     { width: STORY_WIDTH, height: STORY_HEIGHT, fonts },
   );
+  return Buffer.from(png);
+}
+
+/** Genera un PNG 1080×1350 para una placa separadora del feed (promo del sitio).
+ *  3 layouts: branding, secciones, cta. No usa imagen ni excerpt. */
+export async function generateSeparadorPng(layout: SeparadorLayout): Promise<Buffer> {
+  const fonts = await loadFonts();
+  const [logoWhite, logoDark] = await Promise.all([loadLogoWhite(), loadLogoDark()]);
+  const data: SeparadorData = {
+    layout,
+    logoWhiteDataUrl: logoWhite,
+    logoDarkDataUrl: logoDark,
+  };
+  const png = await render(<SeparadorTemplate {...data} />, {
+    width: WIDTH,
+    height: HEIGHT,
+    fonts,
+  });
   return Buffer.from(png);
 }

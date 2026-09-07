@@ -25,21 +25,21 @@ export interface SlideDataV2 {
   stat?: { value: string; label: string };
 }
 
-const INK = "#0a0a0a";
-const CREAM = "#f5efe4";
-const BRAND = "#f97316";
+export const INK = "#0a0a0a";
+export const CREAM = "#f5efe4";
+export const BRAND = "#f97316";
 
-const HALFTONE_DARK = "radial-gradient(circle, rgba(10,10,10,0.18) 1px, transparent 1.5px)";
-const HALFTONE_DARK_SOFT = "radial-gradient(circle, rgba(10,10,10,0.10) 1px, transparent 1.5px)";
-const HALFTONE_WHITE = "radial-gradient(circle, rgba(255,255,255,0.16) 1px, transparent 1.5px)";
-const HALFTONE_WHITE_SOFT = "radial-gradient(circle, rgba(255,255,255,0.10) 1px, transparent 1.5px)";
+export const HALFTONE_DARK = "radial-gradient(circle, rgba(10,10,10,0.18) 1px, transparent 1.5px)";
+export const HALFTONE_DARK_SOFT = "radial-gradient(circle, rgba(10,10,10,0.10) 1px, transparent 1.5px)";
+export const HALFTONE_WHITE = "radial-gradient(circle, rgba(255,255,255,0.16) 1px, transparent 1.5px)";
+export const HALFTONE_WHITE_SOFT = "radial-gradient(circle, rgba(255,255,255,0.10) 1px, transparent 1.5px)";
 
 export const CARRUSEL_W = 1080;
 export const CARRUSEL_H = 1350;
 export const STORY_W = 1080;
 export const STORY_H = 1920;
 
-function fitN(s: string, max: number): string {
+export function fitN(s: string, max: number): string {
   const c = s.replace(/\s+/g, " ").trim();
   if (c.length <= max) return c;
   const cut = c.slice(0, max - 1);
@@ -48,7 +48,7 @@ function fitN(s: string, max: number): string {
 }
 
 /** Logo sin chip — directo sobre el fondo. */
-function Logo({
+export function Logo({
   logoDataUrl,
   bottom,
   right,
@@ -90,7 +90,7 @@ function Logo({
   );
 }
 
-function WebText({
+export function WebText({
   inkColor,
   bottom,
   left,
@@ -120,7 +120,7 @@ function WebText({
   );
 }
 
-function Chip({
+export function Chip({
   label,
   color,
   top,
@@ -157,7 +157,7 @@ function Chip({
   );
 }
 
-function HalftoneBar({
+export function HalftoneBar({
   bg,
   top,
   left,
