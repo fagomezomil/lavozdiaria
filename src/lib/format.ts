@@ -37,7 +37,13 @@ export function cardByline(article: Article): { dateLine: string; source?: strin
   const source = isEnhanced
     ? "¡Qué Noticia!"
     : displaySource(article.author ?? article.publisher);
-  const ts = article.sortDate;
+  // Usamos nuestra hora de publicación (enhancedAt para notas que pasaron por el
+  // enhancer, createdAt para notas directas/admin) en vez del sort_date de la
+  // fuente, que muchas veces es impreciso (Contexto usa 00:00 UTC).
+  const ts =
+    article.enhancedAt ??
+    ('created_at' in article ? (article as { created_at: string }).created_at : undefined) ??
+    article.sortDate;
   const relative = ts ? formatRelativeTime(ts) : "";
   const compact = ts ? formatCompactDate(ts) : article.date;
   const dateLine = [relative, compact].filter(Boolean).join(" · ");
