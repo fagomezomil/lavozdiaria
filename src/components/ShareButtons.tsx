@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { SITE_URL } from "@/lib/site";
-import { SOCIAL_LINKS } from "@/lib/social";
 
 interface ShareButtonsProps {
   title: string;
@@ -31,6 +30,19 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
       document.body.removeChild(input);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: shareText, url: fullUrl });
+      } catch {
+        // user cancelled — no-op
+      }
+    } else {
+      // Fallback: copiar link al portapapeles
+      handleCopy();
     }
   };
 
@@ -67,7 +79,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
     },
     {
       label: "Instagram",
-      href: SOCIAL_LINKS.instagram,
+      onClick: handleShare,
       color: "#E4405F",
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -90,19 +102,31 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      {buttons.map((btn) => (
-        <a
-          key={btn.label}
-          href={btn.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white hover:opacity-85 transition-opacity"
-          style={{ backgroundColor: btn.color }}
-        >
-          {btn.icon}
-          {btn.label}
-        </a>
-      ))}
+      {buttons.map((btn) =>
+        btn.onClick ? (
+          <button
+            key={btn.label}
+            onClick={btn.onClick}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white hover:opacity-85 transition-opacity"
+            style={{ backgroundColor: btn.color }}
+          >
+            {btn.icon}
+            {btn.label}
+          </button>
+        ) : (
+          <a
+            key={btn.label}
+            href={btn.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white hover:opacity-85 transition-opacity"
+            style={{ backgroundColor: btn.color }}
+          >
+            {btn.icon}
+            {btn.label}
+          </a>
+        ),
+      )}
       <button
         onClick={handleCopy}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border text-foreground hover:bg-[#f0efed] transition-colors"
