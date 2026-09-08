@@ -2,7 +2,7 @@ import type { SelectedNote } from "./select-notes";
 import { sectionConfig } from "@/lib/types";
 import { AGENDA_LABELS } from "./slide-template";
 
-const SITE_URL = "https://quenoticia.com.ar";
+const SITE_URL = "https://www.quenoticia.com.ar";
 
 /** Construye el caption del carrusel con los 5 links.
  *  Formato:

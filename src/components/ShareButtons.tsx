@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { SITE_URL } from "@/lib/site";
+import { SOCIAL_LINKS } from "@/lib/social";
 
 interface ShareButtonsProps {
   title: string;
@@ -9,13 +11,8 @@ interface ShareButtonsProps {
 
 export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("");
 
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  const fullUrl = origin ? `${origin}${url}` : url;
+  const fullUrl = `${SITE_URL}${url}`;
   const encodedUrl = encodeURIComponent(fullUrl);
   const encodedTitle = encodeURIComponent(title);
   const shareText = `${title} - ¡QUE NOTICIA!`;
@@ -70,7 +67,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
     },
     {
       label: "Instagram",
-      href: fullUrl,
+      href: SOCIAL_LINKS.instagram,
       color: "#E4405F",
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
