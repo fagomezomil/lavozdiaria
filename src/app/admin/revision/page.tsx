@@ -19,7 +19,7 @@ export default async function RevisionPage() {
         "section, image_url, image_alt, original_url, enhanced_at, " +
         "enhancer_version, manual_review_required, active"
     )
-    .filter("source", "in", '("contextotucuman","telediario","diariopanorama")')
+    .filter("source", "in", '("contextotucuman","ambito","tycsports")')
     .not("enhanced_at", "is", null)
     .order("enhanced_at", { ascending: false })
     .limit(100);
