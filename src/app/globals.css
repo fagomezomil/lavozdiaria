@@ -12,6 +12,8 @@
   --color-tucuman: #f59e0b;
   --color-opinion: #0d9488;
   --color-opinion-deep: #0f766e;
+  --color-actualidad: #84cc16;
+  --color-espectaculos: #9a0bb9;
 
   /* Neutral palette — comic noir */
   --color-cream: #f5efe4;
@@ -55,6 +57,8 @@
   --color-tucuman: #f59e0b;
   --color-opinion: #0d9488;
   --color-opinion-deep: #0f766e;
+  --color-actualidad: #84cc16;
+  --color-espectaculos: #9a0bb9;
   --color-agenda: #db2777;
   --color-agenda-deep: #be185d;
   --color-cat-cultural: #db2777;
@@ -107,18 +111,24 @@ h6 {
 .section-economia { border-top-color: var(--color-economia); }
 .section-internacionales { border-top-color: var(--color-internacionales); }
 .section-tucuman { border-top-color: var(--color-tucuman); }
+.section-actualidad { border-top-color: var(--color-actualidad); }
+.section-espectaculos { border-top-color: var(--color-espectaculos); }
 
 .text-politica { color: var(--color-politica); }
 .text-deportes { color: var(--color-deportes); }
 .text-economia { color: var(--color-economia); }
 .text-internacionales { color: var(--color-internacionales); }
 .text-tucuman { color: var(--color-tucuman); }
+.text-actualidad { color: var(--color-actualidad); }
+.text-espectaculos { color: var(--color-espectaculos); }
 
 .bg-politica { background-color: var(--color-politica); }
 .bg-deportes { background-color: var(--color-deportes); }
 .bg-economia { background-color: var(--color-economia); }
 .bg-internacionales { background-color: var(--color-internacionales); }
 .bg-tucuman { background-color: var(--color-tucuman); }
+.bg-actualidad { background-color: var(--color-actualidad); }
+.bg-espectaculos { background-color: var(--color-espectaculos); }
 
 .text-clima { color: var(--color-clima); }
 .bg-clima { background-color: var(--color-clima); }

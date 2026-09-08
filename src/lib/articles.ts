@@ -217,7 +217,7 @@ export async function getCommentCounts(articleIds: string[]): Promise<Record<str
 */
 
 const PORTADA_SECTIONS = (Object.keys(sectionConfig) as Section[]).filter(
-  (k) => k !== "opinion",
+  (k) => k !== "opinion" && k !== "actualidad" && k !== "espectaculos",
 );
 
 async function _getPortadaFeatured(): Promise<{

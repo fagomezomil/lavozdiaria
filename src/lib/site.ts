@@ -47,4 +47,14 @@ export const SECTION_META: Record<
     description:
       "Columnistas de ¡QUE NOTICIA! analizan política, economía, deportes y sociedad. Editoriales, opinión firmada y debate de ideas.",
   },
+  actualidad: {
+    title: "Actualidad — Ciencia, tecnología e IA",
+    description:
+      "Ciencia, tecnología, IA, descubrimientos, lanzamientos y datos que te sorprenden. Noticias de actualidad del mundo tech y científico.",
+  },
+  espectaculos: {
+    title: "Espectáculos — Farándula argentina",
+    description:
+      "Farándula, famosos y todo el mundo del entretenimiento argentino. Noticias de espectáculos, TV, música y cine.",
+  },
 };

@@ -16,7 +16,7 @@ interface PlacaSection {
   color: string;
 }
 
-// 6 secciones del site + agenda (feature aparte, no está en sectionConfig)
+// 8 secciones del site + agenda (feature aparte, no está en sectionConfig)
 const AGENDA_COLOR = "#ec4899"; // rosa
 const SECCIONES_PLACA: PlacaSection[] = [
   { label: sectionConfig.politica.label, color: sectionConfig.politica.color },
@@ -25,6 +25,8 @@ const SECCIONES_PLACA: PlacaSection[] = [
   { label: sectionConfig.internacionales.label, color: sectionConfig.internacionales.color },
   { label: sectionConfig.tucuman.label, color: sectionConfig.tucuman.color },
   { label: sectionConfig.opinion.label, color: sectionConfig.opinion.color },
+  { label: sectionConfig.actualidad.label, color: sectionConfig.actualidad.color },
+  { label: sectionConfig.espectaculos.label, color: sectionConfig.espectaculos.color },
   { label: "Agenda", color: AGENDA_COLOR },
 ];
 
@@ -165,12 +167,13 @@ export function SeparadorSecciones(data: SeparadorData): React.ReactElement {
     );
   }
 
-  // 4 filas: 2+2+2+1 (agenda sola centrada)
+  // 5 filas: 2+2+2+2+1 (agenda sola centrada al final)
   const rows = [
     row([chip(SECCIONES_PLACA[0], "r1c1"), chip(SECCIONES_PLACA[1], "r1c2")], "row1"),
     row([chip(SECCIONES_PLACA[2], "r2c1"), chip(SECCIONES_PLACA[3], "r2c2")], "row2"),
     row([chip(SECCIONES_PLACA[4], "r3c1"), chip(SECCIONES_PLACA[5], "r3c2")], "row3"),
-    row([chip(SECCIONES_PLACA[6], "r4c1")], "row4"),
+    row([chip(SECCIONES_PLACA[6], "r4c1"), chip(SECCIONES_PLACA[7], "r4c2")], "row4"),
+    row([chip(SECCIONES_PLACA[8], "r5c1")], "row5"),
   ];
 
   return React.createElement(
@@ -221,13 +224,13 @@ export function SeparadorSecciones(data: SeparadorData): React.ReactElement {
       React.createElement("div", null, "Las secciones"),
       React.createElement("div", null, "que nos importan"),
     ),
-    // 7 secciones en filas de 2 (agenda sola al final), centradas
+    // 9 secciones en filas de 2 (agenda sola al final), centradas
     React.createElement(
       "div",
       {
         style: {
           position: "absolute",
-          top: 440,
+          top: 380,
           left: 0,
           width: CARRUSEL_W,
           display: "flex",

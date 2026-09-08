@@ -45,7 +45,7 @@ export async function toggleSponsoredActive(sponsoredId: string, currentActive: 
   revalidatePath("/admin/sponsored");
   revalidatePath("/");
   revalidatePath("/patrocinado");
-  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion"]) {
+  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos"]) {
     revalidatePath(`/${key}`);
   }
   return { error: null };
@@ -83,7 +83,7 @@ export async function saveSponsored(payload: SponsoredPayload) {
   revalidatePath("/admin/sponsored");
   revalidatePath("/");
   revalidatePath("/patrocinado");
-  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion"]) {
+  for (const key of ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos"]) {
     revalidatePath(`/${key}`);
   }
 

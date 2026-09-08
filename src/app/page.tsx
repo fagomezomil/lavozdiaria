@@ -83,6 +83,8 @@ export default async function Home() {
     internacionales: getArticlesBySection("internacionales"),
     tucuman: getArticlesBySection("tucuman"),
     opinion: [],
+    actualidad: [],
+    espectaculos: [],
   };
 
   const sectionArticles: Record<Section, Article[]> = {} as Record<Section, Article[]>;
@@ -174,7 +176,7 @@ export default async function Home() {
         </AnimateIn>
 
         {/* Section grids — opinion is rendered separately as a 4-card block */}
-        {(["politica", "tucuman", "deportes", "economia", "internacionales"] as Section[])
+        {(["politica", "tucuman", "deportes", "economia", "internacionales", "actualidad", "espectaculos"] as Section[])
           .map((key, index) => {
           const cfg = sectionConfig[key];
           const sArticles = sectionArticles[key];

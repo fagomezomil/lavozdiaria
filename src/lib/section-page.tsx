@@ -82,13 +82,17 @@ export const SECTION_SUBTITLES: Record<Section, string> = {
   internacionales: "Noticias del mundo, relaciones internacionales y eventos globales.",
   tucuman: "Noticias de la provincia de Tucumán y la región del NOA.",
   opinion: "Columnistas y análisis de opinión.",
+  actualidad: "Ciencia, tecnología, IA, descubrimientos y datos que te sorprenden.",
+  espectaculos: "Farándula, famosos y todo el mundo del entretenimiento argentino.",
 };
 
-/** Secciones estándar (las 5 que usan SectionPageLayout). opinion tiene layout propio. */
+/** Secciones estándar (las que usan SectionPageLayout). opinion tiene layout propio. */
 export const STANDARD_SECTIONS: Section[] = [
   "politica",
   "deportes",
   "economia",
   "internacionales",
   "tucuman",
+  "actualidad",
+  "espectaculos",
 ];

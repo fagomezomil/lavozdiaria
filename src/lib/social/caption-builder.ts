@@ -21,7 +21,7 @@ export function buildCaption(
   lines.push(`📰 Las 5 noticias de ¡QUE NOTICIA! — ${turno === "mañana" ? "edición mañana" : "edición noche"}`);
   lines.push("");
 
-  const numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"];
+  const numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣"];
   notes.forEach((note, i) => {
     if (!note) {
       lines.push(`${numbers[i]} (sin novedades en esta sección)`);

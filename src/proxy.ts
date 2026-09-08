@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
   // Block known scraping bots from content pages
   if (BOT_PATTERNS.some((p) => p.test(userAgent))) {
     const isContent = pathname === "/" ||
-      /^\/(politica|deportes|economia|internacionales|tucuman|opinion)(\/|$)/.test(pathname);
+      /^\/(politica|deportes|economia|internacionales|tucuman|opinion|actualidad|espectaculos)(\/|$)/.test(pathname);
     if (isContent) {
       return new NextResponse("Forbidden", { status: 403 });
     }

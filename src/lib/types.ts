@@ -1,4 +1,4 @@
-export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion";
+export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion" | "actualidad" | "espectaculos";
 
 export type AgendaCategory = "cultural" | "turistico" | "deportivo";
 
@@ -179,6 +179,11 @@ export const DRAFT_SOURCE_LABELS: Record<string, string> = {
   contextotucuman: "Contexto",
   ambito: "Ámbito",
   tycsports: "TyC Sports",
+  xataka: "Xataka",
+  hipertextual: "Hipertextual",
+  microsiervos: "Microsiervos",
+  infobae_teleshow: "Infobae",
+  eldestape: "El Destape",
 };
 
 export interface SponsoredContent {
@@ -244,6 +249,8 @@ export const sectionConfig: Record<Section, SectionConfig> = {
   internacionales: { label: "Internacionales", color: "#8b5cf6", path: "/internacionales" },
   tucuman: { label: "Tucumán", color: "#f59e0b", path: "/tucuman" },
   opinion: { label: "Opinión", color: "#0d9488", path: "/opinion" },
+  actualidad: { label: "Actualidad", color: "#84cc16", path: "/actualidad" },
+  espectaculos: { label: "Espectáculos", color: "#9a0bb9", path: "/espectaculos" },
 };
 
 /** Renombres de fuentes para display en cards y artículos.
