@@ -137,6 +137,7 @@ export async function approveEnhancedArticle(id: string, section: string) {
     .update({
       active: true,
       manual_review_required: false,
+      section,
     })
     .eq("id", id);
 

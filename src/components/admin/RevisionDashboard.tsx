@@ -63,7 +63,7 @@ export default function RevisionDashboard({ articles }: RevisionDashboardProps) 
         onSearchChange={setSearch}
         toolbarRight={
           <span className="text-xs text-muted">
-            Agente: Groq Llama 3.3 70B · Fuente: Contexto
+            Agente: Groq · GPT-OSS 120B
           </span>
         }
       />
@@ -93,7 +93,7 @@ export default function RevisionDashboard({ articles }: RevisionDashboardProps) 
       </div>
 
       <div className="text-xs text-muted mb-4">
-        {filtered.length} de {articles.length} notas · Diff lado a lado entre original de Contexto y la nueva versión generada por el agente LLM.
+        {filtered.length} de {articles.length} notas · Diff lado a lado entre el original de la fuente y la nueva versión generada por el agente LLM.
       </div>
 
       {filtered.length === 0 ? (

@@ -165,6 +165,7 @@ export interface RevisionArticle {
   volanta: string | null;
   excerpt: string | null;
   section: Section;
+  source: string;
   imageUrl: string | null;
   imageAlt: string;
   originalUrl: string | null;
@@ -172,6 +173,13 @@ export interface RevisionArticle {
   enhancerVersion: string | null;
   manualReviewRequired: boolean;
 }
+
+/** Nombres friendly de fuentes draft (scraper → enhancer → revisión). */
+export const DRAFT_SOURCE_LABELS: Record<string, string> = {
+  contextotucuman: "Contexto",
+  ambito: "Ámbito",
+  tycsports: "TyC Sports",
+};
 
 export interface SponsoredContent {
   id: string;

@@ -16,7 +16,7 @@ export default async function RevisionPage() {
     .from("articles")
     .select(
       "id, title, original_title, body, original_body, volanta, excerpt, " +
-        "section, image_url, image_alt, original_url, enhanced_at, " +
+        "section, source, image_url, image_alt, original_url, enhanced_at, " +
         "enhancer_version, manual_review_required, active"
     )
     .filter("source", "in", '("contextotucuman","ambito","tycsports")')
@@ -47,6 +47,7 @@ export default async function RevisionPage() {
     volanta: (row.volanta as string) ?? null,
     excerpt: (row.excerpt as string) ?? null,
     section: row.section as RevisionArticle["section"],
+    source: (row.source as string) ?? "",
     imageUrl: (row.image_url as string) ?? null,
     imageAlt: (row.image_alt as string) ?? "",
     originalUrl: (row.original_url as string) ?? null,

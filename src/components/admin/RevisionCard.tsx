@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { approveEnhancedArticle, rejectEnhancedArticle } from "@/app/admin/articles/actions";
 import type { RevisionArticle, Section } from "@/lib/types";
-import { sectionConfig } from "@/lib/types";
+import { sectionConfig, DRAFT_SOURCE_LABELS } from "@/lib/types";
 
 interface RevisionCardProps {
   article: RevisionArticle;
@@ -14,9 +14,12 @@ export default function RevisionCard({ article }: RevisionCardProps) {
   const [pending, startTransition] = useTransition();
   const [confirmReject, setConfirmReject] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSection, setSelectedSection] = useState<Section>(
+    article.section as Section,
+  );
 
   const section = article.section as Section;
-  const sectionColor = sectionConfig[section]?.color ?? "#0a0a0a";
+  const sectionColor = sectionConfig[selectedSection]?.color ?? "#0a0a0a";
   const isPending = article.manualReviewRequired;
   const enhancedDate = article.enhancedAt
     ? new Date(article.enhancedAt).toLocaleString("es-AR", {
@@ -28,7 +31,7 @@ export default function RevisionCard({ article }: RevisionCardProps) {
   const handleApprove = () => {
     setError(null);
     startTransition(async () => {
-      const res = await approveEnhancedArticle(article.id, section);
+      const res = await approveEnhancedArticle(article.id, selectedSection);
       if (res.error) setError(res.error);
     });
   };
@@ -54,7 +57,7 @@ export default function RevisionCard({ article }: RevisionCardProps) {
             className="text-[10px] font-bold tracking-[0.2em] uppercase px-2 py-0.5 rounded text-white"
             style={{ backgroundColor: sectionColor }}
           >
-            {sectionConfig[section]?.label ?? section}
+            {sectionConfig[selectedSection]?.label ?? selectedSection}
           </span>
           <span className="text-xs text-muted">
             Enhanced: {enhancedDate} · {article.enhancerVersion ?? "v?"}
@@ -82,7 +85,7 @@ export default function RevisionCard({ article }: RevisionCardProps) {
         {/* Columna original */}
         <div className="bg-paper p-4">
           <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted mb-2">
-            Original · Contexto
+            Original · {DRAFT_SOURCE_LABELS[article.source] ?? article.source}
           </div>
           <h3 className="text-sm font-bold text-ink mb-2 leading-snug">
             {article.originalTitle ?? "(sin título original guardado)"}
@@ -128,6 +131,21 @@ export default function RevisionCard({ article }: RevisionCardProps) {
       <div className="px-4 py-3 border-t border-border flex items-center gap-2 flex-wrap">
         {isPending && !confirmReject && (
           <>
+            <label className="flex items-center gap-1.5 text-xs text-muted">
+              <span className="font-semibold tracking-wide uppercase text-[10px]">Sección</span>
+              <select
+                value={selectedSection}
+                onChange={(e) => setSelectedSection(e.target.value as Section)}
+                disabled={pending}
+                className="text-xs font-semibold border border-border rounded px-2 py-1 bg-paper text-ink focus:outline-none focus:border-ink/40 disabled:opacity-50"
+              >
+                {(Object.keys(sectionConfig) as Section[]).map((s) => (
+                  <option key={s} value={s}>
+                    {sectionConfig[s]?.label ?? s}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               onClick={handleApprove}
               disabled={pending}
