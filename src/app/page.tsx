@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import HeroEditorial from "@/components/HeroEditorial";
 import { sectionConfig } from "@/lib/types";
-import type { Section, Article, SponsoredContent, AgendaEvent } from "@/lib/types";
+import type { Section, Article, Ad, SponsoredContent, AgendaEvent } from "@/lib/types";
 import { articles as seedArticles, getArticlesBySection } from "@/lib/data";
 import {
   fetchBreakingNews,
@@ -30,6 +30,22 @@ import MatchCard from "@/components/MatchCard";
 import { getActiveEvents } from "@/lib/agenda";
 import { getSportsMatches } from "@/lib/sports";
 import type { SportsMatch } from "@/lib/types";
+
+function RectangleAdsRow({ ads }: { ads: Ad[] }) {
+  return (
+    <div className="border-t border-border pt-6 mt-2 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AdRotator ads={ads} size="rectangle" />
+        <div className="hidden sm:block">
+          <AdRotator ads={ads} size="rectangle" />
+        </div>
+        <div className="hidden lg:block">
+          <AdRotator ads={ads} size="rectangle" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function sponsoredToArticle(s: SponsoredContent): Article {
   return {
@@ -176,7 +192,7 @@ export default async function Home() {
         </AnimateIn>
 
         {/* Section grids — opinion is rendered separately as a 4-card block */}
-        {(["politica", "tucuman", "deportes", "economia", "internacionales", "actualidad", "espectaculos"] as Section[])
+        {(["politica", "tucuman", "deportes", "economia", "internacionales", "espectaculos", "actualidad"] as Section[])
           .map((key, index) => {
           const cfg = sectionConfig[key];
           const sArticles = sectionArticles[key];
@@ -238,20 +254,8 @@ export default async function Home() {
                 </AnimateIn>
               )}
 
-              {/* Rectangle ads row after Deportes (index 1) */}
-              {index === 1 && (
-                <div className="border-t border-border pt-6 mt-2 mb-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <AdRotator ads={rectangleAds} size="rectangle" />
-                    <div className="hidden sm:block">
-                      <AdRotator ads={rectangleAds} size="rectangle" />
-                    </div>
-                    <div className="hidden lg:block">
-                      <AdRotator ads={rectangleAds} size="rectangle" />
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Rectangle ads row after Tucumán (index 1) */}
+              {index === 1 && <RectangleAdsRow ads={rectangleAds} />}
 
               {/* Próximos partidos Boca/River/Atlético Tucumán + CTA al fixture */}
               {index === 2 && featuredMatches.length > 0 && (
@@ -288,11 +292,21 @@ export default async function Home() {
                 </div>
               )}
 
+              {/* Rectangle ads row between partidos widget and weather (index 2) */}
+              {index === 2 && <RectangleAdsRow ads={rectangleAds} />}
+
               {/* Weather strip after Deportes (index 2) */}
               {index === 2 && (
                 <div className="mb-10">
                   <WeatherStrip weather={weather} />
                 </div>
+              )}
+
+              {/* Leaderboard ad between Economia and Agenda (index 3) */}
+              {index === 3 && (
+                <AnimateIn direction="up" delay={0.1}>
+                  <AdRotator ads={leaderboardAds} size="leaderboard" className="my-10" />
+                </AnimateIn>
               )}
 
               {/* Agenda block after Economia (index 3) — carrusel horizontal con CTA */}
@@ -321,6 +335,9 @@ export default async function Home() {
                   </section>
                 </AnimateIn>
               )}
+
+              {/* Rectangle ads row after Internacionales (index 4) — entre internacionales y espectaculos */}
+              {index === 4 && <RectangleAdsRow ads={rectangleAds} />}
             </AnimateIn>
           );
         })}
