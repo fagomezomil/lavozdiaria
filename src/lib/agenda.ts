@@ -82,15 +82,23 @@ function mapRowToAdminEvent(row: EventRow): AdminEvent {
 }
 
 /**
- * Fetch all active events, ordered by sort_date (proximos primero).
+ * Fetch all active events from today onwards, ordered by sort_date.
+ * Filtra eventos pasados: date_iso >= hoy (ART, UTC-3) OR end_date >= hoy
+ * (para eventos multi-día que empezaron antes pero siguen activos).
  * Returns empty array on error (layout shows empty state).
  */
 export async function getActiveEvents(): Promise<AgendaEvent[]> {
   const supabase = createPublicClient();
+  // Hoy en Argentina (UTC-3, sin DST desde 2009)
+  const now = new Date();
+  const artTime = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+  const todayStr = artTime.toISOString().split("T")[0];
+
   const { data, error } = await supabase
     .from("events")
     .select("*")
     .eq("active", true)
+    .or(`date_iso.gte.${todayStr},end_date.gte.${todayStr}`)
     .order("sort_date", { ascending: true, nullsFirst: false });
 
   if (error) {
