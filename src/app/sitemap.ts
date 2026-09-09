@@ -24,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/opinion`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE_URL}/actualidad`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE_URL}/espectaculos`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
+    { url: `${SITE_URL}/horoscopo`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: `${SITE_URL}/clima`, lastModified: now, changeFrequency: "daily", priority: 0.6 },
     { url: `${SITE_URL}/agenda`, lastModified: now, changeFrequency: "daily", priority: 0.7 },
   ];

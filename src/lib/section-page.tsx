@@ -84,6 +84,7 @@ export const SECTION_SUBTITLES: Record<Section, string> = {
   opinion: "Columnistas y análisis de opinión.",
   actualidad: "Ciencia, tecnología, IA, descubrimientos y datos que te sorprenden.",
   espectaculos: "Farándula, famosos y todo el mundo del entretenimiento argentino.",
+  horoscopo: "Horóscopo de hoy para los 12 signos del zodíaco.",
 };
 
 /** Secciones estándar (las que usan SectionPageLayout). opinion tiene layout propio. */
@@ -95,4 +96,5 @@ export const STANDARD_SECTIONS: Section[] = [
   "tucuman",
   "actualidad",
   "espectaculos",
+  "horoscopo",
 ];

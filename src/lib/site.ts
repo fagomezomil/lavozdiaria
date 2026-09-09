@@ -57,4 +57,9 @@ export const SECTION_META: Record<
     description:
       "Farándula, famosos y todo el mundo del entretenimiento argentino. Noticias de espectáculos, TV, música y cine.",
   },
+  horoscopo: {
+    title: "Horóscopo — Predicciones del zodíaco",
+    description:
+      "Horóscopo de hoy para los 12 signos del zodíaco: amor, dinero, trabajo y salud. Predicciones diarias de ¡QUE NOTICIA!.",
+  },
 };

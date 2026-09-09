@@ -238,9 +238,9 @@ export async function syncAllSections(): Promise<{ synced: number; errors: strin
   let totalSynced = 0;
 
   for (const section of sections) {
-    // Scraper handles tucuman, actualidad, espectaculos — skip FreeNewsApi for these.
+    // Scraper handles tucuman, actualidad, espectaculos, horoscopo — skip FreeNewsApi for these.
     // opinion is manual-only (admin) — no FreeNewsApi sync either.
-    if (section === "tucuman" || section === "opinion" || section === "actualidad" || section === "espectaculos") continue;
+    if (section === "tucuman" || section === "opinion" || section === "actualidad" || section === "espectaculos" || section === "horoscopo") continue;
     try {
       const count = await syncSection(section);
       console.log(`Synced ${count} articles for section ${section}`);

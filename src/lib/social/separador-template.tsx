@@ -16,7 +16,7 @@ interface PlacaSection {
   color: string;
 }
 
-// 8 secciones del site + agenda (feature aparte, no está en sectionConfig)
+// 9 secciones del site + agenda (feature aparte, no está en sectionConfig)
 const AGENDA_COLOR = "#ec4899"; // rosa
 const SECCIONES_PLACA: PlacaSection[] = [
   { label: sectionConfig.politica.label, color: sectionConfig.politica.color },
@@ -27,6 +27,7 @@ const SECCIONES_PLACA: PlacaSection[] = [
   { label: sectionConfig.opinion.label, color: sectionConfig.opinion.color },
   { label: sectionConfig.actualidad.label, color: sectionConfig.actualidad.color },
   { label: sectionConfig.espectaculos.label, color: sectionConfig.espectaculos.color },
+  { label: sectionConfig.horoscopo.label, color: sectionConfig.horoscopo.color },
   { label: "Agenda", color: AGENDA_COLOR },
 ];
 
@@ -123,7 +124,7 @@ export function SeparadorBranding(data: SeparadorData): React.ReactElement {
   );
 }
 
-/** Placa 2 SECCIONES: 7 secciones en filas de 2, centradas, texto blanco. */
+/** Placa 2 SECCIONES: chips de secciones en filas de 2, centrados, texto blanco. */
 export function SeparadorSecciones(data: SeparadorData): React.ReactElement {
   const gap = 18;
 
@@ -167,13 +168,13 @@ export function SeparadorSecciones(data: SeparadorData): React.ReactElement {
     );
   }
 
-  // 5 filas: 2+2+2+2+1 (agenda sola centrada al final)
+  // 5 filas de 2 (10 chips: 9 secciones + agenda)
   const rows = [
     row([chip(SECCIONES_PLACA[0], "r1c1"), chip(SECCIONES_PLACA[1], "r1c2")], "row1"),
     row([chip(SECCIONES_PLACA[2], "r2c1"), chip(SECCIONES_PLACA[3], "r2c2")], "row2"),
     row([chip(SECCIONES_PLACA[4], "r3c1"), chip(SECCIONES_PLACA[5], "r3c2")], "row3"),
     row([chip(SECCIONES_PLACA[6], "r4c1"), chip(SECCIONES_PLACA[7], "r4c2")], "row4"),
-    row([chip(SECCIONES_PLACA[8], "r5c1")], "row5"),
+    row([chip(SECCIONES_PLACA[8], "r5c1"), chip(SECCIONES_PLACA[9], "r5c2")], "row5"),
   ];
 
   return React.createElement(
@@ -224,7 +225,7 @@ export function SeparadorSecciones(data: SeparadorData): React.ReactElement {
       React.createElement("div", null, "Las secciones"),
       React.createElement("div", null, "que nos importan"),
     ),
-    // 9 secciones en filas de 2 (agenda sola al final), centradas
+    // 10 chips (9 secciones + agenda) en filas de 2, centrados
     React.createElement(
       "div",
       {

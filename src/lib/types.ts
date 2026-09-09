@@ -1,4 +1,4 @@
-export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion" | "actualidad" | "espectaculos";
+export type Section = "politica" | "deportes" | "economia" | "internacionales" | "tucuman" | "opinion" | "actualidad" | "espectaculos" | "horoscopo";
 
 export type AgendaCategory = "cultural" | "turistico" | "deportivo";
 
@@ -189,6 +189,9 @@ export const DRAFT_SOURCE_LABELS: Record<string, string> = {
   microsiervos: "Microsiervos",
   infobae_teleshow: "Infobae",
   eldestape: "El Destape",
+  paparazzi: "Paparazzi",
+  // lanacion_horoscopo NO va acá: el horóscopo pasa por el LLM y es del medio
+  // (sin astróloga ni fuente en display — Fede 2026-09-09).
 };
 
 export interface SponsoredContent {
@@ -256,6 +259,7 @@ export const sectionConfig: Record<Section, SectionConfig> = {
   opinion: { label: "Opinión", color: "#0d9488", path: "/opinion" },
   actualidad: { label: "Actualidad", color: "#84cc16", path: "/actualidad" },
   espectaculos: { label: "Espectáculos", color: "#9a0bb9", path: "/espectaculos" },
+  horoscopo: { label: "Horóscopo", color: "#eab308", path: "/horoscopo" },
 };
 
 /** Renombres de fuentes para display en cards y artículos.

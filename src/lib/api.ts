@@ -169,9 +169,9 @@ function mapArticleDetail(detail: ArticleDetailData): Article {
 export async function fetchSectionArticles(
   section: Section,
 ): Promise<Article[] | null> {
-  // Scraper handles tucuman, actualidad, espectaculos — no FreeNewsApi for these.
+  // Scraper handles tucuman, actualidad, espectaculos, horoscopo — no FreeNewsApi for these.
   // opinion is manual-only (admin) — no FreeNewsApi for this section either.
-  if (section === "tucuman" || section === "opinion" || section === "actualidad" || section === "espectaculos") return null;
+  if (section === "tucuman" || section === "opinion" || section === "actualidad" || section === "espectaculos" || section === "horoscopo") return null;
 
   // Try cached articles from Supabase first
   const cached = await getCachedArticles(section);

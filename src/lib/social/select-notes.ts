@@ -10,6 +10,7 @@ export const CAROUSEL_SECTIONS: Section[] = [
   "economia",
   "internacionales",
   "espectaculos",
+  "horoscopo",
 ];
 
 export interface SelectedNote {

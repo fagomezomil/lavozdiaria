@@ -14,6 +14,7 @@
   --color-opinion-deep: #0f766e;
   --color-actualidad: #84cc16;
   --color-espectaculos: #9a0bb9;
+  --color-horoscopo: #eab308;
 
   /* Neutral palette — comic noir */
   --color-cream: #f5efe4;
@@ -59,6 +60,7 @@
   --color-opinion-deep: #0f766e;
   --color-actualidad: #84cc16;
   --color-espectaculos: #9a0bb9;
+  --color-horoscopo: #eab308;
   --color-agenda: #db2777;
   --color-agenda-deep: #be185d;
   --color-cat-cultural: #db2777;
@@ -113,6 +115,7 @@ h6 {
 .section-tucuman { border-top-color: var(--color-tucuman); }
 .section-actualidad { border-top-color: var(--color-actualidad); }
 .section-espectaculos { border-top-color: var(--color-espectaculos); }
+.section-horoscopo { border-top-color: var(--color-horoscopo); }
 
 .text-politica { color: var(--color-politica); }
 .text-deportes { color: var(--color-deportes); }
@@ -121,6 +124,7 @@ h6 {
 .text-tucuman { color: var(--color-tucuman); }
 .text-actualidad { color: var(--color-actualidad); }
 .text-espectaculos { color: var(--color-espectaculos); }
+.text-horoscopo { color: var(--color-horoscopo); }
 
 .bg-politica { background-color: var(--color-politica); }
 .bg-deportes { background-color: var(--color-deportes); }

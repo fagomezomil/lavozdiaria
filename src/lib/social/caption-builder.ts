@@ -4,9 +4,9 @@ import { AGENDA_LABELS } from "./slide-template";
 
 const SITE_URL = "https://www.quenoticia.com.ar";
 
-/** Construye el caption del carrusel con los 5 links.
+/** Construye el caption del carrusel (1 link por sección, count dinámico).
  *  Formato:
- *    📰 Las 5 noticias de ¡QUE NOTICIA! — {turno}
+ *    📰 Las {n} noticias de ¡QUE NOTICIA! — {turno}
  *
  *    1️⃣ {sección}: {título}
  *       {link}
@@ -18,10 +18,11 @@ export function buildCaption(
   turno: "mañana" | "noche",
 ): string {
   const lines: string[] = [];
-  lines.push(`📰 Las 5 noticias de ¡QUE NOTICIA! — ${turno === "mañana" ? "edición mañana" : "edición noche"}`);
+  const valid = notes.filter(Boolean).length;
+  lines.push(`📰 Las ${valid} noticias de ¡QUE NOTICIA! — ${turno === "mañana" ? "edición mañana" : "edición noche"}`);
   lines.push("");
 
-  const numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣"];
+  const numbers = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣"];
   notes.forEach((note, i) => {
     if (!note) {
       lines.push(`${numbers[i]} (sin novedades en esta sección)`);

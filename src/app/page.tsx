@@ -26,6 +26,7 @@ import { getActiveColumnists } from "@/lib/columnists";
 import WeatherStrip from "@/components/WeatherStrip";
 import OpinionBlock from "@/components/OpinionBlock";
 import AgendaCarousel from "@/components/AgendaCarousel";
+import HoroscopoWidget from "@/components/HoroscopoWidget";
 import MatchCard from "@/components/MatchCard";
 import { getActiveEvents } from "@/lib/agenda";
 import { getSportsMatches } from "@/lib/sports";
@@ -101,6 +102,7 @@ export default async function Home() {
     opinion: [],
     actualidad: [],
     espectaculos: [],
+    horoscopo: [],
   };
 
   const sectionArticles: Record<Section, Article[]> = {} as Record<Section, Article[]>;
@@ -355,6 +357,13 @@ export default async function Home() {
                     </div>
                     <AgendaCarousel events={agendaHeroEvents} />
                   </section>
+                </AnimateIn>
+              )}
+
+              {/* Horóscopo chips after Agenda (index 3) — fila de 12 signos */}
+              {index === 3 && (
+                <AnimateIn direction="up" delay={0.1}>
+                  <HoroscopoWidget articles={customArticles} />
                 </AnimateIn>
               )}
 

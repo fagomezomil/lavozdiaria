@@ -10,7 +10,7 @@ interface NewArticlePageProps {
   searchParams: Promise<{ section?: string; ref?: string }>;
 }
 
-const VALID_SECTIONS: Section[] = ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos"];
+const VALID_SECTIONS: Section[] = ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos", "horoscopo"];
 
 export default async function NewArticlePage({ searchParams }: NewArticlePageProps) {
   const { user, profile } = await requireEditor();

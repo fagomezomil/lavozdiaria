@@ -24,7 +24,7 @@ function pickAllowedFields(payload: Record<string, unknown>): Record<string, unk
   return out;
 }
 
-const ALLOWED_SECTIONS = ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos"];
+const ALLOWED_SECTIONS = ["politica", "deportes", "economia", "internacionales", "tucuman", "opinion", "actualidad", "espectaculos", "horoscopo"];
 
 const MIME_TO_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
