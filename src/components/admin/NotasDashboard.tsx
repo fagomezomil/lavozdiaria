@@ -14,6 +14,7 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [layoutFilter, setLayoutFilter] = useState<string>("all");
+  const [flagFilter, setFlagFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("today");
   const [viewMode, setViewMode] = useState<"cards" | "list">("list");
 
@@ -29,8 +30,13 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
   const layoutFilters = [
     { label: "Todos los formatos", value: "all" },
     { label: "Urgente", value: "urgente" },
-    { label: "Destacada", value: "featured" },
     { label: "Normal", value: "normal" },
+  ];
+
+  const flagFilters = [
+    { label: "Todas las notas", value: "all" },
+    { label: "Destacadas", value: "featured" },
+    { label: "Fijadas", value: "pinned" },
   ];
 
   const dateFilters = [
@@ -51,13 +57,9 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
 
     return articles.filter((article) => {
       if (activeFilter !== "all" && article.section !== activeFilter) return false;
-      if (layoutFilter !== "all") {
-        if (layoutFilter === "featured") {
-          if (!article.featured) return false;
-        } else if ((article.layout || "normal") !== layoutFilter) {
-          return false;
-        }
-      }
+      if (layoutFilter !== "all" && (article.layout || "normal") !== layoutFilter) return false;
+      if (flagFilter === "featured" && !article.featured) return false;
+      if (flagFilter === "pinned" && !article.pinned) return false;
       if (dateFilter !== "all") {
         const ts = article.created_at;
         if (!ts) return false;
@@ -80,7 +82,7 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
       }
       return true;
     });
-  }, [articles, activeFilter, layoutFilter, dateFilter, search]);
+  }, [articles, activeFilter, layoutFilter, flagFilter, dateFilter, search]);
 
   const viewToggle = (
     <div className="ml-auto flex items-center gap-1 p-1 bg-ink/5 rounded">
@@ -122,12 +124,14 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
   const hasActiveFilters =
     activeFilter !== "all" ||
     layoutFilter !== "all" ||
+    flagFilter !== "all" ||
     dateFilter !== "today" ||
     search !== "";
 
   const clearFilters = () => {
     setActiveFilter("all");
     setLayoutFilter("all");
+    setFlagFilter("all");
     setDateFilter("today");
     setSearch("");
   };
@@ -156,6 +160,16 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
         >
           {layoutFilters.map((lf) => (
             <option key={lf.value} value={lf.value}>{lf.label}</option>
+          ))}
+        </select>
+
+        <select
+          value={flagFilter}
+          onChange={(e) => setFlagFilter(e.target.value)}
+          className="px-3 py-1.5 text-xs border border-border rounded bg-paper text-ink focus:outline-none focus:ring-2 focus:ring-[var(--color-focus)]"
+        >
+          {flagFilters.map((ff) => (
+            <option key={ff.value} value={ff.value}>{ff.label}</option>
           ))}
         </select>
 
