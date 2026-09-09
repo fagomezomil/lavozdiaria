@@ -20,6 +20,8 @@ function mapRowToArticle(row: Record<string, unknown>): CustomArticle {
     body: (row.body as string) || undefined,
     originalUrl: (row.original_url as string) || undefined,
     featured: (row.featured as boolean) ?? false,
+    featured_at: (row.featured_at as string) || null,
+    pinned: (row.pinned as boolean) ?? false,
     breaking: (row.breaking as boolean) ?? false,
     layout: (row.layout as ArticleLayout) || "normal",
     active: row.active as boolean,
@@ -206,12 +208,11 @@ export async function getCommentCounts(articleIds: string[]): Promise<Record<str
 /* ────────── Helpers de destacadas para portada + header ──────────
 
    Un solo cached call computa los 2 conjuntos que comparten portada y Header:
-   - heroEditorial: hasta 5, featured primero; si hay 1-4 featured, completa con
-     las más nuevas por sección (excluyendo secciones ya representadas). Si 0,
-     las más nuevas por sección (comportamiento previo al refactor).
-   - headerSlide: 1 por sección (excluida opinion), priorizando featured, excluyendo
-     los IDs del heroEditorial (sin duplicar). Si la featured de una sección está en
-     el heroEditorial, toma la siguiente más nueva.
+   - heroEditorial: hasta 5. Primero las fijadas (pinned, sin expiración), luego
+     las featured de las últimas 24h (featured_at, migración 039). Si faltan slots,
+     completa con las más nuevas por sección (excluyendo secciones ya representadas).
+   - headerSlide: 1 por sección (excluida opinion), priorizando featured de las
+     últimas 24h, excluyendo los IDs del heroEditorial (sin duplicar).
 
    Cache revalidate 60s — mismo TTL que `export const revalidate = 60` de la portada.
 */
@@ -220,20 +221,31 @@ const PORTADA_SECTIONS = (Object.keys(sectionConfig) as Section[]).filter(
   (k) => k !== "opinion" && k !== "actualidad" && k !== "espectaculos",
 );
 
+const FEATURED_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function isFeaturedFresh(a: CustomArticle): boolean {
+  return Boolean(
+    a.featured && a.featured_at && Date.now() - new Date(a.featured_at).getTime() < FEATURED_WINDOW_MS,
+  );
+}
+
 async function _getPortadaFeatured(): Promise<{
   heroEditorial: CustomArticle[];
   headerSlide: CustomArticle[];
 }> {
   const allActive = await getActiveArticles();
 
-  // --- heroEditorial ---
-  const featuredAll = allActive.filter((a) => a.featured);
+  const pinned = allActive.filter((a) => a.pinned);
+  const featuredFresh = allActive.filter(isFeaturedFresh);
+
+  // --- heroEditorial: fijadas primero, luego featured frescas ---
   const heroEditorial: CustomArticle[] = [];
   const heroIds = new Set<string>();
   const heroSections = new Set<string>();
 
-  for (const a of featuredAll) {
+  for (const a of [...pinned, ...featuredFresh]) {
     if (heroEditorial.length >= 5) break;
+    if (heroIds.has(a.id)) continue;
     heroEditorial.push(a);
     heroIds.add(a.id);
     heroSections.add(a.section);
@@ -251,13 +263,13 @@ async function _getPortadaFeatured(): Promise<{
     }
   }
 
-  // --- headerSlide: 1 por sección, priorizar featured, excluir heroEditorial ---
+  // --- headerSlide: 1 por sección, priorizar featured frescas, excluir heroEditorial ---
   const headerSlide: CustomArticle[] = [];
   const headerIds = new Set(heroIds);
   for (const key of PORTADA_SECTIONS) {
     if (headerSlide.length >= 5) break;
-    const feat = allActive.find(
-      (a) => a.section === key && a.featured && !headerIds.has(a.id),
+    const feat = featuredFresh.find(
+      (a) => a.section === key && !headerIds.has(a.id),
     );
     const pick =
       feat ??

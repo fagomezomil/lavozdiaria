@@ -42,6 +42,68 @@ export async function deleteArticle(id: string) {
   return { error: null };
 }
 
+export async function toggleArticleFeatured(
+  id: string,
+  featured: boolean,
+  featuredAt: string | null,
+) {
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado" };
+  }
+
+  const supabase = await createClient();
+
+  // Tres casos: destacar (featured=false), renovar (featured vencida, >24h)
+  // o quitar destacada (featured fresca). Renovar mantiene featured=true y
+  // arranca un nuevo ciclo de 24h.
+  const WINDOW_MS = 24 * 60 * 60 * 1000;
+  const isStale =
+    featured && featuredAt && Date.now() - new Date(featuredAt).getTime() >= WINDOW_MS;
+
+  const updates = isStale
+    ? { featured: true, featured_at: new Date().toISOString() }
+    : featured
+      ? { featured: false, featured_at: null }
+      : { featured: true, featured_at: new Date().toISOString() };
+
+  const { error } = await supabase
+    .from("articles")
+    .update(updates)
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  return { error: null };
+}
+
+export async function toggleArticlePinned(id: string, pinned: boolean) {
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .update({ pinned: !pinned })
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  return { error: null };
+}
+
 export async function toggleArticleActive(id: string, active: boolean) {
   try {
     await requireEditorAction();

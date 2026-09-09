@@ -130,6 +130,11 @@ export interface Article {
   body?: string;
   originalUrl?: string;
   featured?: boolean;
+  // featured_at: cuándo se destacó (migración 039). El carrusel solo considera
+  // featured de las últimas 24h. NULL = vencida o destacada antes del sistema.
+  featured_at?: string | null;
+  // pinned: fijada al heroEditorial indefinidamente, prioridad sobre featured.
+  pinned?: boolean;
   breaking?: boolean;
   layout?: ArticleLayout;
   volanta?: string;

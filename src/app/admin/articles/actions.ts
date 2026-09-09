@@ -87,11 +87,25 @@ export async function updateArticle(payload: UpdateArticlePayload) {
   // marcamos manually_edited=true para que el agente no la re-procese en el futuro.
   const { data: existing } = await supabase
     .from("articles")
-    .select("enhanced_at")
+    .select("enhanced_at, featured, featured_at")
     .eq("id", id)
     .maybeSingle();
   if (existing?.enhanced_at) {
     (data as Record<string, unknown>).manually_edited = true;
+  }
+
+  // featured_at (migración 039): si pasa a destacada (desde no destacada o vencida)
+  // arranca ciclo de 24h; si se desdestaca se limpia; si ya está fresca no se toca
+  // (guardar el form no resetea el ciclo).
+  if (payload.featured) {
+    const wasFresh =
+      existing?.featured && existing.featured_at &&
+      Date.now() - new Date(existing.featured_at).getTime() < 24 * 60 * 60 * 1000;
+    if (!wasFresh) {
+      (data as Record<string, unknown>).featured_at = new Date().toISOString();
+    }
+  } else {
+    (data as Record<string, unknown>).featured_at = null;
   }
 
   const { error } = await supabase
@@ -259,6 +273,11 @@ export async function createArticle(payload: CreateArticlePayload) {
   }
 
   const data = pickAllowedFields(payload as unknown as Record<string, unknown>);
+
+  // featured_at: nota nueva destacada arranca su ciclo de 24h.
+  if (payload.featured) {
+    (data as Record<string, unknown>).featured_at = new Date().toISOString();
+  }
 
   const { data: result, error } = await supabase
     .from("articles")

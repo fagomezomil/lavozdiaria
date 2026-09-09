@@ -4,6 +4,14 @@ import Link from "next/link";
 import type { CustomArticle, Section } from "@/lib/types";
 import { sectionConfig } from "@/lib/types";
 import ArticleToggleActive from "./ArticleToggleActive";
+import ArticleToggleFeatured from "./ArticleToggleFeatured";
+import ArticleTogglePinned from "./ArticleTogglePinned";
+
+const FEATURED_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function isFeaturedFresh(featured: boolean, featuredAt?: string | null): boolean {
+  return Boolean(featured && featuredAt && Date.now() - new Date(featuredAt).getTime() < FEATURED_WINDOW_MS);
+}
 import ArticleDeleteButton from "./ArticleDeleteButton";
 
 interface AdminArticleCardProps {
@@ -61,12 +69,21 @@ export default function AdminArticleCard({ article, editHref }: AdminArticleCard
             >
               {layoutInfo.label}
             </span>
+            {article.pinned && (
+              <span className="text-[10px] font-bold tracking-wide uppercase px-1.5 py-0.5 rounded bg-ink text-cream">
+                FIJADA
+              </span>
+            )}
             {article.featured && (
               <span
                 className="text-[10px] font-bold tracking-wide uppercase px-1.5 py-0.5 rounded"
-                style={{ backgroundColor: `${"#f97316"}20`, color: "#f97316" }}
+                style={
+                  isFeaturedFresh(article.featured, article.featured_at)
+                    ? { backgroundColor: `${"#f97316"}20`, color: "#f97316" }
+                    : { backgroundColor: "transparent", color: "#f9731699", border: "1px solid #f9731666" }
+                }
               >
-                DESTACADA
+                {isFeaturedFresh(article.featured, article.featured_at) ? "DESTACADA" : "DESTACADA VENCIDA"}
               </span>
             )}
           </div>
@@ -83,6 +100,12 @@ export default function AdminArticleCard({ article, editHref }: AdminArticleCard
 
           <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted">
             <ArticleToggleActive id={article.id} active={article.active} />
+            <ArticleToggleFeatured
+              id={article.id}
+              featured={article.featured ?? false}
+              featuredAt={article.featured_at ?? null}
+            />
+            <ArticleTogglePinned id={article.id} pinned={article.pinned ?? false} />
             {article.comments_enabled && (
               <span>💬 Comentarios</span>
             )}
