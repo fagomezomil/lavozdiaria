@@ -36,6 +36,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Redirect logged-in users away from /admin/login to /admin.
+  // El bloque /admin de abajo hace el role check y manda a / si no es admin/editor.
+  if (user && request.nextUrl.pathname === "/admin/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
+    return NextResponse.redirect(url);
+  }
+
   // Protect /admin routes (except /admin/login)
   if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!user && request.nextUrl.pathname !== "/admin/login") {
