@@ -360,8 +360,8 @@ export default async function Home() {
                 </AnimateIn>
               )}
 
-              {/* Horóscopo chips after Agenda (index 3) — fila de 12 signos */}
-              {index === 3 && (
+              {/* Horóscopo chips after Espectaculos (index 5), antes de Actualidad — fila de 12 signos */}
+              {index === 5 && (
                 <AnimateIn direction="up" delay={0.1}>
                   <HoroscopoWidget articles={customArticles} />
                 </AnimateIn>
