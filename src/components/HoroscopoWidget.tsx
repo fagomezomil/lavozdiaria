@@ -54,21 +54,21 @@ export default function HoroscopoWidget({ articles }: { articles: Article[] }) {
           +Horóscopo
         </Link>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0">
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-12 lg:gap-2 lg:overflow-visible lg:pb-0">
         {SIGNOS.map((signo) => {
           const nota = horoscopo.find((a) => matchSigno(a.title, signo.slug));
           return (
             <Link
               key={signo.slug}
               href={nota ? `/horoscopo/${nota.id}` : "/horoscopo"}
-              className="shrink-0 flex flex-col items-center justify-center gap-0.5 w-[72px] h-[72px] bg-brand border border-ink shadow-hard-sm hover:shadow-hard hover:-translate-y-0.5 transition-all"
+              className="shrink-0 flex flex-col items-center justify-center gap-0.5 w-[72px] h-[72px] lg:w-auto lg:h-auto lg:aspect-square bg-brand border border-ink shadow-hard-sm hover:shadow-hard hover:-translate-y-0.5 transition-all"
             >
               {/* \uFE0E = Variation Selector-15: fuerza glifo de texto monocromo,
                   evita que el browser renderice el símbolo como emoji violeta */}
-              <span className="text-2xl leading-none text-white">
+              <span className="text-2xl leading-none text-white lg:text-3xl">
                 {signo.simbolo + "\uFE0E"}
               </span>
-              <span className="text-[11px] font-semibold uppercase tracking-wide font-[family-name:var(--font-heading)]">
+              <span className="text-[11px] font-semibold uppercase tracking-wide font-[family-name:var(--font-heading)] lg:text-xs">
                 {signo.nombre}
               </span>
             </Link>
