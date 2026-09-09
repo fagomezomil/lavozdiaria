@@ -62,6 +62,8 @@ const nextConfig: NextConfig = {
       { source: "/economia/:path*", headers: articleRobotsHeader },
       { source: "/internacionales/:path*", headers: articleRobotsHeader },
       { source: "/tucuman/:path*", headers: articleRobotsHeader },
+      { source: "/actualidad/:path*", headers: articleRobotsHeader },
+      { source: "/espectaculos/:path*", headers: articleRobotsHeader },
     ];
   },
 };
