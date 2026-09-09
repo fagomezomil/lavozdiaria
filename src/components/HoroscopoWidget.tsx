@@ -61,10 +61,12 @@ export default function HoroscopoWidget({ articles }: { articles: Article[] }) {
             <Link
               key={signo.slug}
               href={nota ? `/horoscopo/${nota.id}` : "/horoscopo"}
-              className="shrink-0 flex flex-col items-center justify-center gap-0.5 w-[72px] h-[72px] bg-paper border border-ink shadow-hard-sm hover:shadow-hard hover:-translate-y-0.5 transition-all"
+              className="shrink-0 flex flex-col items-center justify-center gap-0.5 w-[72px] h-[72px] bg-brand border border-ink shadow-hard-sm hover:shadow-hard hover:-translate-y-0.5 transition-all"
             >
-              <span className="text-2xl leading-none" style={{ color: "var(--color-horoscopo)" }}>
-                {signo.simbolo}
+              {/* \uFE0E = Variation Selector-15: fuerza glifo de texto monocromo,
+                  evita que el browser renderice el símbolo como emoji violeta */}
+              <span className="text-2xl leading-none text-white">
+                {signo.simbolo + "\uFE0E"}
               </span>
               <span className="text-[11px] font-semibold uppercase tracking-wide font-[family-name:var(--font-heading)]">
                 {signo.nombre}
