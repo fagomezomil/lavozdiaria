@@ -146,7 +146,7 @@ export default async function Home() {
   // Próximos partidos de Boca, River y Atlético Tucumán (1 por equipo, el más próximo)
   const featuredTeams = ["Boca Juniors", "River Plate", "Atlético Tucumán"];
   const todayIso = new Date().toISOString().slice(0, 10);
-  const featuredMatches: SportsMatch[] = featuredTeams
+  const featuredByTeam = featuredTeams
     .map((team) =>
       matches
         .filter(
@@ -157,7 +157,29 @@ export default async function Home() {
         )
         .sort((a, b) => a.match_date.localeCompare(b.match_date))[0],
     )
-    .filter((m): m is SportsMatch => Boolean(m));
+    .filter((m): m is SportsMatch => Boolean(m))
+    // Si dos equipos featured se enfrentan, ambos .map devuelven el mismo
+    // partido → dedupe por id para evitar duplicate key en React.
+    .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i);
+
+  // Si dos featured comparten partido queda un slot libre: completar con otro
+  // partido próximo que no involucre a ninguno de los 3 equipos featured.
+  const featuredMatches: SportsMatch[] =
+    featuredByTeam.length >= featuredTeams.length
+      ? featuredByTeam
+      : [
+          ...featuredByTeam,
+          ...matches
+            .filter(
+              (m) =>
+                (m.status === "scheduled" || m.status === "live") &&
+                m.match_date >= todayIso &&
+                !featuredTeams.some((t) => m.home_team === t || m.away_team === t) &&
+                !featuredByTeam.some((f) => f.id === m.id),
+            )
+            .sort((a, b) => a.match_date.localeCompare(b.match_date))
+            .slice(0, featuredTeams.length - featuredByTeam.length),
+        ];
 
   return (
     <>
