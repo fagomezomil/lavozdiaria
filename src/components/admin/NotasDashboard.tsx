@@ -59,7 +59,7 @@ export default function NotasDashboard({ articles }: NotasDashboardProps) {
         }
       }
       if (dateFilter !== "all") {
-        const ts = article.sortDate || article.created_at;
+        const ts = article.created_at;
         if (!ts) return false;
         const d = new Date(ts);
         if (dateFilter === "today") {
