@@ -1,14 +1,14 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Section } from "@/lib/types";
 
-/** Secciones incluidas en el carrusel (opinion queda fuera — es manual-only). */
+/** Secciones incluidas en el carrusel (opinion queda fuera — es manual-only;
+ *  actualidad también queda fuera — es contenido automático sin mirada tucumana). */
 export const CAROUSEL_SECTIONS: Section[] = [
   "politica",
   "deportes",
   "tucuman",
   "economia",
   "internacionales",
-  "actualidad",
   "espectaculos",
 ];
 
