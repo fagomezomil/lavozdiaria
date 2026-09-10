@@ -2,7 +2,9 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Section } from "@/lib/types";
 
 /** Secciones incluidas en el carrusel (opinion queda fuera — es manual-only;
- *  actualidad también queda fuera — es contenido automático sin mirada tucumana). */
+ *  actualidad también queda fuera — es contenido automático sin mirada tucumana;
+ *  horoscopo fuera — cada nota es UN signo, no es noticia: la promo se publica
+ *  como placa fija en carousel-builder). */
 export const CAROUSEL_SECTIONS: Section[] = [
   "politica",
   "deportes",
@@ -10,7 +12,6 @@ export const CAROUSEL_SECTIONS: Section[] = [
   "economia",
   "internacionales",
   "espectaculos",
-  "horoscopo",
 ];
 
 export interface SelectedNote {

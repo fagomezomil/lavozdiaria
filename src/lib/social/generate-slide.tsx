@@ -5,8 +5,9 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadFonts } from "./fonts";
 import { SlideTemplate, SlideTemplateStory, STORY_WIDTH, STORY_HEIGHT, type SlideData } from "./slide-template";
-import { SlideTemplateV2, SlideTemplateStoryV2, type SlideDataV2 } from "./slide-template-v2";
+import { SlideTemplateV2, SlideTemplateStoryV2, STORY_W, STORY_H, type SlideDataV2 } from "./slide-template-v2";
 import { SeparadorTemplate, type SeparadorData, type SeparadorLayout } from "./separador-template";
+import { HoroscopoPromoTemplate } from "./horoscopo-promo";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOGO_DARK_PATH = join(__dirname, "..", "..", "..", "public", "logo", "logodesktop.png");
@@ -149,6 +150,19 @@ export async function generateSeparadorPng(layout: SeparadorLayout): Promise<Buf
   const png = await render(<SeparadorTemplate {...data} />, {
     width: WIDTH,
     height: HEIGHT,
+    fonts,
+  });
+  return Buffer.from(png);
+}
+
+/** Genera la placa promocional fija de horóscopo (estática).
+ *  carrusel → 1080×1350, story → 1080×1920. */
+export async function generateHoroscopoPromoPng(format: "carrusel" | "story"): Promise<Buffer> {
+  const fonts = await loadFonts();
+  const isStory = format === "story";
+  const png = await render(<HoroscopoPromoTemplate story={isStory} />, {
+    width: isStory ? STORY_W : WIDTH,
+    height: isStory ? STORY_H : HEIGHT,
     fonts,
   });
   return Buffer.from(png);

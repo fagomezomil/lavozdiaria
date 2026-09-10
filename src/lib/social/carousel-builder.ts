@@ -4,6 +4,7 @@ import { generateSlidePng, generateStoryPng } from "./generate-slide";
 import { buildCaption } from "./caption-builder";
 import type { Section } from "@/lib/types";
 import { r2Upload } from "@/lib/r2";
+import { generateHoroscopoPromoPng } from "./generate-slide";
 import { planSlidesV3, shuffleWithSeed, type SlideComposition } from "./extract-slide-content";
 import type { SlideDataV2, SlideLayout } from "./slide-template-v2";
 
@@ -104,6 +105,21 @@ async function uploadSlidePng(png: Buffer, section: string, timestamp: number): 
 
 /** Sube el PNG del story 9:16 a R2 con path `social/stories-{timestamp}-{section}-{n}.png`
  *  y devuelve la URL pública. Se publica directo como imagen de story IG/FB (sin MP4). */
+
+/** Placa promo horóscopo (estática): se genera y sube a R2 con path fijo
+ *  (overwrite) → R2 queda siempre con una sola copia vigente.
+ *  Si falla, devuelve null y el run sale sin la placa (no rompe la publicación). */
+async function getHoroscopoPromoUrl(kind: "carrusel" | "story"): Promise<string | null> {
+  try {
+    const png = await generateHoroscopoPromoPng(kind);
+    const path =
+      kind === "story" ? "social/horoscopo-promo-story.png" : "social/horoscopo-promo.png";
+    return await r2Upload("media", path, png, "image/png");
+  } catch (err) {
+    console.error(`getHoroscopoPromoUrl(${kind}) falló:`, err);
+    return null;
+  }
+}
 async function uploadStoryPosterPng(
   png: Buffer,
   section: string,
@@ -225,6 +241,14 @@ export async function buildCarousel(): Promise<CarouselResult> {
   const caption = buildCaption(notes, turno);
   const articleIds = notes.map((n) => (n ? n.id : null));
 
+  // Placa promo horóscopo al final del carrusel (no es nota: articleId null).
+  const promoUrl = await getHoroscopoPromoUrl("carrusel");
+  if (promoUrl) {
+    slideImageUrls.push(promoUrl);
+    articleIds.push(null);
+    sections.push("horoscopo");
+  }
+
   return { notes, slideImageUrls, caption, articleIds, sections };
 }
 
@@ -289,6 +313,15 @@ export async function buildStories(): Promise<StoriesResult> {
 
   const slideImageUrls = slideResults.filter((u): u is string => u !== null);
   const articleIds = notes.map((n) => (n ? n.id : null));
+
+  // Placa promo horóscopo antes del CTA (último slide = cierre del stories).
+  const promoUrl = await getHoroscopoPromoUrl("story");
+  if (promoUrl && slideImageUrls.length >= 2) {
+    const insertAt = slideImageUrls.length - 1;
+    slideImageUrls.splice(insertAt, 0, promoUrl);
+    articleIds.splice(insertAt, 0, null);
+    sections.splice(insertAt, 0, "horoscopo");
+  }
 
   return { notes, slideImageUrls, articleIds, sections };
 }
