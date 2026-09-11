@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 import AnimateIn from "@/components/animate/AnimateIn";
 import HeroEditorial from "@/components/HeroEditorial";
 import { sectionConfig } from "@/lib/types";
-import type { Section, Article, Ad, SponsoredContent, AgendaEvent } from "@/lib/types";
+import type { Section, Article, Ad, SponsoredContent, AgendaEvent, CustomArticle } from "@/lib/types";
 import { articles as seedArticles, getArticlesBySection } from "@/lib/data";
 import {
   fetchBreakingNews,
@@ -89,7 +89,17 @@ export default async function Home() {
   // Merge custom breaking news with API breaking news
   const customBreaking = customArticles.filter((a) => a.breaking);
   const apiBreaking = breakingData ?? seedArticles.filter((a) => a.breaking);
-  const breaking = [...customBreaking, ...apiBreaking];
+  let breaking = [...customBreaking, ...apiBreaking];
+
+  // Sin toggleadas del admin, la faja se llena con los titulares del
+  // HeroEditorial (politica, economia, tucuman) para no quedar vacía.
+  if (customBreaking.length === 0) {
+    const heroFallback = (["politica", "economia", "tucuman"] as Section[])
+      .map((s) => sliderArticles.find((a) => a.section === s))
+      .filter((a): a is CustomArticle => Boolean(a))
+      .map((a) => ({ ...a, breaking: true }));
+    breaking = [...breaking, ...heroFallback];
+  }
 
   // Build section articles: custom first, then API/seed
   // opinion is manual-only — FreeNewsApi doesn't supply it, so it defaults to [].
