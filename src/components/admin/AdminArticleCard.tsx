@@ -6,6 +6,7 @@ import { sectionConfig } from "@/lib/types";
 import ArticleToggleActive from "./ArticleToggleActive";
 import ArticleToggleFeatured from "./ArticleToggleFeatured";
 import ArticleTogglePinned from "./ArticleTogglePinned";
+import ArticleToggleBreaking from "./ArticleToggleBreaking";
 
 const FEATURED_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -106,6 +107,7 @@ export default function AdminArticleCard({ article, editHref }: AdminArticleCard
               featuredAt={article.featured_at ?? null}
             />
             <ArticleTogglePinned id={article.id} pinned={article.pinned ?? false} />
+            <ArticleToggleBreaking id={article.id} breaking={article.breaking ?? false} />
             {article.comments_enabled && (
               <span>💬 Comentarios</span>
             )}

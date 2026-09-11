@@ -104,6 +104,28 @@ export async function toggleArticlePinned(id: string, pinned: boolean) {
   return { error: null };
 }
 
+export async function toggleArticleBreaking(id: string, breaking: boolean) {
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .update({ breaking: !breaking })
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  return { error: null };
+}
+
 export async function toggleArticleActive(id: string, active: boolean) {
   try {
     await requireEditorAction();
