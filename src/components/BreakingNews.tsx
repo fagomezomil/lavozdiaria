@@ -9,6 +9,28 @@ export default function BreakingNews({ articles }: BreakingNewsProps) {
   const breaking = articles.filter((a) => a.breaking);
   if (breaking.length === 0) return null;
 
+  // Marquee infinito: 2 copias idénticas del contenido y keyframes -50%.
+  // El separador va después de CADA nota (sin condicional en la última) para
+  // que el punto quede continuo en el empalme copia1→copia2.
+  const renderList = (copy: string) => (
+    <>
+      {breaking.map((a) => (
+        <span key={`${copy}-${a.id}`}>
+          <Link
+            href={`/${a.section}/${a.id}`}
+            className="hover:text-ink hover:bg-white px-1 transition-colors"
+          >
+            {a.title}
+          </Link>
+          <span className="mx-6 text-brand">●</span>
+        </span>
+      ))}
+    </>
+  );
+
+  // Duración proporcional a la cantidad de notas (el ciclo recorre 1 copia).
+  const duration = Math.max(20, breaking.length * 6);
+
   return (
     <div className="bg-urgente text-white py-2.5 relative overflow-hidden border-y-2 border-ink">
       {/* Halftone overlay */}
@@ -18,20 +40,12 @@ export default function BreakingNews({ articles }: BreakingNewsProps) {
           Última Hora
         </span>
         <div className="overflow-hidden relative flex-1">
-          <div className="animate-marquee whitespace-nowrap text-sm font-semibold font-[family-name:var(--font-heading)] uppercase tracking-wide">
-            {breaking.map((a, i) => (
-              <span key={a.id}>
-                <Link
-                  href={`/${a.section}/${a.id}`}
-                  className="hover:text-ink hover:bg-white px-1 transition-colors"
-                >
-                  {a.title}
-                </Link>
-                {i < breaking.length - 1 && (
-                  <span className="mx-6 text-brand">●</span>
-                )}
-              </span>
-            ))}
+          <div
+            className="animate-marquee whitespace-nowrap text-sm font-semibold font-[family-name:var(--font-heading)] uppercase tracking-wide"
+            style={{ animationDuration: `${duration}s` }}
+          >
+            {renderList("a")}
+            <span aria-hidden="true">{renderList("b")}</span>
           </div>
           {/* Fade edges */}
           <div className="absolute inset-y-0 left-0 w-8 fade-urgente-r pointer-events-none" />
