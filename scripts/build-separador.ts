@@ -63,6 +63,7 @@ async function main(): Promise<number> {
       triggered: true,
       count: result.count,
       threshold: result.threshold,
+      variant: result.variant,
       placas: result.placas.map((p) => ({
         layout: p.layout,
         status: p.status,
