@@ -159,11 +159,13 @@ export async function listChannels(accessToken: string): Promise<BufferChannel[]
   return all;
 }
 
-/** Publica un carrusel a N canales (una mutación createPost por canal).
+/** Publica un carrusel (o un video) a N canales (una mutación createPost por canal).
  *  - text: caption
- *  - mediaUrls: URLs públicas de las PNGs (Buffer las descarga al publicar)
+ *  - mediaUrls: URLs públicas de los archivos (Buffer los descarga al publicar)
  *  - channelIds: lista de channel IDs destino (si vacío, usa todos los descubiertos)
  *  - scheduled: programa para esa fecha ISO; sino shareNow (publica en el instante)
+ *  - assetType: "image" (default, carrusel PNG) o "video" (reel MP4 — IG lo
+ *    publica como Reel si es vertical >15s; FB como video de feed).
  *  - Respet DAILY_LIMITS por servicio (saltando canales que ya llegaron al tope). */
 export async function bufferPublish(
   accessToken: string,
@@ -171,6 +173,7 @@ export async function bufferPublish(
   text: string,
   mediaUrls: string[],
   scheduled?: Date,
+  assetType: "image" | "video" = "image",
 ): Promise<BufferPublishResult> {
   if (!accessToken) return { success: false, channelTargets: [], skippedByLimit: [], error: "BUFFER_API_KEY no configurada" };
   if (mediaUrls.length === 0) return { success: false, channelTargets: [], skippedByLimit: [], error: "Sin slides para publicar" };
@@ -221,8 +224,10 @@ export async function bufferPublish(
   const mode = scheduled ? "customScheduled" : "shareNow";
   const dueAt = scheduled ? scheduled.toISOString() : null;
 
-  // assets array: una entrada por imagen del carrusel
-  const assetsJson = mediaUrls.map((url) => ({ image: { url } }));
+  // assets array: una entrada por archivo del carrusel (o el video del reel)
+  const assetsJson = mediaUrls.map((url) =>
+    assetType === "video" ? { video: { url } } : { image: { url } },
+  );
 
   const mutation = `mutation CreatePost($input: CreatePostInput!) {
     createPost(input: $input) {

@@ -57,3 +57,12 @@ netlify.toml
 *.tsbuildinfo
 next-env.d.ts
 quenoticia-audit/
+reels/.env
+
+# reels (Remotion local)
+reels/node_modules/
+reels/out/
+reels/notas-reales.json
+reels/public/seg-*.mp3
+reels/public/audio-final.mp3
+reels/public/fonts/

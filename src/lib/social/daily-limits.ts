@@ -1,11 +1,12 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 /** Límites diarios por servicio (platform-side, para evitar ban).
- *  Feed = publicaciones al feed (carrusel, publishArticle, publishEvent, agenda).
- *  9 = carrusel 2 + agenda 2 + separador 3 + margen 2 (2026-09-12, con agenda al feed). */
+ *  Feed = publicaciones al feed (carrusel, publishArticle, publishEvent, agenda, reel).
+ *  11 = carrusel 2 + agenda 2 + separador 3 + reels 2 + margen 2 (2026-09-12,
+ *  subido de 9 → 11: los reels de 12:30/19:30 chocaron con el tope el 1er día). */
 export const DAILY_LIMITS: Record<string, number> = {
-  instagram: 9,
-  facebook: 9,
+  instagram: 11,
+  facebook: 11,
   tiktok: 3,
   twitter: 6,
   threads: 6,

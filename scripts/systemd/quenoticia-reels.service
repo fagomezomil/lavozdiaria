@@ -1,0 +1,17 @@
+[Unit]
+Description=QUE NOTICIA reel publisher (oneshot)
+After=network.target
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/opt/quenoticia
+Environment="NODE_OPTIONS=--import ./scripts/polyfill-ws.cjs"
+ExecStart=/bin/bash -c 'set -a; . /opt/quenoticia/.env.production; set +a; exec /usr/bin/node /opt/quenoticia/node_modules/.bin/tsx scripts/publish-reel.ts'
+MemoryMax=2G
+MemoryHigh=1500M
+StandardOutput=append:/var/log/quenoticia/reel-publish.log
+StandardError=append:/var/log/quenoticia/reel-publish.log
+
+[Install]
+WantedBy=multi-user.target
