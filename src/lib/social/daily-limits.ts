@@ -20,10 +20,12 @@ export const DAILY_LIMITS: Record<string, number> = {
 /** Alias para feed (mantener DAILY_LIMITS como alias por compat con callers existentes). */
 export const DAILY_LIMITS_FEED = DAILY_LIMITS;
 
-/** Límites diarios para stories (quota aparte en Buffer). */
+/** Límites diarios para stories (quota aparte en Buffer).
+ *  60 = turnos 15/21 (2×10) + agenda + placas de partidos, con margen
+ *  (2026-09-12: el límite viejo de 25 bloqueó las placas de partidos un sábado). */
 export const DAILY_LIMITS_STORIES: Record<string, number> = {
-  instagram: 25,
-  facebook: 25,
+  instagram: 60,
+  facebook: 60,
   // TikTok no soporta stories, se saltea
 };
 
