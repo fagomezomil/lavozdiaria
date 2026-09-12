@@ -1,6 +1,7 @@
 "use client";
 
 import type { SportsMatch } from "@/lib/types";
+import { teamLogo } from "@/lib/team-logos";
 
 const WD_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
@@ -46,6 +47,35 @@ function StatusBadge({ status, time }: { status: string; time?: string | null })
   );
 }
 
+/** Badge del equipo: escudo desde R2 (team-logos) o fallback a círculo de iniciales. */
+function TeamBadge({ team, color, initials, size }: { team: string; color: string; initials: string; size: "sm" | "lg" }) {
+  const logo = teamLogo(team);
+  const box = size === "lg" ? "w-11 h-11" : "w-[30px] h-[30px]";
+  if (logo) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={logo}
+        alt={team}
+        width={size === "lg" ? 44 : 30}
+        height={size === "lg" ? 44 : 30}
+        loading="lazy"
+        className={`${box} object-contain flex-shrink-0`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`${box} rounded-full border flex items-center justify-center font-bold text-white flex-shrink-0 font-[family-name:var(--font-heading)] ${
+        size === "lg" ? "border-2 border-ink text-[11px]" : "border border-ink text-[10px]"
+      }`}
+      style={{ background: color, ...(size === "lg" ? { boxShadow: "2px 2px 0 var(--color-ink)" } : {}) }}
+    >
+      {initials}
+    </span>
+  );
+}
+
 interface MatchCardProps {
   match: SportsMatch;
   variant?: "row" | "card";
@@ -69,11 +99,11 @@ export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
           </span>
         )}
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[9px] uppercase tracking-[0.14em] font-semibold text-muted font-[family-name:var(--font-heading)]">
+          <span className="text-[12px] uppercase tracking-[0.14em] font-semibold text-muted font-[family-name:var(--font-heading)]">
             {fmtDate(match.match_date)}
           </span>
           {match.status === "live" && (
-            <span className="text-[9px] uppercase tracking-[0.14em] font-bold text-live font-[family-name:var(--font-heading)]">
+            <span className="text-[12px] uppercase tracking-[0.14em] font-bold text-live font-[family-name:var(--font-heading)]">
               · En vivo
             </span>
           )}
@@ -81,39 +111,29 @@ export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           {/* Home */}
           <div className="flex items-center gap-1.5 min-w-0">
-            <span
-              className="w-6 h-6 rounded-full border border-ink flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0 font-[family-name:var(--font-heading)]"
-              style={{ background: colors.home }}
-            >
-              {initials.home}
-            </span>
-            <span className="text-[11px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
+            <TeamBadge team={match.home_team} color={colors.home} initials={initials.home} size="sm" />
+            <span className="text-[13px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
               {match.home_team}
             </span>
           </div>
           {/* Score / vs */}
           <div className="font-[family-name:var(--font-heading)] font-bold text-[13px] text-ink px-1 whitespace-nowrap">
             {match.status === "scheduled" ? (
-              <span className="text-muted text-[10px] font-medium tracking-wide">vs</span>
+              <span className="text-muted text-[13px] font-medium tracking-wide">vs</span>
             ) : (
               <span>{match.home_score ?? 0}<span className="text-muted mx-0.5">-</span>{match.away_score ?? 0}</span>
             )}
           </div>
           {/* Away */}
           <div className="flex items-center gap-1.5 min-w-0 flex-row-reverse text-right">
-            <span
-              className="w-6 h-6 rounded-full border border-ink flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0 font-[family-name:var(--font-heading)]"
-              style={{ background: colors.away }}
-            >
-              {initials.away}
-            </span>
-            <span className="text-[11px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
+            <TeamBadge team={match.away_team} color={colors.away} initials={initials.away} size="sm" />
+            <span className="text-[13px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
               {match.away_team}
             </span>
           </div>
         </div>
         {match.time && match.status === "scheduled" && (
-          <p className="mt-1 text-[9px] text-muted font-[family-name:var(--font-heading)] uppercase tracking-wide">
+          <p className="mt-1 text-[12px] text-muted font-[family-name:var(--font-heading)] uppercase tracking-wide">
             {match.time} · {match.city || match.stadium || ""}
           </p>
         )}
@@ -135,12 +155,7 @@ export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
         {/* Home */}
         <div className="flex items-center gap-2 min-w-0">
-          <span
-            className="w-11 h-11 rounded-full border-2 border-ink flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 font-[family-name:var(--font-heading)]"
-            style={{ background: colors.home, boxShadow: "2px 2px 0 var(--color-ink)" }}
-          >
-            {initials.home}
-          </span>
+          <TeamBadge team={match.home_team} color={colors.home} initials={initials.home} size="lg" />
           <span className="text-[15px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
             {match.home_team}
           </span>
@@ -159,12 +174,7 @@ export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
         </div>
         {/* Away */}
         <div className="flex items-center gap-2 min-w-0 flex-row-reverse text-right">
-          <span
-            className="w-11 h-11 rounded-full border-2 border-ink flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 font-[family-name:var(--font-heading)]"
-            style={{ background: colors.away, boxShadow: "2px 2px 0 var(--color-ink)" }}
-          >
-            {initials.away}
-          </span>
+          <TeamBadge team={match.away_team} color={colors.away} initials={initials.away} size="lg" />
           <span className="text-[15px] font-semibold font-[family-name:var(--font-heading)] truncate" style={{ textTransform: "none" }}>
             {match.away_team}
           </span>
