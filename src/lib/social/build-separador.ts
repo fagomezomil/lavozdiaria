@@ -25,8 +25,8 @@ const OFFSET_MINUTES = 5;
 const R2_PUBLIC_BASE = "https://pub-7d90620b77a845bcbb1bf3fee8f467a2.r2.dev/media";
 
 /** Posts de feed que ocupan posición en la grid de IG (stories NO cuentan).
- *  El puzzle solo arma fila si el TOTAL de posts de grid es múltiplo de 3. */
-const GRID_KINDS = ["carrusel", "separador", "evento", "partido", "venta"];
+ *  Agenda (evento) y partidos van a stories → NO ocupan grid. */
+const GRID_KINDS = ["carrusel", "separador", "venta"];
 
 /** Posts de grid no registrados en social_posts (manuales o previos a la DB).
  *  Ajustar si la grid real de IG se desalinea respecto a este conteo. */
