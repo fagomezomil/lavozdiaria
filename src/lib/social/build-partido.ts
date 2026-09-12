@@ -75,21 +75,29 @@ function fechaCorta(iso: string): string {
   return `${DIAS[d.getUTCDay()]} ${String(d.getUTCDate()).padStart(2, "0")} ${MESES[d.getUTCMonth()]}`;
 }
 
-/** match_id de los partidos ya publicados o pendientes (failed permite retry). */
+/** match_id de los partidos ya publicados o pendientes (failed permite retry).
+ *  article_ids es uuid[] (notas/eventos): el match_id externo de matchesio no
+ *  entra, pero está en el path R2 (social/partido-{ts}-{match_id}-story.png)
+ *  y se extrae con regex. */
+const MATCH_ID_RE = /partido-\d+-(\d+)-story\.png/;
+
 async function matchIdsYaPublicados(admin: Awaited<ReturnType<typeof getSupabaseAdmin>>): Promise<Set<string>> {
   const { data, error } = await admin
     .from("social_posts")
-    .select("article_ids")
+    .select("slide_image_urls")
     .in("kind", ["partido", "partido-story"])
-    .in("status", ["published", "pending"]);
+    .in("status", ["published", "pending"])
+    .order("created_at", { ascending: false })
+    .limit(100);
   if (error) {
     console.error("buildPartido matchIdsYaPublicados error:", error);
     return new Set();
   }
   const ids = new Set<string>();
-  for (const row of (data as Array<{ article_ids: (string | null)[] }> | null) ?? []) {
-    for (const id of row.article_ids ?? []) {
-      if (id) ids.add(id);
+  for (const row of (data as Array<{ slide_image_urls: string[] }> | null) ?? []) {
+    for (const url of row.slide_image_urls ?? []) {
+      const m = url.match(MATCH_ID_RE);
+      if (m) ids.add(m[1]);
     }
   }
   return ids;
@@ -250,7 +258,7 @@ export async function buildPartido(
       const { error: errSave } = await admin.from("social_posts").insert({
         status: rowStatus,
         kind,
-        article_ids: [m.match_id],
+        article_ids: [],
         sections: ["deportes"],
         slide_image_urls: feedUrl ? [storyUrl, feedUrl] : [storyUrl],
         caption,
@@ -271,7 +279,7 @@ export async function buildPartido(
       const { error: errSave } = await admin.from("social_posts").insert({
         status: "failed",
         kind,
-        article_ids: [m.match_id],
+        article_ids: [],
         sections: ["deportes"],
         slide_image_urls: [],
         caption: null,
