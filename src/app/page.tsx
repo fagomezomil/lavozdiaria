@@ -280,17 +280,16 @@ export default async function Home() {
               {/* Rectangle ads row after Tucumán (index 1) */}
               {index === 1 && <RectangleAdsRow ads={rectangleAds} />}
 
-              {/* Próximos partidos de los 4 grandes + CTA al fixture (si queda slot) */}
+              {/* Próximos partidos de los 4 grandes + CTA al fixture (siempre visible) */}
               {index === 2 && featuredMatches.length > 0 && (
                 <div className="mt-4 mb-10">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     {featuredMatches.map((m) => (
-                      <MatchCard key={m.id} match={m} variant="card" />
+                      <MatchCard key={m.id} match={m} variant="vertical" />
                     ))}
-                    {featuredMatches.length < 4 && (
                     <Link
                       href="/deportes/futbol"
-                      className="relative border-2 border-ink bg-deportes text-white shadow-hard-sm p-4 flex flex-col justify-between hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-hard transition-all"
+                      className="relative border-2 border-ink bg-deportes text-white shadow-hard-sm p-3.5 flex flex-col justify-between hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-hard transition-all"
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-[10px] uppercase tracking-[0.14em] font-bold bg-ink px-2 py-1 font-[family-name:var(--font-heading)]">
@@ -299,12 +298,12 @@ export default async function Home() {
                       </div>
                       <div>
                         <p
-                          className="text-2xl font-bold font-[family-name:var(--font-heading)] leading-[1.05] tracking-tight mb-2"
+                          className="text-xl font-bold font-[family-name:var(--font-heading)] leading-[1.1] tracking-tight mb-2"
                           style={{ textTransform: "none" }}
                         >
                           La info del campeonato está acá
                         </p>
-                        <p className="text-[11px] uppercase tracking-[0.14em] font-semibold opacity-90 font-[family-name:var(--font-heading)] flex items-center gap-1.5">
+                        <p className="text-[10px] uppercase tracking-[0.14em] font-semibold opacity-90 font-[family-name:var(--font-heading)] flex items-center gap-1.5">
                           Ver fixture y tabla
                           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -312,7 +311,6 @@ export default async function Home() {
                         </p>
                       </div>
                     </Link>
-                    )}
                   </div>
                 </div>
               )}

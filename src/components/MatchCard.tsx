@@ -6,6 +6,41 @@ import { teamLogo } from "@/lib/team-logos";
 const WD_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
+/** Códigos aeropuerto por ciudad (3 letras, ahorro de espacio en header de card). */
+const CITY_CODES: Record<string, string> = {
+  "buenos aires": "BUE", "avellaneda": "BUE", "victoria": "BUE", "florencio varela": "BUE",
+  "la plata": "LPA", "cordoba": "COR", "mendoza": "MDZ", "godoy cruz": "MDZ",
+  "santiago del estero": "SDE", "tucuman": "TUC", "san miguel de tucuman": "TUC",
+  "rosario": "ROS", "mar del plata": "MDQ", "salta": "SAL", "jujuy": "JUJ",
+  "neuquen": "NQN", "resistencia": "RES", "formosa": "FMA", "bahia blanca": "BHI",
+  "comodoro rivadavia": "CRD", "rio gallegos": "RGL", "ushuaia": "USH", "trelew": "REL",
+  "bariloche": "BRC", "san juan": "SJU", "catamarca": "CTC", "la rioja": "IRJ",
+  "santa fe": "SFN", "parana": "PRA", "posadas": "PSS", "corrientes": "CNQ",
+  "santiago": "SCL", "lima": "LIM", "la paz": "LPB", "montevideo": "MVD",
+  "sao paulo": "GRU", "rio de janeiro": "RIO", "porto alegre": "POA",
+  "belo horizonte": "CNF", "brasilia": "BSB", "curitiba": "CWB", "fortaleza": "FOR",
+  "recife": "REC", "salvador": "SSA", "cuiaba": "CGB", "manaus": "MAO", "goiania": "GYN",
+  "quito": "UIO", "bogota": "BOG", "medellin": "MDE", "cali": "CLO", "cucuta": "CUC",
+  "caracas": "CCS", "guayaquil": "GYE", "asuncion": "ASU",
+};
+
+/** Ciudad → código 3 letras (diccionario aeropuerto; fallback: primeras 3 letras). */
+function cityCode(city?: string | null): string | null {
+  if (!city) return null;
+  const key = city.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (CITY_CODES[key]) return CITY_CODES[key];
+  return city.trim().slice(0, 3).toUpperCase();
+}
+
+/** Nombre corto del equipo: primeras 2 palabras; si la 2da es preposición/artículo, solo la 1ra. */
+function shortTeamName(name: string): string {
+  const words = name.trim().split(/\s+/);
+  if (words.length >= 2 && ["de", "del", "la", "el", "los", "las"].includes(words[1].toLowerCase())) {
+    return words[0];
+  }
+  return words.slice(0, 2).join(" ");
+}
+
 function fmtDate(iso: string): string {
   // "2026-09-07" → "Sáb 07 Sep"
   const d = new Date(iso + "T00:00:00");
@@ -78,12 +113,61 @@ function TeamBadge({ team, color, initials, size }: { team: string; color: strin
 
 interface MatchCardProps {
   match: SportsMatch;
-  variant?: "row" | "card";
+  variant?: "row" | "card" | "vertical";
 }
 
 export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
   const colors = match.team_colors || { home: "#6b6358", away: "#6b6358" };
   const initials = match.team_initials || { home: "???", away: "???" };
+
+  if (variant === "vertical") {
+    // Vertical compacta — portada (grid 5 cols): header azul deportes (fecha·hora·ciudad)
+    // + escudos con nombre a 2 líneas. Sin paddings internos extra: el header absorbe el ancho.
+    const city = cityCode(match.city);
+    return (
+      <div
+        className={`relative border-2 border-ink shadow-hard-sm flex flex-col ${
+          match.status === "live" ? "bg-live/5" : ""
+        } ${match.is_local_tucuman ? "bg-gradient-to-br from-paper to-brand/10" : ""}`}
+      >
+        {/* Header azul deportes */}
+        <div className="bg-deportes text-white px-2.5 py-1.5 flex items-center justify-between gap-1 text-[11px] uppercase tracking-[0.12em] font-semibold font-[family-name:var(--font-heading)] whitespace-nowrap">
+          <span className="truncate">{fmtDate(match.match_date)} · {match.status === "live" ? "En vivo" : match.time || "A conf."}</span>
+          <span className="truncate">{city || ""}</span>
+        </div>
+
+        {/* Cuerpo: escudos + nombres */}
+        <div className="flex-1 bg-paper grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 p-2">
+          {/* Home */}
+          <div className="flex flex-col items-center min-w-0 gap-1.5">
+            <TeamBadge team={match.home_team} color={colors.home} initials={initials.home} size="lg" />
+            <span className="text-[14px] font-semibold font-[family-name:var(--font-heading)] leading-tight text-center line-clamp-2 min-h-[2.6em] max-w-full" style={{ textTransform: "none" }}>
+              {shortTeamName(match.home_team)}
+            </span>
+          </div>
+          {/* Score / vs */}
+          <div className="font-[family-name:var(--font-heading)] font-bold text-[15px] text-ink whitespace-nowrap">
+            {match.status === "scheduled" ? (
+              <span className="text-muted text-[13px] font-medium tracking-wide uppercase">vs</span>
+            ) : (
+              <span>
+                {match.home_score ?? 0}
+                <span className="text-muted mx-0.5">-</span>
+                {match.away_score ?? 0}
+              </span>
+            )}
+          </div>
+          {/* Away */}
+          <div className="flex flex-col items-center min-w-0 gap-1.5">
+            <TeamBadge team={match.away_team} color={colors.away} initials={initials.away} size="lg" />
+            <span className="text-[14px] font-semibold font-[family-name:var(--font-heading)] leading-tight text-center line-clamp-2 min-h-[2.6em] max-w-full" style={{ textTransform: "none" }}>
+              {shortTeamName(match.away_team)}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (variant === "row") {
     // Compact row — for sidebar widget
