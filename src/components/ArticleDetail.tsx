@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Article, Ad, sectionConfig } from "@/lib/types";
 import AdSlot from "@/components/AdSlot";
 import AdRotator from "@/components/AdRotator";
@@ -14,6 +14,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import CommentSection from "@/components/CommentSection";
 import { useUIStore } from "@/lib/store/ui";
 import type { LocalArticleData } from "@/lib/store/likes";
+import ArticlePushPrompt from "@/components/pwa/ArticlePushPrompt";
 
 /** Strip HTML tags and decode common entities. Converts block-level tags to newlines first. */
 function stripHtml(html: string): string {
@@ -328,7 +329,10 @@ export default function ArticleDetail({
           {paragraphs.length > 0 ? (
             <div className="article-body text-foreground/90">
               {paragraphs.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
+                <Fragment key={i}>
+                  <p>{paragraph}</p>
+                  {i === Math.max(1, Math.floor(paragraphs.length * 0.4)) && <ArticlePushPrompt />}
+                </Fragment>
               ))}
             </div>
           ) : article.excerpt ? (

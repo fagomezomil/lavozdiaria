@@ -1,5 +1,5 @@
 import { updateSession } from "@/lib/supabase/middleware";
-import { rateLimit, rateLimitComment } from "@/lib/rate-limit";
+import { rateLimit, rateLimitComment, rateLimitPush } from "@/lib/rate-limit";
 import { type NextRequest, NextResponse } from "next/server";
 
 const AUTH_ROUTES = ["/login", "/register", "/recuperar-password", "/actualizar-password"];
@@ -64,6 +64,20 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Rate limit push subscriptions (10 req/min per IP)
+  if (pathname.startsWith("/api/push/")) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? request.headers.get("x-real-ip")
+      ?? "unknown";
+
+    if (!rateLimitPush(ip)) {
+      return new NextResponse("Demasiados intentos. Esperá un momento.", {
+        status: 429,
+        headers: { "Retry-After": "60" },
+      });
+    }
+  }
+
   return await updateSession(request);
 }
 
@@ -75,6 +89,6 @@ export const config = {
     "/recuperar-password",
     "/actualizar-password",
     "/api/:path*",
-    "/((?!_next/static|_next/image|favicon.ico|auth/callback).*)",
+    "/((?!_next/static|_next/image|favicon.ico|auth/callback|sw.js|manifest.webmanifest).*)",
   ],
 };

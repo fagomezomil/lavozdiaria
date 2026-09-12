@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<title>PWA — banner instalación + push · mockups</title>
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --cream: #f5efe4;
+    --paper: #fdfbf7;
+    --brand: #f97316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1815;
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--cream);
+    padding: 40px 24px 80px;
+  }
+  h1 {
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 span { color: var(--brand); }
+  .sub { color: rgba(245,239,228,0.6); font-size: 14px; margin-bottom: 40px; }
+  .row { display: flex; gap: 60px; flex-wrap: wrap; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .label {
+    font-family: Oswald, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--brand);
+    color: var(--ink);
+    padding: 6px 16px;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  }
+  /* celulares */
+  .phone {
+    width: 300px;
+    height: 620px;
+    background: var(--cream);
+    border: 6px solid #000;
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .notifbar { height: 22px; background: var(--ink); flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+  .notifbar span { color: rgba(245,239,228,0.5); font-size: 9px; letter-spacing: 1px; }
+  /* header del medio */
+  .hdr {
+    background: var(--ink);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 3px solid var(--brand);
+  }
+  .hdr .logo { font-family: Oswald, sans-serif; font-weight: 700; font-size: 17px; color: var(--brand); }
+  .hdr .burg { display: flex; flex-direction: column; gap: 3px; }
+  .hdr .burg { width: 18px; height: 2.5px; background: var(--cream); }
+  /* contenido portada */
+  .content { flex: 1; padding: 12px 14px; overflow: hidden; }
+  .nota {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 12px;
+  }
+  .nota .img { height: 84px; background: linear-gradient(135deg, #d8d2c4, #b8b0a0); position: relative; }
+  .nota .img::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(0,0,0,0.15) 1px, transparent 1.4px);
+    background-size: 8px 8px;
+  }
+  .nota .chip {
+    display: inline-block;
+    background: var(--brand);
+    color: var(--ink);
+    font-family: Oswald, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin: 8px 0 4px 8px;
+  }
+  .nota .tit {
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    line-height: 1.2;
+    color: var(--ink);
+    padding: 0 10px 10px;
+  }
+  /* ===== OPCIÓN A: barra abajo fija ===== */
+  .bottombar {
+    flex-shrink: 0;
+    background: var(--ink);
+    border-top: 3px solid var(--brand);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .bottombar .appico {
+    width: 34px; height: 34px;
+    background: var(--brand);
+    color: var(--ink);
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 3px 3px 0 rgba(255,255,255,0.15);
+  }
+  .bottombar .txt { flex: 1; }
+  .bottombar .t1 { font-family: Oswald, sans-serif; font-weight: 700; font-size: 13px; color: var(--cream); line-height: 1.15; }
+  .bottombar .t2 { font-size: 10px; color: rgba(245,239,228,0.55); }
+  .btn-inst {
+    background: var(--brand);
+    color: var(--ink);
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+  .x { color: rgba(245,239,228,0.5); font-size: 13px; padding: 2px 4px; flex-shrink: 0; }
+  /* ===== OPCIÓN B: card bajo header ===== */
+  .card-install {
+    background: var(--ink);
+    border: 2px solid var(--brand);
+    box-shadow: 5px 5px 0 var(--brand);
+    padding: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .card-install .appico {
+    width: 40px; height: 40px;
+    background: var(--brand);
+    color: var(--ink);
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-install .txt { flex: 1; }
+  .card-install .t1 { font-family: Oswald, sans-serif; font-weight: 700; font-size: 14px; color: var(--cream); }
+  .card-install .t2 { font-size: 10.5px; color: rgba(245,239,228,0.6); line-height: 1.35; margin: 3px 0 8px; }
+  .card-install .x { position: static; }
+  /* ===== PILL push (opción 1) ===== */
+  .pill-push {
+    position: absolute;
+    left: 12px; right: 12px; bottom: 14px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 5;
+  }
+  .pill-push .bell { font-size: 18px; }
+  .pill-push .txt { flex: 1; }
+  .pill-push .t1 { font-family: Oswald, sans-serif; font-weight: 600; font-size: 12px; color: var(--ink); line-height: 1.2; }
+  .pill-push .btns { display: flex; gap: 6px; }
+  .mini {
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+  }
+  .mini.ok { background: var(--brand); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+  .mini.no { background: transparent; color: rgba(10,10,10,0.55); }
+  /* ===== mini-banner en artículo (opción 2) ===== */
+  .artpush {
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 10px 12px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .artpush .bell { font-size: 17px; }
+  .artpush .txt { flex: 1; }
+  .artpush .t1 { font-family: Oswald, sans-serif; font-weight: 600; font-size: 12px; color: var(--ink); line-height: 1.25; }
+  .artpush .t2 { font-size: 9.5px; color: rgba(10,10,10,0.5); }
+  .paras { }
+  .paras div { height: 8px; background: rgba(10,10,10,0.12); border-radius: 4px; margin-bottom: 7px; }
+  .paras div:nth-child(2) { width: 92%; }
+  .paras div:nth-child(3) { width: 97%; }
+  .paras div:nth-child(4) { width: 70%; }
+  .caption { max-width: 300px; text-align: center; font-size: 12.5px; color: rgba(245,239,228,0.75); line-height: 1.45; }
+  .caption b { color: var(--cream); }
+  .section-title {
+    width: 100%;
+    font-family: Oswald, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin: 30px 0 4px;
+    text-align: center;
+  }
+  .section-title span { color: var(--brand); }
+</style>
+</head>
+<body>
+  <h1>PWA ¡QUE NOTICIA! <span>· mockups</span></h1>
+  <p class="sub">Banner de instalación (2 opciones) + prompt de notificaciones (2 opciones). Todo Comic Noir, mobile.</p>
+
+  <div class="section-title">Banner de instalación <span>· A vs B</span></div>
+  <div class="row">
+    <div class="col">
+      <div class="label">Opción A · Barra abajo fija</div>
+      <div class="phone">
+        <div class="notifbar"><span>12:30</span></div>
+        <div class="hdr">
+          <div class="logo">¡QUE NOTICIA!</div>
+          <div class="burg"><div class="burg"></div><div class="burg"></div><div class="burg"></div></div>
+        </div>
+        <div class="content">
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Tucumán</div>
+            <div class="tit">Hallaron una finca con 500 plantas de marihuana en el oeste</div>
+          </div>
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Deportes</div>
+            <div class="tit">Talleres - Unión cierra la fecha del sábado en la Zona A</div>
+          </div>
+        </div>
+        <div class="bottombar">
+          <div class="appico">QN</div>
+          <div class="txt">
+            <div class="t1">Instalá la app</div>
+            <div class="t2">Noticias + avisos de última hora</div>
+          </div>
+          <div class="btn-inst">Instalar</div>
+          <div class="x">✕</div>
+        </div>
+      </div>
+      <p class="caption">Siempre visible (sticky). Máxima conversión a instalación. Con ✕ desaparece para siempre.</p>
+    </div>
+
+    <div class="col">
+      <div class="label">Opción B · Card bajo el header</div>
+      <div class="phone">
+        <div class="notifbar"><span>12:30</span></div>
+        <div class="hdr">
+          <div class="logo">¡QUE NOTICIA!</div>
+          <div class="burg"><div class="burg"></div><div class="burg"></div><div class="burg"></div></div>
+        </div>
+        <div class="content">
+          <div class="card-install">
+            <div class="appico">QN</div>
+            <div class="txt">
+              <div class="t1">¡QUE NOTICIA! en tu celu</div>
+              <div class="t2">Instalá la app y leé las noticias offline</div>
+              <div class="btn-inst" style="display:inline-block">Instalar</div>
+            </div>
+            <div class="x">✕</div>
+          </div>
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Tucumán</div>
+            <div class="tit">Hallaron una finca con 500 plantas de marihuana en el oeste</div>
+          </div>
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Deportes</div>
+            <div class="tit">Talleres - Unión cierra la fecha del sábado en la Zona A</div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Menos invasivo: se scrollea con la página. Solo aparece en la portada.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Prompt de notificaciones <span>· 1 vs 2</span></div>
+  <div class="row">
+    <div class="col">
+      <div class="label">Opción 1 · Pill en 2da visita</div>
+      <div class="phone">
+        <div class="notifbar"><span>12:30</span></div>
+        <div class="hdr">
+          <div class="logo">¡QUE NOTICIA!</div>
+          <div class="burg"><div class="burg"></div><div class="burg"></div><div class="burg"></div></div>
+        </div>
+        <div class="content" style="position:relative">
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Tucumán</div>
+            <div class="tit">Hallaron una finca con 500 plantas de marihuana en el oeste</div>
+          </div>
+          <div class="nota">
+            <div class="img"></div>
+            <div class="chip">Espectáculos</div>
+            <div class="tit">Marta Fort oficializó su noviazgo y viajó a Mendoza</div>
+          </div>
+          <div class="pill-push">
+            <div class="bell">🔔</div>
+            <div class="txt">
+              <div class="t1">¿Avisamos cuando hay<br>última hora?</div>
+            </div>
+            <div class="btns">
+              <div class="mini ok">Activar</div>
+              <div class="mini no">No</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Pill discreto abajo (arriba de los ads), recién en la 2da visita. No molesta al que llega por QR por primera vez.</p>
+    </div>
+
+    <div class="col">
+      <div class="label">Opción 2 · Dentro del artículo</div>
+      <div class="phone">
+        <div class="notifbar"><span>12:30</span></div>
+        <div class="hdr">
+          <div class="logo">¡QUE NOTICIA!</div>
+          <div class="burg"><div class="burg"></div><div class="burg"></div><div class="burg"></div></div>
+        </div>
+        <div class="content">
+          <div class="nota" style="margin-bottom:0">
+            <div class="img" style="height:110px"></div>
+            <div class="chip">Tucumán</div>
+            <div class="tit">Hallaron una finca con 500 plantas de marihuana en el oeste</div>
+          </div>
+          <div class="paras" style="margin-top:10px"><div></div><div></div><div></div><div></div></div>
+          <div class="artpush">
+            <div class="bell">🔔</div>
+            <div class="txt">
+              <div class="t1">¿Avisamos cuando hay última hora?</div>
+              <div class="t2">Notificación solo para urgencias</div>
+            </div>
+            <div class="btns">
+              <div class="mini ok">Activar</div>
+            </div>
+          </div>
+          <div class="paras"><div></div><div></div><div style="width:50%"></div></div>
+        </div>
+      </div>
+      <p class="caption">Mini-banner intercalado en el artículo después de ~15s de lectura. Más contextual, más intrusivo.</p>
+    </div>
+  </div>
+</body>
+</html>

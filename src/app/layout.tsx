@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Oswald, Inter } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import BackToTop from "@/components/BackToTop";
+import SWRegister from "@/components/pwa/SWRegister";
 import JsonLd from "@/components/JsonLd";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import {
@@ -77,6 +78,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#f97316",
+};
+
 /** Structured data global: Organization (publisher) + WebSite.
  *  Sin SearchAction porque el sitio no tiene search endpoint todavía. */
 const organizationLd = {
@@ -118,6 +123,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <BackToTop />
+          <SWRegister />
         </AuthProvider>
       </body>
     </html>

@@ -7,6 +7,7 @@ import ArticleToggleActive from "./ArticleToggleActive";
 import ArticleToggleFeatured from "./ArticleToggleFeatured";
 import ArticleTogglePinned from "./ArticleTogglePinned";
 import ArticleToggleBreaking from "./ArticleToggleBreaking";
+import ArticleSendPush from "./ArticleSendPush";
 
 const FEATURED_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -108,6 +109,7 @@ export default function AdminArticleCard({ article, editHref }: AdminArticleCard
             />
             <ArticleTogglePinned id={article.id} pinned={article.pinned ?? false} />
             <ArticleToggleBreaking id={article.id} breaking={article.breaking ?? false} />
+            <ArticleSendPush id={article.id} />
             {article.comments_enabled && (
               <span>💬 Comentarios</span>
             )}

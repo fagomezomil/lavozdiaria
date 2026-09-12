@@ -4,6 +4,7 @@ import { createClient, requireEditorAction } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { notifyArticleChange } from "@/lib/indexnow";
 import { notifyArticleChangeGoogle } from "@/lib/google-indexing";
+import { sendPushBreaking } from "@/lib/push";
 import { r2Upload } from "@/lib/r2";
 
 // Whitelist de campos permitidos en create/update — todo lo que no esté acá se descarta.
@@ -87,7 +88,7 @@ export async function updateArticle(payload: UpdateArticlePayload) {
   // marcamos manually_edited=true para que el agente no la re-procese en el futuro.
   const { data: existing } = await supabase
     .from("articles")
-    .select("enhanced_at, featured, featured_at")
+    .select("enhanced_at, featured, featured_at, breaking")
     .eq("id", id)
     .maybeSingle();
   if (existing?.enhanced_at) {
@@ -127,6 +128,15 @@ export async function updateArticle(payload: UpdateArticlePayload) {
   void notifyArticleChange(payload.section, id);
   // Google Indexing API: notificar push a Google Web Search
   void notifyArticleChangeGoogle(payload.section, id);
+
+  // Web Push: breaking false→true (re-guardar una nota ya breaking no re-envía)
+  if (payload.breaking && payload.active && !existing?.breaking) {
+    void sendPushBreaking({
+      title: "ÚLTIMA HORA",
+      body: payload.title,
+      url: `/${payload.section}/${id}`,
+    });
+  }
 
   return { error: null };
 }
@@ -298,6 +308,15 @@ export async function createArticle(payload: CreateArticlePayload) {
   void notifyArticleChange(payload.section, result.id);
   // Google Indexing API: notificar push a Google Web Search
   void notifyArticleChangeGoogle(payload.section, result.id);
+
+  // Web Push: nota nueva marcada breaking
+  if (payload.breaking && payload.active) {
+    void sendPushBreaking({
+      title: "ÚLTIMA HORA",
+      body: payload.title,
+      url: `/${payload.section}/${result.id}`,
+    });
+  }
 
   return { error: null, id: result.id };
 }

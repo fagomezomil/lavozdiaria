@@ -15,6 +15,8 @@ const AUTH_LIMIT = { max: 30, windowMs: 60_000 };
 const COMMENT_LIMIT = { max: 30, windowMs: 60_000 };
 // 5 comments per minute per user (server action rate limit, by user_id)
 const COMMENT_USER_LIMIT = { max: 5, windowMs: 60_000 };
+// 10 requests per minute for push subscriptions (subscribe/unsubscribe, per IP)
+const PUSH_LIMIT = { max: 10, windowMs: 60_000 };
 
 type LimitConfig = typeof AUTH_LIMIT;
 
@@ -58,4 +60,9 @@ export function rateLimitComment(ip: string): boolean {
 /** Check comment rate limit per user (5 req/min per user_id) — for server actions */
 export function rateLimitCommentByUser(userId: string): boolean {
   return checkLimit(`comment-user:${userId}`, COMMENT_USER_LIMIT);
+}
+
+/** Check push subscription rate limit (10 req/min per IP) */
+export function rateLimitPush(ip: string): boolean {
+  return checkLimit(`push:${ip}`, PUSH_LIMIT);
 }

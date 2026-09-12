@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import BreakingNews from "@/components/BreakingNews";
+import InstallBanner from "@/components/pwa/InstallBanner";
 import ArticleCard from "@/components/ArticleCard";
 import AdSlot from "@/components/AdSlot";
 import AdRotator from "@/components/AdRotator";
@@ -181,6 +182,11 @@ export default async function Home() {
       <Header />
       <NavbarWrapper />
       <BreakingNews articles={breaking} />
+
+      {/* PWA: card instalación (solo portada, se scrollea) */}
+      <div className="max-w-7xl mx-auto px-4">
+        <InstallBanner />
+      </div>
 
       {/* Leaderboard ad */}
       <div className="max-w-7xl mx-auto px-4 my-4">

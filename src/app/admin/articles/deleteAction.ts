@@ -4,6 +4,7 @@ import { createClient, requireEditorAction } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { notifyArticleChange } from "@/lib/indexnow";
 import { notifyGoogleIndexing } from "@/lib/google-indexing";
+import { sendPushBreaking } from "@/lib/push";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.quenoticia.com.ar";
 
@@ -112,6 +113,14 @@ export async function toggleArticleBreaking(id: string, breaking: boolean) {
   }
 
   const supabase = await createClient();
+
+  // Fetch previo: para el push solo importa pasar de off→on
+  const { data: prev } = await supabase
+    .from("articles")
+    .select("breaking, title, section, active")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("articles")
     .update({ breaking: !breaking })
@@ -123,7 +132,46 @@ export async function toggleArticleBreaking(id: string, breaking: boolean) {
 
   revalidatePath("/admin/articles");
   revalidatePath("/");
+
+  // Web Push: urgente activada desde off + nota activa
+  if (!breaking && prev && !prev.breaking && prev.active !== false) {
+    void sendPushBreaking({
+      title: "ÚLTIMA HORA",
+      body: prev.title,
+      url: `/${prev.section}/${id}`,
+    });
+  }
+
   return { error: null };
+}
+
+/** Envío manual de push "Última Hora" para una nota (botón en el dashboard).
+ *  Incondicional: el editor decide qué mandar (ej: resultado de partido). */
+export async function sendArticlePush(id: string) {
+  try {
+    await requireEditorAction();
+  } catch {
+    return { error: "No autorizado", sent: 0 };
+  }
+
+  const supabase = await createClient();
+  const { data: article } = await supabase
+    .from("articles")
+    .select("title, section")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!article) {
+    return { error: "Nota no encontrada", sent: 0 };
+  }
+
+  const sent = await sendPushBreaking({
+    title: "ÚLTIMA HORA",
+    body: article.title,
+    url: `/${article.section}/${id}`,
+  });
+
+  return { error: null, sent };
 }
 
 export async function toggleArticleActive(id: string, active: boolean) {
