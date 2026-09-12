@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
+import type { AdminCounts } from "@/lib/admin-counts";
 
 interface AdminShellProps {
   role: string;
   email: string;
+  counts: AdminCounts;
   children: React.ReactNode;
 }
 
@@ -35,10 +37,26 @@ const editorTabs = [
   { label: "Comentarios", href: "/admin/comments", key: "comentarios" },
 ];
 
-export default function AdminShell({ role, email, children }: AdminShellProps) {
+export default function AdminShell({ role, email, counts, children }: AdminShellProps) {
   const pathname = usePathname();
   const isAdmin = role === "admin";
   const tabs = isAdmin ? adminTabs : editorTabs;
+
+  // Badge naranja con cantidad pendiente (solo admins): revisión LLM / propuestas / comentarios
+  const pendingByTab: Partial<Record<string, number>> = {
+    revision: counts.revision,
+    propuestas: counts.propuestas,
+    comentarios: counts.comentarios,
+  };
+  const badge = (key: string) => {
+    const n = pendingByTab[key];
+    if (!isAdmin || !n || n <= 0) return null;
+    return (
+      <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold leading-none ml-1.5 align-middle">
+        {n > 99 ? "99+" : n}
+      </span>
+    );
+  };
 
   const getActiveKey = () => {
     if (pathname === "/admin") return "avisos";
@@ -71,6 +89,7 @@ export default function AdminShell({ role, email, children }: AdminShellProps) {
                   className="px-3 py-2 text-sm font-bold text-white border-b-2 border-[var(--color-brand)]"
                 >
                   {tab.label}
+                  {badge(tab.key)}
                 </span>
               ) : (
                 <Link
@@ -79,6 +98,7 @@ export default function AdminShell({ role, email, children }: AdminShellProps) {
                   className="px-3 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors rounded-t"
                 >
                   {tab.label}
+                  {badge(tab.key)}
                 </Link>
               )
             ))}
