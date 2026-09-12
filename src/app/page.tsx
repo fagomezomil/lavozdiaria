@@ -30,6 +30,7 @@ import HoroscopoWidget from "@/components/HoroscopoWidget";
 import MatchCard from "@/components/MatchCard";
 import { getActiveEvents } from "@/lib/agenda";
 import { getSportsMatches } from "@/lib/sports";
+import { artToday } from "@/lib/sports-utils";
 import type { SportsMatch } from "@/lib/types";
 
 function RectangleAdsRow({ ads }: { ads: Ad[] }) {
@@ -155,10 +156,12 @@ export default async function Home() {
     ...events.filter((e) => e.category === "deportivo").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 1),
   ];
 
-  // Próximos partidos de Boca, River y Atlético Tucumán (1 por equipo, el más próximo)
-  const featuredTeams = ["Boca Juniors", "River Plate", "Atlético Tucumán"];
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const featuredByTeam = featuredTeams
+  // Próximos partidos de los 4 equipos grandes (Boca, River, Atlético y San Martín
+  // Tucumán): 1 por equipo, el más próximo, ordenados por fecha. Si dos se enfrentan,
+  // ambos .map devuelven el mismo partido → dedupe por id.
+  const featuredTeams = ["Boca Juniors", "River Plate", "Atlético Tucumán", "San Martín Tucumán"];
+  const todayIso = artToday();
+  const featuredMatches: SportsMatch[] = featuredTeams
     .map((team) =>
       matches
         .filter(
@@ -170,28 +173,8 @@ export default async function Home() {
         .sort((a, b) => a.match_date.localeCompare(b.match_date))[0],
     )
     .filter((m): m is SportsMatch => Boolean(m))
-    // Si dos equipos featured se enfrentan, ambos .map devuelven el mismo
-    // partido → dedupe por id para evitar duplicate key en React.
-    .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i);
-
-  // Si dos featured comparten partido queda un slot libre: completar con otro
-  // partido próximo que no involucre a ninguno de los 3 equipos featured.
-  const featuredMatches: SportsMatch[] =
-    featuredByTeam.length >= featuredTeams.length
-      ? featuredByTeam
-      : [
-          ...featuredByTeam,
-          ...matches
-            .filter(
-              (m) =>
-                (m.status === "scheduled" || m.status === "live") &&
-                m.match_date >= todayIso &&
-                !featuredTeams.some((t) => m.home_team === t || m.away_team === t) &&
-                !featuredByTeam.some((f) => f.id === m.id),
-            )
-            .sort((a, b) => a.match_date.localeCompare(b.match_date))
-            .slice(0, featuredTeams.length - featuredByTeam.length),
-        ];
+    .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i)
+    .sort((a, b) => a.match_date.localeCompare(b.match_date));
 
   return (
     <>
@@ -291,20 +274,21 @@ export default async function Home() {
               {/* Rectangle ads row after Tucumán (index 1) */}
               {index === 1 && <RectangleAdsRow ads={rectangleAds} />}
 
-              {/* Próximos partidos Boca/River/Atlético Tucumán + CTA al fixture */}
+              {/* Próximos partidos de los 4 grandes + CTA al fixture (si queda slot) */}
               {index === 2 && featuredMatches.length > 0 && (
                 <div className="mt-4 mb-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {featuredMatches.map((m) => (
                       <MatchCard key={m.id} match={m} variant="card" />
                     ))}
+                    {featuredMatches.length < 4 && (
                     <Link
                       href="/deportes/futbol"
                       className="relative border-2 border-ink bg-deportes text-white shadow-hard-sm p-4 flex flex-col justify-between hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-hard transition-all"
                     >
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-[10px] uppercase tracking-[0.14em] font-bold bg-ink px-2 py-1 font-[family-name:var(--font-heading)]">
-                          Liga Profesional
+                          Fútbol
                         </span>
                       </div>
                       <div>
@@ -322,6 +306,7 @@ export default async function Home() {
                         </p>
                       </div>
                     </Link>
+                    )}
                   </div>
                 </div>
               )}

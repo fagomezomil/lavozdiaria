@@ -128,11 +128,6 @@ export default function MatchCard({ match, variant = "row" }: MatchCardProps) {
         match.status === "live" ? "bg-live/5" : ""
       } ${match.is_local_tucuman ? "bg-gradient-to-br from-paper to-brand/10" : ""}`}
     >
-      {match.is_local_tucuman && (
-        <span className="absolute top-2 right-2 text-[8px] uppercase tracking-[0.16em] font-bold text-brand bg-ink px-1.5 py-0.5 font-[family-name:var(--font-heading)]">
-          Tucumano
-        </span>
-      )}
       <div className="flex items-center justify-between mb-3 text-[10px] uppercase tracking-[0.14em] font-[family-name:var(--font-heading)]">
         <span className="font-semibold text-ink">{fmtDate(match.match_date)}</span>
         <span className="text-muted truncate ml-2 max-w-[55%]">{match.stadium || match.city}</span>
