@@ -66,14 +66,22 @@ export default async function SectionPaginationPage({ params }: PageProps) {
   if (!section || page < 2) notFound();
   // /deportes/pagina/N también muestra el fixture widget
   if (section === "deportes") {
-    const [matches, standingsA, standingsB] = await Promise.all([
+    const [matches, standingsA, standingsB, pnStandingsA, pnStandingsB] = await Promise.all([
       getSportsMatches(),
-      getStandings("futbol", "A"),
-      getStandings("futbol", "B"),
+      getStandings("futbol", "A", { tournament: "Liga Profesional" }),
+      getStandings("futbol", "B", { tournament: "Liga Profesional" }),
+      getStandings("futbol", "A", { tournament: "Primera Nacional" }),
+      getStandings("futbol", "B", { tournament: "Primera Nacional" }),
     ]);
     const slot =
       matches.length > 0 ? (
-        <FixtureWidget matches={matches} standingsA={standingsA} standingsB={standingsB} />
+        <FixtureWidget
+          matches={matches}
+          standingsA={standingsA}
+          standingsB={standingsB}
+          pnStandingsA={pnStandingsA}
+          pnStandingsB={pnStandingsB}
+        />
       ) : null;
     return renderStandardSectionPage(section, page, SECTION_SUBTITLES[section], slot);
   }

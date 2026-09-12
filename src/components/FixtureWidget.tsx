@@ -3,7 +3,13 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { SportsMatch, SportType } from "@/lib/types";
-import { currentMatchday, currentTournament, filterByTournament } from "@/lib/sports-utils";
+import {
+  BIG_TEAMS,
+  artToday,
+  currentMatchday,
+  leagueOf,
+  type FutbolLeagueId,
+} from "@/lib/sports-utils";
 import type { StandingRow } from "@/lib/sports";
 import MatchCard from "./MatchCard";
 import StandingsTable from "./StandingsTable";
@@ -12,61 +18,99 @@ interface FixtureWidgetProps {
   matches: SportsMatch[];
   /** Cuántos partidos mostrar por tab (default 5) */
   limit?: number;
-  /** Tabla de posiciones grupo A (top 5 widget) */
+  /** Tabla de posiciones LPF grupo A (top 5 widget) */
   standingsA?: StandingRow[];
-  /** Tabla de posiciones grupo B (top 5 widget) */
+  /** Tabla de posiciones LPF grupo B (top 5 widget) */
   standingsB?: StandingRow[];
+  /** Tabla de posiciones PN Zona A (top 5 widget) */
+  pnStandingsA?: StandingRow[];
+  /** Tabla de posiciones PN Zona B (top 5 widget) */
+  pnStandingsB?: StandingRow[];
 }
 
-const SPORT_LABELS: Record<SportType, string> = {
-  futbol: "Fútbol",
+type NonFutbolSport = Exclude<SportType, "futbol">;
+
+/** Tabs del widget: ligas de fútbol + otros deportes, solo si hay partidos hoy. */
+type TabId = FutbolLeagueId | NonFutbolSport;
+
+const TAB_META: Record<TabId, string> = {
+  lpf: "Fútbol",
+  pn: "Primera Nacional",
   basquet: "Básquet",
   rugby: "Rugby",
 };
 
-const SPORT_PATHS: Record<SportType, string> = {
-  futbol: "/deportes/futbol",
+const TAB_PATHS: Record<TabId, string> = {
+  lpf: "/deportes/futbol",
+  pn: "/deportes/futbol",
   basquet: "/deportes/basquet",
   rugby: "/deportes/rugby",
 };
 
-export default function FixtureWidget({ matches, limit = 5, standingsA, standingsB }: FixtureWidgetProps) {
-  // Determinar qué deportes tienen partidos
-  const availableSports = useMemo(() => {
-    const sports: SportType[] = [];
-    for (const s of ["futbol", "basquet", "rugby"] as SportType[]) {
-      if (matches.some((m) => m.sport === s)) sports.push(s);
+export default function FixtureWidget({
+  matches,
+  limit = 5,
+  standingsA,
+  standingsB,
+  pnStandingsA,
+  pnStandingsB,
+}: FixtureWidgetProps) {
+  // Tabs disponibles según la data (solo deportes/ligas con partidos activos hoy)
+  const availableTabs = useMemo(() => {
+    const tabs: TabId[] = [];
+    if (matches.some((m) => leagueOf(m) === "lpf")) tabs.push("lpf");
+    if (matches.some((m) => leagueOf(m) === "pn")) tabs.push("pn");
+    for (const s of ["basquet", "rugby"] as NonFutbolSport[]) {
+      if (matches.some((m) => m.sport === s)) tabs.push(s);
     }
-    return sports;
+    return tabs;
   }, [matches]);
 
-  const [active, setActive] = useState<SportType>(availableSports[0] || "futbol");
+  const [active, setActive] = useState<TabId>(availableTabs[0] || "lpf");
 
-  // Mostrar SOLO los partidos de la fecha actual (matchday en curso) del torneo actual
-  const visible = useMemo(() => {
-    const sportMatches = matches.filter((m) => m.sport === active);
-    const tournament = currentTournament(sportMatches);
-    const tournamentMatches = filterByTournament(sportMatches, tournament);
-    const md = currentMatchday(tournamentMatches, active);
-    return tournamentMatches
-      .filter((m) => m.matchday === md)
-      .sort((a, b) => (a.kickoff_at || a.match_date).localeCompare(b.kickoff_at || b.match_date))
-      .slice(0, limit);
-  }, [matches, active, limit]);
-
-  const tournamentLabel = useMemo(() => {
-    const sportMatches = matches.filter((m) => m.sport === active);
-    const t = currentTournament(sportMatches);
-    return t === "apertura" ? "Apertura" : "Clausura";
+  // Pool de la tab activa (liga completa, sin sub-filtro de torneo).
+  const pool = useMemo(() => {
+    if (active === "lpf" || active === "pn") {
+      return matches.filter((m) => leagueOf(m) === active);
+    }
+    return matches.filter((m) => m.sport === active);
   }, [matches, active]);
 
-  const tournament = visible[0]?.tournament || matches.find((m) => m.sport === active)?.tournament || "";
-  const matchday = visible[0]?.matchday ?? currentMatchday(
-    filterByTournament(matches.filter((m) => m.sport === active), currentTournament(matches.filter((m) => m.sport === active))),
-    active,
-  );
+  // Fútbol: prioriza los 4 equipos grandes (River, Boca, Atl. y San Martín Tucumán),
+  // próximos ordenados por fecha; si ninguno tiene próximo, cae a la fecha actual.
+  const visible = useMemo(() => {
+    if (pool.length === 0) return [];
+    const sportOf = active === "lpf" || active === "pn" ? "futbol" : active;
+    const byKickoff = (a: SportsMatch, b: SportsMatch) =>
+      (a.kickoff_at || a.match_date).localeCompare(b.kickoff_at || b.match_date);
+    if (active === "lpf" || active === "pn") {
+      const today = artToday();
+      const big = pool
+        .filter(
+          (m) =>
+            (BIG_TEAMS.includes(m.home_team) || BIG_TEAMS.includes(m.away_team)) &&
+            (m.status === "scheduled" || m.status === "live") &&
+            m.match_date >= today,
+        )
+        .sort(byKickoff);
+      if (big.length > 0) return big.slice(0, limit);
+    }
+    const md = currentMatchday(pool, sportOf);
+    return pool.filter((m) => m.matchday === md).sort(byKickoff).slice(0, limit);
+  }, [pool, active, limit]);
 
-  if (availableSports.length === 0) {
+  const tournamentName =
+    active === "pn"
+      ? "Primera Nacional"
+      : pool[0]?.tournament || matches.find((m) => leagueOf(m) === "lpf")?.tournament || "";
+
+  // Título: "Fecha N" solo si los partidos visibles son de una misma fecha
+  const sharedMatchday =
+    visible.length > 0 && new Set(visible.map((m) => m.matchday)).size === 1
+      ? visible[0].matchday
+      : null;
+
+  if (availableTabs.length === 0) {
     return (
       <div className="border-2 border-ink bg-paper shadow-hard-sm p-4">
         <p className="text-xs text-muted font-[family-name:var(--font-heading)] uppercase tracking-wide">
@@ -76,6 +120,12 @@ export default function FixtureWidget({ matches, limit = 5, standingsA, standing
     );
   }
 
+  // Standings de la tab activa (LPF: Grupo A/B — PN: Zona A/B)
+  const standings =
+    active === "pn"
+      ? { a: pnStandingsA, b: pnStandingsB, labelA: "Zona A", labelB: "Zona B" }
+      : { a: standingsA, b: standingsB, labelA: "Grupo A", labelB: "Grupo B" };
+
   return (
     <div className="border-2 border-ink bg-paper shadow-hard-sm sticky top-4">
       {/* Header negro */}
@@ -83,14 +133,14 @@ export default function FixtureWidget({ matches, limit = 5, standingsA, standing
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[9px] uppercase tracking-[0.18em] opacity-60 font-[family-name:var(--font-heading)] truncate">
-              {tournament || "Fixture"} · {tournamentLabel}
+              {tournamentName || "Fixture"}
             </p>
             <h2 className="text-base font-bold font-[family-name:var(--font-heading)] leading-tight truncate" style={{ textTransform: "none" }}>
-              {matchday ? `Fecha ${matchday}` : "Próximos partidos"}
+              {sharedMatchday ? `Fecha ${sharedMatchday}` : "Próximos partidos"}
             </h2>
           </div>
           <Link
-            href={SPORT_PATHS[active]}
+            href={TAB_PATHS[active]}
             className="text-[10px] uppercase tracking-[0.14em] font-semibold text-brand hover:text-paper transition-colors whitespace-nowrap"
           >
             Ver todos →
@@ -99,21 +149,23 @@ export default function FixtureWidget({ matches, limit = 5, standingsA, standing
       </div>
 
       {/* Tabs */}
-      {availableSports.length > 1 && (
+      {availableTabs.length > 1 && (
         <div className="flex border-b-2 border-ink">
-          {availableSports.map((s) => {
+          {availableTabs.map((s) => {
             const isActive = s === active;
             return (
               <button
                 key={s}
                 onClick={() => setActive(s)}
-                className={`flex-1 py-1.5 text-[11px] uppercase tracking-[0.14em] font-semibold font-[family-name:var(--font-heading)] transition-colors ${
+                className={`flex-1 py-1.5 uppercase font-semibold font-[family-name:var(--font-heading)] transition-colors ${
+                  availableTabs.length > 3 ? "text-[10px] tracking-[0.08em]" : "text-[11px] tracking-[0.14em]"
+                } ${
                   isActive
                     ? "bg-brand text-ink border-b-2 border-brand"
                     : "bg-paper text-muted hover:text-ink hover:bg-ink/5"
                 }`}
               >
-                {SPORT_LABELS[s]}
+                {TAB_META[s]}
               </button>
             );
           })}
@@ -131,14 +183,14 @@ export default function FixtureWidget({ matches, limit = 5, standingsA, standing
         )}
       </div>
 
-      {/* Standings: 5 del Grupo A + 5 del Grupo B + ver todos */}
-      {((standingsA && standingsA.length > 0) || (standingsB && standingsB.length > 0)) && (
+      {/* Standings: top 5 de cada tabla + ver todos */}
+      {((standings.a && standings.a.length > 0) || (standings.b && standings.b.length > 0)) && (
         <>
-          {standingsA && standingsA.length > 0 && (
-            <StandingsTable rows={standingsA} limit={5} variant="compact" title="Grupo A" />
+          {standings.a && standings.a.length > 0 && (
+            <StandingsTable rows={standings.a} limit={5} variant="compact" title={standings.labelA} />
           )}
-          {standingsB && standingsB.length > 0 && (
-            <StandingsTable rows={standingsB} limit={5} variant="compact" title="Grupo B" />
+          {standings.b && standings.b.length > 0 && (
+            <StandingsTable rows={standings.b} limit={5} variant="compact" title={standings.labelB} />
           )}
           <Link
             href="/deportes/futbol"

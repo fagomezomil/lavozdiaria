@@ -59,24 +59,86 @@ export function teamGroup(team: string): StandingsGroup | undefined {
   return TEAM_GROUPS[team];
 }
 
+/** Mapa equipo → zona (Primera Nacional 2026: 2 zonas de 18, sorteo AFA 22/12/2025).
+ *  Nombres canónicos post-alias del scraper. Los interzonales (fechas 7 y 25)
+ *  SÍ suman en las tablas de zona — ver getStandings. */
+export const TEAM_GROUPS_PN: Record<string, StandingsGroup> = {
+  // Zona A (18)
+  "All Boys": "A",
+  "Ferro Carril Oeste": "A",
+  "Deportivo Madryn": "A",
+  "Chaco For Ever": "A",
+  "Deportivo Morón": "A",
+  "Estudiantes (BA)": "A",
+  "Racing Córdoba": "A",
+  "Los Andes": "A",
+  "Atlético Mitre": "A",
+  "Almirante Brown": "A",
+  "Ciudad de Bolívar": "A",
+  "Colón Santa Fe": "A",
+  "Central Norte": "A",
+  "Godoy Cruz": "A",
+  "San Telmo": "A",
+  "San Miguel": "A",
+  "Defensores de Belgrano": "A",
+  "Acassuso": "A",
+  // Zona B (18)
+  "Nueva Chicago": "B",
+  "Chacarita Juniors": "B",
+  "Atlanta": "B",
+  "San Martín Tucumán": "B",
+  "Gimnasia Jujuy": "B",
+  "Almagro": "B",
+  "San Martín S.J.": "B",
+  "Temperley": "B",
+  "Club Atlético Güemes": "B",
+  "Tristán Suárez": "B",
+  "Agropecuario": "B",
+  "Patronato": "B",
+  "Gimnasia y Tiro": "B",
+  "Deportivo Maipú": "B",
+  "Quilmes": "B",
+  "Colegiales": "B",
+  "Atlético Rafaela": "B",
+  "Midland": "B",
+};
+
+export function teamGroupPn(team: string): StandingsGroup | undefined {
+  return TEAM_GROUPS_PN[team];
+}
+
+export interface StandingsOpts {
+  /** Filtro por torneo en DB (ej. "Liga Profesional" | "Primera Nacional"). */
+  tournament?: string;
+}
+
 /** Calcula la tabla de posiciones desde los partidos jugados de un deporte.
  *  3 pts partido ganado, 1 empate, 0 perdido. Orden: pts desc, dg desc, gf desc.
- *  Si se pasa `group`, solo incluye partidos donde AMBOS equipos son de ese grupo
- *  (excluye interzonales — no suman a la tabla de zonas). */
+ *  Con `group`:
+ *  - LPF: solo partidos donde AMBOS equipos son del grupo (excluye interzonales).
+ *  - Primera Nacional 2026: los interzonales (fechas 7 y 25) SÍ suman en las
+ *    tablas de zona (verificado: PJ 28 tras la fecha 28) — cada partido aporta
+ *    solo a la fila del equipo de la zona pedida. */
 export async function getStandings(
   sport: SportType,
   group?: StandingsGroup,
+  opts?: StandingsOpts,
 ): Promise<StandingRow[]> {
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("sports_matches")
     .select("home_team,away_team,home_score,away_score,status,team_colors,team_initials")
     .eq("sport", sport)
     .eq("status", "played");
+  if (opts?.tournament) query = query.eq("tournament", opts.tournament);
+  const { data, error } = await query;
   if (error) {
     console.error("getStandings error:", error.message);
     return [];
   }
+
+  const isPn = opts?.tournament === "Primera Nacional";
+  const teamGroupFor = isPn ? teamGroupPn : teamGroup;
 
   const teams = new Map<string, StandingRow & { color?: string; initials?: string }>();
   for (const m of data ?? []) {
@@ -85,9 +147,22 @@ export async function getStandings(
     const hs = m.home_score as number | null;
     const as = m.away_score as number | null;
     if (hs == null || as == null) continue;
-    // Filtro por grupo: ambos equipos deben ser del grupo (excluye interzonales)
+
+    // ¿Este partido suma a la tabla del grupo pedido?
+    let countHome = true;
+    let countAway = true;
     if (group) {
-      if (teamGroup(h) !== group || teamGroup(a) !== group) continue;
+      if (isPn) {
+        // PN: cada equipo suma solo si pertenece a la zona pedida (interzonales cuentan)
+        countHome = teamGroupFor(h) === group;
+        countAway = teamGroupFor(a) === group;
+      } else {
+        // LPF: ambos equipos del grupo (excluye interzonales)
+        const sameGroup = teamGroupFor(h) === group && teamGroupFor(a) === group;
+        countHome = sameGroup;
+        countAway = sameGroup;
+      }
+      if (!countHome && !countAway) continue;
     }
 
     const getTeam = (name: string) => {
@@ -97,20 +172,25 @@ export async function getStandings(
       return teams.get(name)!;
     };
 
-    const home = getTeam(h);
-    const away = getTeam(a);
-    // Colores/iniciales desde team_colors/team_initials del match
-    if (m.team_colors && !home.color) home.color = (m.team_colors as { home: string }).home;
-    if (m.team_initials && !home.initials) home.initials = (m.team_initials as { home: string }).home;
-    if (m.team_colors && !away.color) away.color = (m.team_colors as { away: string }).away;
-    if (m.team_initials && !away.initials) away.initials = (m.team_initials as { away: string }).away;
+    const apply = (row: StandingRow, gf: number, ga: number) => {
+      row.pj += 1; row.gf += gf; row.gc += ga;
+      if (gf > ga) { row.pg += 1; row.pts += 3; }
+      else if (gf < ga) { row.pp += 1; }
+      else { row.pe += 1; row.pts += 1; }
+    };
 
-    home.pj += 1; away.pj += 1;
-    home.gf += hs; home.gc += as;
-    away.gf += as; away.gc += hs;
-    if (hs > as) { home.pg += 1; home.pts += 3; away.pp += 1; }
-    else if (hs < as) { away.pg += 1; away.pts += 3; home.pp += 1; }
-    else { home.pe += 1; away.pe += 1; home.pts += 1; away.pts += 1; }
+    if (countHome) {
+      const home = getTeam(h);
+      if (m.team_colors && !home.color) home.color = (m.team_colors as { home: string }).home;
+      if (m.team_initials && !home.initials) home.initials = (m.team_initials as { home: string }).home;
+      apply(home, hs, as);
+    }
+    if (countAway) {
+      const away = getTeam(a);
+      if (m.team_colors && !away.color) away.color = (m.team_colors as { away: string }).away;
+      if (m.team_initials && !away.initials) away.initials = (m.team_initials as { away: string }).away;
+      apply(away, as, hs);
+    }
   }
 
   // Calcular DG y ordenar

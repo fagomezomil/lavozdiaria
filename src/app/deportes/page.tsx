@@ -25,14 +25,22 @@ export const metadata: Metadata = {
 };
 
 export default async function DeportesPage() {
-  const [matches, standingsA, standingsB] = await Promise.all([
+  const [matches, standingsA, standingsB, pnStandingsA, pnStandingsB] = await Promise.all([
     getSportsMatches(),
-    getStandings("futbol", "A"),
-    getStandings("futbol", "B"),
+    getStandings("futbol", "A", { tournament: "Liga Profesional" }),
+    getStandings("futbol", "B", { tournament: "Liga Profesional" }),
+    getStandings("futbol", "A", { tournament: "Primera Nacional" }),
+    getStandings("futbol", "B", { tournament: "Primera Nacional" }),
   ]);
   const rightSlot =
     matches.length > 0 ? (
-      <FixtureWidget matches={matches} standingsA={standingsA} standingsB={standingsB} />
+      <FixtureWidget
+        matches={matches}
+        standingsA={standingsA}
+        standingsB={standingsB}
+        pnStandingsA={pnStandingsA}
+        pnStandingsB={pnStandingsB}
+      />
     ) : null;
   return renderStandardSectionPage("deportes", 1, SECTION_SUBTITLES.deportes, rightSlot);
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import type { SportsMatch, SportType } from "@/lib/types";
-import { currentMatchday, currentTournament, filterByTournament, type Tournament } from "@/lib/sports-utils";
+import { currentMatchday, leagueOf, type FutbolLeagueId } from "@/lib/sports-utils";
 import type { StandingRow } from "@/lib/sports";
 import MatchCard from "./MatchCard";
 import StandingsTable from "./StandingsTable";
@@ -12,6 +12,12 @@ const SPORT_LABELS: Record<SportType, { label: string; tournament: string }> = {
   futbol: { label: "Fútbol", tournament: "Liga Profesional" },
   basquet: { label: "Básquet", tournament: "LNB" },
   rugby: { label: "Rugby", tournament: "URBA Top 14" },
+};
+
+/** Ligas de fútbol para el switcher (solo se muestra si ambas tienen partidos). */
+const LEAGUE_META: Record<FutbolLeagueId, { label: string; header: string }> = {
+  lpf: { label: "Liga Profesional", header: "Liga Profesional" },
+  pn: { label: "Primera Nacional", header: "Primera Nacional" },
 };
 
 const WD_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -29,38 +35,57 @@ function dateRangeLabel(matches: SportsMatch[]): string {
 interface FixturePageProps {
   matches: SportsMatch[];
   sport: SportType;
+  /** Tablas LPF (Grupo A/B) */
   standingsA?: StandingRow[];
   standingsB?: StandingRow[];
+  /** Tablas PN (Zona A/B) */
+  pnStandingsA?: StandingRow[];
+  pnStandingsB?: StandingRow[];
 }
 
-export default function FixturePage({ matches, sport, standingsA, standingsB }: FixturePageProps) {
+export default function FixturePage({
+  matches,
+  sport,
+  standingsA,
+  standingsB,
+  pnStandingsA,
+  pnStandingsB,
+}: FixturePageProps) {
   const meta = SPORT_LABELS[sport];
 
-  // Filtrar al torneo actual (Apertura o Clausura según la fecha)
-  const tournament = useMemo<Tournament>(() => currentTournament(matches), [matches]);
-  const tournamentMatches = useMemo(
-    () => filterByTournament(matches, tournament),
-    [matches, tournament],
-  );
-  const tournamentLabel = tournament === "apertura" ? "Apertura" : "Clausura";
+  // Liga activa (solo fútbol tiene 2): default LPF si tiene partidos, si no PN.
+  const hasLpf = matches.some((m) => leagueOf(m) === "lpf");
+  const hasPn = matches.some((m) => leagueOf(m) === "pn");
+  const [league, setLeague] = useState<FutbolLeagueId>(hasLpf || !hasPn ? "lpf" : "pn");
 
-  // Agrupar por matchday (solo partidos del torneo actual → 15 por fecha)
+  // Pool de la liga activa (no-fútbol: todos los partidos del deporte)
+  const leagueMatches = useMemo(
+    () => (sport === "futbol" ? matches.filter((m) => leagueOf(m) === league) : matches),
+    [matches, league, sport],
+  );
+  const headerTitle = league === "pn" ? "Primera Nacional" : meta.tournament;
+
+  // Agrupar por matchday (todos los partidos de la liga activa)
   const matchdays = useMemo(() => {
     const map = new Map<number, SportsMatch[]>();
-    for (const m of tournamentMatches) {
+    for (const m of leagueMatches) {
       if (!map.has(m.matchday)) map.set(m.matchday, []);
       map.get(m.matchday)!.push(m);
     }
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]);
-  }, [tournamentMatches]);
+  }, [leagueMatches]);
 
   // Determinar fecha "actual" usando helper compartido
   const defaultMatchday = useMemo(
-    () => currentMatchday(tournamentMatches, sport),
-    [tournamentMatches, sport],
+    () => currentMatchday(leagueMatches, sport),
+    [leagueMatches, sport],
   );
 
   const [selected, setSelected] = useState<number>(defaultMatchday);
+  // Al cambiar de liga, el default matchday cambia → resetear el selector
+  useEffect(() => {
+    setSelected(defaultMatchday);
+  }, [defaultMatchday]);
 
   const selectedMatches = matchdays.find(([md]) => md === selected)?.[1] ?? [];
   const played = selectedMatches.filter((m) => m.status === "played").length;
@@ -76,13 +101,32 @@ export default function FixturePage({ matches, sport, standingsA, standingsB }: 
         <span className="text-deportes font-semibold">{meta.label}</span>
       </div>
 
+      {/* Switcher de liga (fútbol: LPF + Primera Nacional) */}
+      {sport === "futbol" && hasLpf && hasPn && (
+        <div className="mb-4 flex gap-2">
+          {(["lpf", "pn"] as FutbolLeagueId[]).map((id) => (
+            <button
+              key={id}
+              onClick={() => setLeague(id)}
+              className={`px-4 py-2 border-2 border-ink font-[family-name:var(--font-heading)] font-bold text-xs uppercase tracking-[0.12em] transition-all ${
+                league === id
+                  ? "bg-ink text-paper shadow-hard-sm"
+                  : "bg-paper text-ink hover:bg-ink/10"
+              }`}
+            >
+              {LEAGUE_META[id].label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Fixture card */}
       <div className="border-2 border-ink bg-paper shadow-hard-lg overflow-hidden mb-6" style={{ boxShadow: "8px 8px 0 var(--color-ink)" }}>
         {/* Header negro */}
         <div className="bg-ink text-paper px-5 py-4 flex items-center gap-4 flex-wrap">
           <div>
             <p className="text-[10px] uppercase tracking-[0.18em] opacity-70 font-[family-name:var(--font-heading)]">
-              {meta.tournament} {tournamentLabel} · {matches[0]?.season ?? ""}
+              {headerTitle} · Temporada {leagueMatches[0]?.season ?? ""}
             </p>
             <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] leading-none tracking-tight" style={{ textTransform: "none" }}>
               Fecha <span className="text-brand">{selected}</span>
@@ -151,14 +195,22 @@ export default function FixturePage({ matches, sport, standingsA, standingsB }: 
           )}
         </div>
 
-        {/* Standings — 2 tablas (Grupo A y Grupo B) */}
+        {/* Standings — LPF: Grupo A/B · PN: Zona A/B */}
         <div className="mt-6 lg:mt-0 space-y-4">
-          {standingsA && standingsA.length > 0 && (
-            <StandingsTable rows={standingsA} variant="compact" title="Grupo A" />
-          )}
-          {standingsB && standingsB.length > 0 && (
-            <StandingsTable rows={standingsB} variant="compact" title="Grupo B" />
-          )}
+          {(league === "pn" ? pnStandingsA : standingsA)?.length ? (
+            <StandingsTable
+              rows={league === "pn" ? pnStandingsA! : standingsA!}
+              variant="compact"
+              title={league === "pn" ? "Zona A" : "Grupo A"}
+            />
+          ) : null}
+          {(league === "pn" ? pnStandingsB : standingsB)?.length ? (
+            <StandingsTable
+              rows={league === "pn" ? pnStandingsB! : standingsB!}
+              variant="compact"
+              title={league === "pn" ? "Zona B" : "Grupo B"}
+            />
+          ) : null}
         </div>
       </div>
 
