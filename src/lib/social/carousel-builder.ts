@@ -7,6 +7,7 @@ import { r2Upload } from "@/lib/r2";
 import { generateHoroscopoPromoPng } from "./generate-slide";
 import { planSlidesV3, shuffleWithSeed, type SlideComposition } from "./extract-slide-content";
 import type { SlideDataV2, SlideLayout } from "./slide-template-v2";
+import { SITE_URL } from "@/lib/site";
 
 // Concurrency de generación de PNGs — satori/resvg son CPU-intensivos. VPS 4 vCPU,
 // 10 PNGs en paralelo saturan. Limitamos a 3 para no matar la app.
@@ -24,6 +25,9 @@ export interface StoriesResult {
   notes: (SelectedNote | null)[];
   slideImageUrls: string[];
   articleIds: (string | null)[];
+  /** URL destino por slide, alineada con slideImageUrls (para el link sticker
+   *  de IG stories via instagrapi). null → sin link (cae al home en el builder). */
+  slideLinks: (string | null)[];
   sections: Section[];
 }
 
@@ -311,8 +315,18 @@ export async function buildStories(): Promise<StoriesResult> {
     },
   );
 
-  const slideImageUrls = slideResults.filter((u): u is string => u !== null);
-  const articleIds = notes.map((n) => (n ? n.id : null));
+  // Alineación estricta: un solo pass así slide[i] ↔ articleIds[i] ↔ slideLinks[i]
+  // (antes el .filter() desalineaba los ids cuando un render fallaba).
+  const slideImageUrls: string[] = [];
+  const articleIds: (string | null)[] = [];
+  const slideLinks: (string | null)[] = [];
+  slideResults.forEach((res, i) => {
+    if (res === null) return;
+    slideImageUrls.push(res);
+    const note = notes[i];
+    articleIds.push(note ? note.id : null);
+    slideLinks.push(note ? `${SITE_URL}/${note.section}/${note.id}` : null);
+  });
 
   // Placa promo horóscopo antes del CTA (último slide = cierre del stories).
   const promoUrl = await getHoroscopoPromoUrl("story");
@@ -320,8 +334,9 @@ export async function buildStories(): Promise<StoriesResult> {
     const insertAt = slideImageUrls.length - 1;
     slideImageUrls.splice(insertAt, 0, promoUrl);
     articleIds.splice(insertAt, 0, null);
+    slideLinks.splice(insertAt, 0, `${SITE_URL}/horoscopo`);
     sections.splice(insertAt, 0, "horoscopo");
   }
 
-  return { notes, slideImageUrls, articleIds, sections };
+  return { notes, slideImageUrls, articleIds, slideLinks, sections };
 }

@@ -17,8 +17,10 @@
  */
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { bufferPublishStories, bufferPublish } from "@/lib/social/buffer-client";
+import { bufferPublish } from "@/lib/social/buffer-client";
+import { publishStoriesIgFb } from "@/lib/social/stories-publish";
 import { r2Upload } from "@/lib/r2";
+import { SITE_URL } from "@/lib/site";
 import { artToday } from "@/lib/sports-utils";
 import { teamLogo } from "@/lib/team-logos";
 import {
@@ -221,15 +223,13 @@ export async function buildPartido(
       let rowError: string | null = null;
       let scheduledAt = new Date().toISOString();
 
-      // BUFFER_CHANNEL_IDS no se usa (vacío en prod): channelIds vacío hace que
-      // bufferPublish/bufferPublishStories descubran TODOS los canales conectados.
+      // BUFFER_CHANNEL_IDS no se usa (vacío en prod): los canales se descubren
+      // via listChannels dentro de publishStoriesIgFb / bufferPublish.
       if (bufferKey && bufferKey.length > 0) {
-        const stories = await bufferPublishStories(bufferKey, channelIds ?? [], [
-          { url: storyUrl, caption },
+        // Stories: IG via instagrapi con link sticker al fixture + FB via Buffer.
+        const stories = await publishStoriesIgFb(bufferKey, [
+          { url: storyUrl, caption, link: `${SITE_URL}/deportes/futbol` },
         ]);
-        const storyIds = (stories.channelTargets ?? [])
-          .map((t) => t.postId)
-          .filter((id): id is string => id !== null);
 
         const errores: string[] = [];
         if (!stories.success) errores.push(`stories: ${stories.error ?? "falló"}`);
@@ -238,18 +238,13 @@ export async function buildPartido(
           const feedScheduled = new Date(Date.now() + FEED_OFFSET_MIN * 60 * 1000 * (i + 1));
           scheduledAt = feedScheduled.toISOString();
           const feed = await bufferPublish(bufferKey, channelIds ?? [], caption, [feedUrl], feedScheduled);
-          channelTargets = feed.channelTargets ?? [];
+          channelTargets = [...stories.channelTargets, ...(feed.channelTargets ?? [])];
           if (!feed.success) errores.push(`feed: ${feed.error ?? "falló"}`);
         } else {
-          channelTargets = stories.channelTargets ?? [];
+          channelTargets = stories.channelTargets;
         }
 
-        bufferUpdateIds = [
-          ...new Set([
-            ...storyIds,
-            ...(channelTargets ?? []).map((t) => t.postId).filter((id): id is string => id !== null),
-          ]),
-        ];
+        bufferUpdateIds = stories.bufferUpdateIds;
 
         rowStatus = stories.success ? "published" : "failed";
         rowError = errores.length > 0 ? errores.join(" | ") : null;

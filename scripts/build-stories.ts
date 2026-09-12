@@ -25,9 +25,10 @@
  */
 
 import { buildStories } from "@/lib/social/carousel-builder";
-import { bufferPublishStories } from "@/lib/social/buffer-client";
+import { publishStoriesIgFb, type StoriesPublishResult } from "@/lib/social/stories-publish";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ChannelTarget } from "@/lib/social/daily-limits";
+import { SITE_URL } from "@/lib/site";
 
 const dryRun = process.argv.includes("--dry-run");
 
@@ -74,10 +75,7 @@ function buildStoryCaption(index: number): string {
 async function main(): Promise<number> {
   console.log("=== build-stories start ===");
   const bufferKey = process.env.BUFFER_API_KEY ?? "";
-  const channelIds = (process.env.BUFFER_CHANNEL_IDS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // BUFFER_CHANNEL_IDS no se usa: los canales IG/FB se descubren via listChannels.
 
   try {
     const stories = await buildStories();
@@ -100,24 +98,29 @@ async function main(): Promise<number> {
     const slideEntries = stories.slideImageUrls.map((url, i) => ({
       url,
       caption: buildStoryCaption(i),
+      link: stories.slideLinks[i] ?? SITE_URL,
     }));
 
-    let bufferResult;
+    let publishResult: StoriesPublishResult;
     if (dryRun || !bufferKey) {
-      bufferResult = {
-        success: false,
+      publishResult = {
         channelTargets: [] as ChannelTarget[],
-        skippedByLimit: [],
+        bufferUpdateIds: [],
+        success: false,
         error: dryRun ? "dry_run mode" : "BUFFER_API_KEY missing",
+        igVia: "ninguno",
+        igPublished: 0,
       };
     } else {
-      bufferResult = await bufferPublishStories(bufferKey, channelIds, slideEntries);
+      // IG via instagrapi con link sticker + FB via Buffer; fallback Buffer si
+      // la sesión de IG está muerta.
+      publishResult = await publishStoriesIgFb(bufferKey, slideEntries);
     }
 
     const status: "published" | "failed" | "pending" =
       dryRun || !bufferKey
         ? "pending"
-        : bufferResult.success
+        : publishResult.success
           ? "published"
           : "failed";
 
@@ -127,18 +130,19 @@ async function main(): Promise<number> {
       articleIds: stories.articleIds,
       sections: stories.sections,
       slideImageUrls: stories.slideImageUrls,
-      channelTargets: bufferResult.channelTargets ?? [],
-      errorMessage: bufferResult.success ? null : bufferResult.error ?? null,
+      channelTargets: publishResult.channelTargets,
+      errorMessage: publishResult.success ? null : publishResult.error,
     });
 
     log({
-      success: bufferResult.success || dryRun || !bufferKey,
+      success: publishResult.success || dryRun || !bufferKey,
       status,
       slides: stories.slideImageUrls.length,
       sections: stories.sections,
+      igVia: publishResult.igVia,
+      igPublished: publishResult.igPublished,
       dryRun,
-      skippedByLimit: bufferResult.skippedByLimit ?? [],
-      bufferError: bufferResult.success ? null : bufferResult.error,
+      bufferError: publishResult.success ? null : publishResult.error,
     });
     console.log("=== build-stories end ===");
     return 0;

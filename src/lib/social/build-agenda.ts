@@ -18,8 +18,10 @@
  */
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { bufferPublishStories, bufferPublish } from "@/lib/social/buffer-client";
+import { bufferPublish } from "@/lib/social/buffer-client";
+import { publishStoriesIgFb } from "@/lib/social/stories-publish";
 import { r2Upload } from "@/lib/r2";
+import { SITE_URL } from "@/lib/site";
 import {
   generarPlacasPng,
   generarPlacasFeedPng,
@@ -241,14 +243,12 @@ export async function buildAgenda(
   let scheduledAt = new Date().toISOString();
 
   if (bufferKey && bufferKey.length > 0) {
-    const stories = await bufferPublishStories(
+    // Stories: IG via instagrapi con link sticker (/agenda) + FB via Buffer.
+    const stories = await publishStoriesIgFb(
       bufferKey,
-      channelIds ?? [],
-      slides.map((s) => ({ url: s.url, caption: s.caption })),
+      slides.map((s) => ({ url: s.url, caption: s.caption, link: `${SITE_URL}/agenda` })),
     );
-    bufferUpdateIds = (stories.channelTargets ?? [])
-      .map((t) => t.postId)
-      .filter((id): id is string => id !== null);
+    bufferUpdateIds = stories.bufferUpdateIds;
 
     const feedScheduled = new Date(Date.now() + FEED_OFFSET_MIN * 60 * 1000);
     scheduledAt = feedScheduled.toISOString();
@@ -259,7 +259,8 @@ export async function buildAgenda(
       feedUrls,
       feedScheduled,
     );
-    channelTargets = feed.channelTargets ?? [];
+    // channel_targets = stories (incluye pseudo-targets IG-instagrapi) + feed.
+    channelTargets = [...stories.channelTargets, ...(feed.channelTargets ?? [])];
 
     // Stories son el producto primario: su éxito define published.
     status = stories.success ? "published" : "failed";
