@@ -221,7 +221,9 @@ export async function buildPartido(
       let rowError: string | null = null;
       let scheduledAt = new Date().toISOString();
 
-      if (bufferKey && bufferKey.length > 0 && (channelIds ?? []).length > 0) {
+      // BUFFER_CHANNEL_IDS no se usa (vacío en prod): channelIds vacío hace que
+      // bufferPublish/bufferPublishStories descubran TODOS los canales conectados.
+      if (bufferKey && bufferKey.length > 0) {
         const stories = await bufferPublishStories(bufferKey, channelIds ?? [], [
           { url: storyUrl, caption },
         ]);
@@ -273,7 +275,8 @@ export async function buildPartido(
       resultados.push({ matchId: m.match_id, partido: marcador, kind, storyUrl, feedUrl });
       console.log(`buildPartido: ${marcador} → ${kind} ${rowStatus}`);
 
-      if (rowStatus === "failed" && status === "published") status = "failed";
+      if (rowStatus === "pending" && status === "published") status = "pending";
+      if (rowStatus === "failed") status = "failed";
     } catch (err) {
       console.error(`buildPartido: ${marcador} falló:`, err);
       const { error: errSave } = await admin.from("social_posts").insert({
