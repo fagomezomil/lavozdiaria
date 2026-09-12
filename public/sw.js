@@ -9,7 +9,7 @@
  *  - Push: notificación "Última Hora" con tag breaking (colapsa consecutivas).
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const PAGES_CACHE = `qn-pages-${VERSION}`;
 const STATIC_CACHE = `qn-static-${VERSION}`;
 const IMG_CACHE = `qn-img-${VERSION}`;
