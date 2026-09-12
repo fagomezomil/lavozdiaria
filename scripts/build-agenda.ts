@@ -64,6 +64,7 @@ async function main(): Promise<number> {
       countHoy: result.countHoy,
       countTarde: result.countTarde,
       slides: result.slides.map((s) => ({ slug: s.slug, url: s.url })),
+      feedSlides: result.feedSlides.map((s) => ({ slug: s.slug, url: s.url })),
       error: result.error,
       dryRun,
     });

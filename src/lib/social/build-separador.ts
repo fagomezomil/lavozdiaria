@@ -25,8 +25,9 @@ const OFFSET_MINUTES = 5;
 const R2_PUBLIC_BASE = "https://pub-7d90620b77a845bcbb1bf3fee8f467a2.r2.dev/media";
 
 /** Posts de feed que ocupan posición en la grid de IG (stories NO cuentan).
- *  Agenda (evento) y partidos van a stories → NO ocupan grid. */
-const GRID_KINDS = ["carrusel", "separador", "venta"];
+ *  "evento" = agenda: cada run publica stories + carrusel feed en la MISMA row
+ *  (1 row = 1 celda de grid). Partidos van solo a stories → NO cuentan. */
+const GRID_KINDS = ["carrusel", "separador", "venta", "evento"];
 
 /** Posts de grid no registrados en social_posts (manuales o previos a la DB).
  *  Ajustar si la grid real de IG se desalinea respecto a este conteo. */

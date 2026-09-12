@@ -882,6 +882,497 @@ function Listado({
   );
 }
 
+// ===================== Variantes feed 4:5 (mockup aprobado 2026-09-12) =====================
+
+const FEED_W = 1080;
+const FEED_H = 1350;
+
+/** DatePill compacto para feed. */
+function DatePillFeed({ num, dia }: { num: string; dia: string }): React.ReactElement {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 30,
+        left: 30,
+        backgroundColor: PAPER,
+        boxShadow: "0 0 0 3px " + INK,
+        padding: "9px 14px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Oswald",
+          fontWeight: 700,
+          fontSize: 34,
+          color: DEEP,
+          lineHeight: 1,
+        }}
+      >
+        {num}
+      </div>
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          color: INK,
+          marginTop: 3,
+        }}
+      >
+        {dia}
+      </div>
+    </div>
+  );
+}
+
+/** Placa de evento 4:5: hero 760px + gradiente 130 + body paper 460. Sin desc
+ *  (la versión feed va más compacta que la story). */
+function EventoFeed({
+  ev,
+  imageDataUrl,
+  fechaNum,
+  fechaDia,
+}: {
+  ev: EventoPlaca;
+  imageDataUrl: string | null;
+  fechaNum: string;
+  fechaDia: string;
+}): React.ReactElement {
+  const color = catColor(ev.cat);
+  return (
+    <div
+      style={{
+        width: FEED_W,
+        height: FEED_H,
+        position: "relative",
+        fontFamily: "Inter",
+        backgroundColor: INK,
+        display: "flex",
+      }}
+    >
+      {/* Hero imagen */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 900,
+          backgroundColor: color,
+          display: "flex",
+        }}
+      >
+        {imageDataUrl && (
+          <img
+            src={imageDataUrl}
+            style={{ position: "absolute", top: 0, left: 0, width: FEED_W, height: 900, objectFit: "cover" }}
+          />
+        )}
+      </div>
+
+      {/* Barra rosa */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 10,
+          backgroundColor: AGENDA,
+        }}
+      />
+
+      <DatePillFeed num={fechaNum} dia={fechaDia} />
+
+      {/* Bloque inferior: gradiente + body */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: FEED_W,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            width: FEED_W,
+            height: 130,
+            background: "linear-gradient(to top, rgba(253,251,247,1), rgba(253,251,247,0))",
+          }}
+        />
+        <div
+          style={{
+            width: FEED_W,
+            minHeight: 460,
+            backgroundColor: PAPER,
+            padding: "22px 44px 30px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Chips */}
+          <div style={{ display: "flex", flexDirection: "row", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+            <div
+              style={{
+                backgroundColor: color,
+                color: "#ffffff",
+                padding: "5px 12px",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                fontFamily: "Oswald",
+              }}
+            >
+              {CAT_LABEL[ev.cat] ?? CAT_LABEL.cultural}
+            </div>
+            <div
+              style={{
+                backgroundColor: PAPER,
+                boxShadow: "0 0 0 3px " + INK,
+                padding: "5px 12px",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                fontFamily: "Oswald",
+                color: INK,
+              }}
+            >
+              {ev.time} hs
+            </div>
+            <PriceChip price={ev.price} isFree={ev.isFree} />
+          </div>
+
+          {/* Título */}
+          <div
+            style={{
+              fontFamily: "Oswald",
+              fontWeight: 700,
+              fontSize: 44,
+              lineHeight: 1.1,
+              color: INK,
+              marginBottom: 12,
+            }}
+          >
+            {ev.title}
+          </div>
+
+          {/* Datos clave */}
+          <div
+            style={{
+              boxShadow: "0 0 0 3px " + INK,
+              backgroundColor: CREAM,
+              padding: "14px 20px",
+              marginBottom: 16,
+              display: "flex",
+              flexDirection: "row",
+              gap: 22,
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", width: 320 }}>
+              <div
+                style={{
+                  fontSize: 22,
+                  letterSpacing: 1.8,
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  color: MUTED,
+                  fontFamily: "Oswald",
+                  marginBottom: 4,
+                }}
+              >
+                Fecha y hora
+              </div>
+              <div style={{ fontSize: 31, fontWeight: 600, fontFamily: "Oswald", color: INK }}>
+                {fechaDia} {fechaNum} · {ev.time} hs
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 22,
+                  letterSpacing: 1.8,
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  color: MUTED,
+                  fontFamily: "Oswald",
+                  marginBottom: 4,
+                }}
+              >
+                Lugar
+              </div>
+              <div
+                style={{
+                  fontSize: 31,
+                  fontWeight: 600,
+                  fontFamily: "Oswald",
+                  color: INK,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.6,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                }}
+              >
+                {ev.venue}
+              </div>
+              <div style={{ fontSize: 26, color: MUTED, marginTop: 0 }}>{ev.city}</div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <div
+              style={{
+                backgroundColor: AGENDA,
+                color: "#ffffff",
+                boxShadow: "5px 5px 0 " + INK,
+                padding: "12px 24px",
+                fontFamily: "Oswald",
+                fontWeight: 600,
+                fontSize: 20,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              Más en agenda {">"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Listado 4:5: header ink compacto + lista paper (filas estiradas) + footer ink
+ *  con logo y CTA. Mismo preprocesado de separadores que el Listado de stories. */
+function ListadoFeed({
+  rows,
+  fechaHeader,
+  logoWhiteDataUrl,
+}: {
+  rows: ListadoRow[];
+  fechaHeader: string;
+  logoWhiteDataUrl: string;
+}): React.ReactElement {
+  type Row =
+    | { kind: "ev"; time: string; title: string; venue: string; cat: string }
+    | { kind: "sep"; label: string };
+  const flat: Row[] = [];
+  rows.forEach((e, i) => {
+    if (e.dayLabel && (i === 0 || rows[i - 1].dayLabel !== e.dayLabel)) {
+      flat.push({ kind: "sep", label: e.dayLabel });
+    }
+    flat.push({ kind: "ev", time: e.time, title: e.title, venue: e.venue, cat: e.cat });
+  });
+  return (
+    <div
+      style={{
+        width: FEED_W,
+        height: FEED_H,
+        position: "relative",
+        fontFamily: "Inter",
+        backgroundColor: INK,
+        display: "flex",
+      }}
+    >
+      {/* Barra rosa */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 10,
+          backgroundColor: AGENDA,
+        }}
+      />
+
+      {/* Header ink compacto: top 10, height 190 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 44,
+          width: 992,
+          height: 190,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 18,
+            fontFamily: "Oswald",
+            fontWeight: 700,
+            fontSize: 60,
+            lineHeight: 1.05,
+          }}
+        >
+          <div style={{ color: AGENDA }}>AGENDA</div>
+          <div style={{ color: "#ffffff" }}>TUCUMANA</div>
+        </div>
+        <div
+          style={{
+            fontFamily: "Inter",
+            fontWeight: 600,
+            fontSize: 24,
+            color: "#c9c2b4",
+            marginTop: 10,
+            textTransform: "capitalize",
+          }}
+        >
+          {fechaHeader}
+        </div>
+      </div>
+
+      {/* Lista paper: top 200, height 1000 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 200,
+          left: 0,
+          width: FEED_W,
+          height: 1000,
+          backgroundColor: PAPER,
+          padding: "22px 44px 20px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {flat.map((row, idx) =>
+          row.kind === "sep" ? (
+            <div
+              key={`sep-${idx}`}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "18px 0",
+                borderBottom: idx < flat.length - 1 ? "1px solid rgba(10,10,10,.14)" : "none",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "Oswald",
+                  fontWeight: 600,
+                  fontSize: 20,
+                  color: MUTED,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                }}
+              >
+                {row.label}
+              </div>
+            </div>
+          ) : (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 14,
+                padding: "21px 0",
+                borderBottom: idx < flat.length - 1 ? "1px solid rgba(10,10,10,.14)" : "none",
+              }}
+            >
+              <div
+                style={{
+                  width: 11,
+                  height: 11,
+                  backgroundColor: catColor(row.cat),
+                  flexShrink: 0,
+                }}
+              />
+              <div
+                style={{
+                  fontFamily: "Oswald",
+                  fontWeight: 700,
+                  fontSize: 29,
+                  color: DEEP,
+                  width: 104,
+                  flexShrink: 0,
+                }}
+              >
+                {row.time}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", width: 800 }}>
+                <div
+                  style={{
+                    fontFamily: "Oswald",
+                    fontWeight: 600,
+                    fontSize: 28,
+                    color: INK,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                  }}
+                >
+                  {row.title}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "Inter",
+                    fontWeight: 500,
+                    fontSize: 21,
+                    color: MUTED,
+                  }}
+                >
+                  {row.venue}
+                </div>
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* Footer ink compacto: logo + CTA */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: FEED_W,
+          height: 140,
+          backgroundColor: INK,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 44px",
+        }}
+      >
+        <img src={logoWhiteDataUrl} style={{ height: 72 }} />
+        <div
+          style={{
+            backgroundColor: AGENDA,
+            color: "#ffffff",
+            boxShadow: "5px 5px 0 " + CREAM,
+            padding: "12px 24px",
+            fontFamily: "Oswald",
+            fontWeight: 600,
+            fontSize: 20,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+          }}
+        >
+          Agenda completa {">"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export interface AgendaPlacaPng {
   slug: string;
   png: Buffer;
@@ -922,6 +1413,43 @@ export async function generarPlacasPng(sel: AgendaSeleccion): Promise<AgendaPlac
   );
   const pngListado = await render(elListado, { width: STORY_W, height: STORY_H, fonts });
   placas.push({ slug: "listado", png: Buffer.from(pngListado) });
+
+  return placas;
+}
+
+/** Renderiza las variantes FEED 4:5 (1080×1350) de las mismas placas, para el
+ *  carrusel que se publica al feed IG/FB en cada run. Slugs con prefijo "feed-". */
+export async function generarPlacasFeedPng(sel: AgendaSeleccion): Promise<AgendaPlacaPng[]> {
+  const fonts = await loadFonts();
+  const logoWhite = await loadLogoWhite();
+
+  const placas: AgendaPlacaPng[] = [];
+
+  for (let i = 0; i < sel.eventoPlacas.length; i++) {
+    const e = sel.eventoPlacas[i];
+    const imageDataUrl = await fetchImageAsDataUrl(e.image_url);
+    const evPlaca: EventoPlaca = {
+      title: limpiarTitulo(e.title),
+      time: horaCorta(e.time) ?? "",
+      venue: e.venue_name ?? "Tucumán",
+      city: e.venue_city ?? "",
+      price: priceLabel(e),
+      isFree: isFreeEvent(e),
+      desc: null,
+      cat: e.category,
+    };
+    const el = (
+      <EventoFeed ev={evPlaca} imageDataUrl={imageDataUrl} fechaNum={sel.fechaNum} fechaDia={sel.fechaDia} />
+    );
+    const png = await render(el, { width: FEED_W, height: FEED_H, fonts });
+    placas.push({ slug: `feed-evento-${i + 1}-${e.category}`, png: Buffer.from(png) });
+  }
+
+  const elListado = (
+    <ListadoFeed rows={sel.listado} fechaHeader={sel.fechaHeader} logoWhiteDataUrl={logoWhite} />
+  );
+  const pngListado = await render(elListado, { width: FEED_W, height: FEED_H, fonts });
+  placas.push({ slug: "feed-listado", png: Buffer.from(pngListado) });
 
   return placas;
 }

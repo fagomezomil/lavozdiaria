@@ -655,6 +655,477 @@ function Listado({ logoWhiteDataUrl }: { logoWhiteDataUrl: string }): React.Reac
   );
 }
 
+/* ============================================================
+ *  VARIANTES FEED 4:5 (1080×1350) — carrusel feed IG/FB
+ * ============================================================ */
+
+const FEED_W = 1080;
+const FEED_H = 1350;
+
+/** DatePill compacto para feed. */
+function DatePillFeed({ num, dia }: { num: string; dia: string }): React.ReactElement {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 30,
+        left: 30,
+        backgroundColor: PAPER,
+        boxShadow: "0 0 0 3px " + INK,
+        padding: "9px 14px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Oswald",
+          fontWeight: 700,
+          fontSize: 34,
+          color: DEEP,
+          lineHeight: 1,
+        }}
+      >
+        {num}
+      </div>
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 600,
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          color: INK,
+          marginTop: 3,
+        }}
+      >
+        {dia}
+      </div>
+    </div>
+  );
+}
+
+/** Placa de evento 4:5: hero 760px + gradiente 130 + body paper 460. */
+function EventoFeed({ ev, imageDataUrl }: { ev: Ev; imageDataUrl: string | null }): React.ReactElement {
+  const catColor = CAT_COLOR[ev.cat];
+  return (
+    <div
+      style={{
+        width: FEED_W,
+        height: FEED_H,
+        position: "relative",
+        fontFamily: "Inter",
+        backgroundColor: INK,
+        display: "flex",
+      }}
+    >
+      {/* Hero imagen */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 900,
+          backgroundColor: catColor,
+          display: "flex",
+        }}
+      >
+        {imageDataUrl && (
+          <img
+            src={imageDataUrl}
+            style={{ position: "absolute", top: 0, left: 0, width: FEED_W, height: 900, objectFit: "cover" }}
+          />
+        )}
+      </div>
+
+      {/* Barra rosa */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 10,
+          backgroundColor: AGENDA,
+        }}
+      />
+
+      <DatePillFeed num="12" dia="Sábado" />
+
+      {/* Bloque inferior: gradiente + body */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: FEED_W,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            width: FEED_W,
+            height: 130,
+            background: "linear-gradient(to top, rgba(253,251,247,1), rgba(253,251,247,0))",
+          }}
+        />
+        <div
+          style={{
+            width: FEED_W,
+            minHeight: 460,
+            backgroundColor: PAPER,
+            padding: "22px 44px 30px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Chips */}
+          <div style={{ display: "flex", flexDirection: "row", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+            <div
+              style={{
+                backgroundColor: catColor,
+                color: "#ffffff",
+                padding: "5px 12px",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                fontFamily: "Oswald",
+              }}
+            >
+              {CAT_LABEL[ev.cat]}
+            </div>
+            <div
+              style={{
+                backgroundColor: PAPER,
+                boxShadow: "0 0 0 3px " + INK,
+                padding: "5px 12px",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+                fontFamily: "Oswald",
+                color: INK,
+              }}
+            >
+              {ev.time}
+            </div>
+            <PriceChip price={ev.price} free={ev.free} />
+          </div>
+
+          {/* Título */}
+          <div
+            style={{
+              fontFamily: "Oswald",
+              fontWeight: 700,
+              fontSize: 44,
+              lineHeight: 1.1,
+              color: INK,
+              marginBottom: 12,
+            }}
+          >
+            {ev.title}
+          </div>
+
+          {/* Datos clave */}
+          <div
+            style={{
+              boxShadow: "0 0 0 3px " + INK,
+              backgroundColor: CREAM,
+              padding: "14px 20px",
+              marginBottom: 16,
+              display: "flex",
+              flexDirection: "row",
+              gap: 22,
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", width: 300 }}>
+              <div
+                style={{
+                  fontSize: 22,
+                  letterSpacing: 1.8,
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  color: MUTED,
+                  fontFamily: "Oswald",
+                  marginBottom: 4,
+                }}
+              >
+                Fecha y hora
+              </div>
+              <div style={{ fontSize: 31, fontWeight: 600, fontFamily: "Oswald", color: INK }}>
+                Sábado 12 · {ev.time}
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 22,
+                  letterSpacing: 1.8,
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  color: MUTED,
+                  fontFamily: "Oswald",
+                  marginBottom: 4,
+                }}
+              >
+                Lugar
+              </div>
+              <div
+                style={{
+                  fontSize: 31,
+                  fontWeight: 600,
+                  fontFamily: "Oswald",
+                  color: INK,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.6,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                }}
+              >
+                {ev.venue}
+              </div>
+              <div style={{ fontSize: 26, color: MUTED, marginTop: 0 }}>{ev.city}</div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <div
+              style={{
+                backgroundColor: AGENDA,
+                color: "#ffffff",
+                boxShadow: "5px 5px 0 " + INK,
+                padding: "12px 24px",
+                fontFamily: "Oswald",
+                fontWeight: 600,
+                fontSize: 20,
+                letterSpacing: 2,
+                textTransform: "uppercase",
+              }}
+            >
+              Más en agenda {">"}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Listado 4:5: header ink compacto + lista paper + footer ink con logo y CTA. */
+function ListadoFeed({ logoWhiteDataUrl }: { logoWhiteDataUrl: string }): React.ReactElement {
+  type Row = { kind: "ev"; time: string; title: string; venue: string; cat: string } | { kind: "sep"; label: string };
+  const rows: Row[] = [];
+  LISTADO.forEach((e, i) => {
+    if (e.dayLabel && (i === 0 || LISTADO[i - 1].dayLabel !== e.dayLabel)) {
+      rows.push({ kind: "sep", label: e.dayLabel });
+    }
+    rows.push({ kind: "ev", time: e.time, title: e.title, venue: e.venue, cat: e.cat });
+  });
+  return (
+    <div
+      style={{
+        width: FEED_W,
+        height: FEED_H,
+        position: "relative",
+        fontFamily: "Inter",
+        backgroundColor: INK,
+        display: "flex",
+      }}
+    >
+      {/* Barra rosa */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: FEED_W,
+          height: 10,
+          backgroundColor: AGENDA,
+        }}
+      />
+
+      {/* Header ink compacto: top 10, height 190 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 44,
+          width: 992,
+          height: 190,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 18,
+            fontFamily: "Oswald",
+            fontWeight: 700,
+            fontSize: 60,
+            lineHeight: 1.05,
+          }}
+        >
+          <div style={{ color: AGENDA }}>AGENDA</div>
+          <div style={{ color: "#ffffff" }}>TUCUMANA</div>
+        </div>
+        <div
+          style={{
+            fontFamily: "Inter",
+            fontWeight: 600,
+            fontSize: 24,
+            color: "#c9c2b4",
+            marginTop: 10,
+            textTransform: "capitalize",
+          }}
+        >
+          sábado 12 de septiembre · Tucumán
+        </div>
+      </div>
+
+      {/* Lista paper: top 200, height 1000 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 200,
+          left: 0,
+          width: FEED_W,
+          height: 1000,
+          backgroundColor: PAPER,
+          padding: "22px 44px 20px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {rows.map((row, idx) =>
+          row.kind === "sep" ? (
+            <div
+              key={`sep-${idx}`}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "18px 0",
+                borderBottom: idx < rows.length - 1 ? "1px solid rgba(10,10,10,.14)" : "none",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "Oswald",
+                  fontWeight: 600,
+                  fontSize: 20,
+                  color: MUTED,
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                }}
+              >
+                {row.label}
+              </div>
+            </div>
+          ) : (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 14,
+                padding: "21px 0",
+                borderBottom: idx < rows.length - 1 ? "1px solid rgba(10,10,10,.14)" : "none",
+              }}
+            >
+              <div
+                style={{
+                  width: 11,
+                  height: 11,
+                  backgroundColor: CAT_COLOR[row.cat],
+                  flexShrink: 0,
+                }}
+              />
+              <div
+                style={{
+                  fontFamily: "Oswald",
+                  fontWeight: 700,
+                  fontSize: 29,
+                  color: DEEP,
+                  width: 104,
+                  flexShrink: 0,
+                }}
+              >
+                {row.time}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", width: 800 }}>
+                <div
+                  style={{
+                    fontFamily: "Oswald",
+                    fontWeight: 600,
+                    fontSize: 28,
+                    color: INK,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                  }}
+                >
+                  {row.title}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "Inter",
+                    fontWeight: 500,
+                    fontSize: 21,
+                    color: MUTED,
+                  }}
+                >
+                  {row.venue}
+                </div>
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* Footer ink compacto: logo + CTA */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: FEED_W,
+          height: 140,
+          backgroundColor: INK,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 44px",
+        }}
+      >
+        <img src={logoWhiteDataUrl} style={{ height: 72 }} />
+        <div
+          style={{
+            backgroundColor: AGENDA,
+            color: "#ffffff",
+            boxShadow: "5px 5px 0 " + "#f5efe4",
+            padding: "12px 24px",
+            fontFamily: "Oswald",
+            fontWeight: 600,
+            fontSize: 20,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+          }}
+        >
+          Agenda completa {">"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 async function toDataUrl(url: string): Promise<string | null> {
   try {
     const res = await fetch(url);
@@ -690,6 +1161,21 @@ async function main() {
   const pngListado = await render(elListado, { width: STORY_W, height: STORY_H, fonts });
   writeFileSync("scripts/out/agenda-modal-4-listado.png", Buffer.from(pngListado));
   console.log("agenda-modal-4-listado.png OK");
+
+  // Variantes feed 4:5 (skip con ONLY_STORIES=1)
+  if (!process.env.ONLY_STORIES) {
+    for (const ev of EVENTOS) {
+      const dataUrl = await toDataUrl(ev.image);
+      const el = <EventoFeed ev={ev} imageDataUrl={dataUrl} />;
+      const png = await render(el, { width: FEED_W, height: FEED_H, fonts });
+      writeFileSync(`scripts/out/agenda-feed-${ev.name}.png`, Buffer.from(png));
+      console.log(`agenda-feed-${ev.name}.png OK`);
+    }
+    const elFeedListado = <ListadoFeed logoWhiteDataUrl={logoWhiteDataUrl} />;
+    const pngFeedListado = await render(elFeedListado, { width: FEED_W, height: FEED_H, fonts });
+    writeFileSync("scripts/out/agenda-feed-4-listado.png", Buffer.from(pngFeedListado));
+    console.log("agenda-feed-4-listado.png OK");
+  }
 }
 
 main().catch((err) => {

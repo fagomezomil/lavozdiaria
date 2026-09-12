@@ -18,10 +18,11 @@
  */
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { bufferPublishStories } from "@/lib/social/buffer-client";
+import { bufferPublishStories, bufferPublish } from "@/lib/social/buffer-client";
 import { r2Upload } from "@/lib/r2";
 import {
   generarPlacasPng,
+  generarPlacasFeedPng,
   hoyArtIso,
   limpiarTitulo,
   normalizarTitulo,
@@ -40,6 +41,7 @@ export interface AgendaResult {
   countHoy: number;
   countTarde: number | null;
   slides: Array<{ slug: string; url: string; caption: string }>;
+  feedSlides: Array<{ slug: string; url: string }>;
   error: string | null;
 }
 
@@ -103,6 +105,7 @@ export async function buildAgenda(
       countHoy: 0,
       countTarde: null,
       slides: [],
+      feedSlides: [],
       error: errHoy.message,
     };
   }
@@ -124,6 +127,7 @@ export async function buildAgenda(
       countHoy: hoyRows?.length ?? 0,
       countTarde: null,
       slides: [],
+      feedSlides: [],
       error: errFut.message,
     };
   }
@@ -175,6 +179,7 @@ export async function buildAgenda(
       countHoy: eventosHoy.length,
       countTarde: minHour != null ? sel.listado.length : null,
       slides: [],
+      feedSlides: [],
       error: null,
     };
   }
@@ -185,8 +190,9 @@ export async function buildAgenda(
       (minHour != null ? ` [tarde >= ${minHour}:00, excluidas ${excluirIds.size}]` : " [mediodía]"),
   );
 
-  // Render takumi → PNG buffers.
+  // Render takumi → PNG buffers (stories 9:16 + feed 4:5).
   const placas = await generarPlacasPng(sel);
+  const placasFeed = await generarPlacasFeedPng(sel);
 
   // Upload a R2 y captions por placa.
   const ts = Date.now();
@@ -210,44 +216,78 @@ export async function buildAgenda(
     }
   }
 
-  // Publicar a Buffer (stories IG+FB). Sin key → queda pending en DB.
+  // Upload feed 4:5 a R2 — el carrusel comparte la caption del listado.
+  const feedCaption = captionListado(sel.fechaHeader);
+  const feedUrls: string[] = [];
+  const feedSlides: Array<{ slug: string; url: string }> = [];
+  for (const placa of placasFeed) {
+    const path = `social/agenda-${ts}-${placa.slug}.png`;
+    const url = await r2Upload("media", path, placa.png, "image/png");
+    if (!url) {
+      throw new Error(`upload R2 falló: ${path}`);
+    }
+    feedUrls.push(url);
+    feedSlides.push({ slug: placa.slug, url });
+  }
+
+  // Publicar a Buffer: stories (shareNow) + carrusel feed (scheduled +10min).
+  // Sin key → queda pending en DB. La row cuenta 1 post feed (channel_targets =
+  // targets del carrusel); los post ids de stories van a buffer_update_ids.
+  const FEED_OFFSET_MIN = 10;
   let channelTargets: ChannelTarget[] = [];
+  let bufferUpdateIds: string[] = [];
   let status: "published" | "failed" | "pending" = "pending";
   let errorMsg: string | null = null;
+  let scheduledAt = new Date().toISOString();
 
   if (bufferKey && bufferKey.length > 0) {
-    const result = await bufferPublishStories(
+    const stories = await bufferPublishStories(
       bufferKey,
       channelIds ?? [],
       slides.map((s) => ({ url: s.url, caption: s.caption })),
     );
-    channelTargets = result.channelTargets ?? [];
-    status = result.success ? "published" : "failed";
-    errorMsg = result.success ? null : result.error ?? "buffer publish failed";
+    bufferUpdateIds = (stories.channelTargets ?? [])
+      .map((t) => t.postId)
+      .filter((id): id is string => id !== null);
+
+    const feedScheduled = new Date(Date.now() + FEED_OFFSET_MIN * 60 * 1000);
+    scheduledAt = feedScheduled.toISOString();
+    const feed = await bufferPublish(
+      bufferKey,
+      channelIds ?? [],
+      feedCaption,
+      feedUrls,
+      feedScheduled,
+    );
+    channelTargets = feed.channelTargets ?? [];
+
+    // Stories son el producto primario: su éxito define published.
+    status = stories.success ? "published" : "failed";
+    const errores: string[] = [];
+    if (!stories.success) errores.push(`stories: ${stories.error ?? "falló"}`);
+    if (!feed.success) errores.push(`feed: ${feed.error ?? "falló"}`);
+    errorMsg = errores.length > 0 ? errores.join(" | ") : null;
   } else {
     errorMsg = "BUFFER_API_KEY missing — guardado como pending";
   }
-
-  const bufferUpdateIds = channelTargets
-    .map((t) => t.postId)
-    .filter((id): id is string => id !== null);
 
   const { error: errSave } = await admin.from("social_posts").insert({
     status,
     kind: "evento",
     article_ids: sel.eventoPlacas.map((e) => e.id),
     sections: [...new Set(sel.eventoPlacas.map((e) => e.category))],
-    slide_image_urls: slides.map((s) => s.url),
-    caption: `Agenda ${hoy}${minHour != null ? ` tarde>=${minHour}h` : ""}: ${slides.map((s) => s.slug).join(", ")}`,
+    slide_image_urls: [...slides.map((s) => s.url), ...feedUrls],
+    caption: `Agenda ${hoy}${minHour != null ? ` tarde>=${minHour}h` : ""}: stories ${slides.map((s) => s.slug).join(", ")} | feed ${feedSlides.map((s) => s.slug).join(", ")}`,
     channel_targets: channelTargets,
     buffer_update_ids: bufferUpdateIds.length > 0 ? bufferUpdateIds : null,
     error_message: errorMsg,
+    scheduled_at: scheduledAt,
     published_at: status === "published" ? new Date().toISOString() : null,
   });
   if (errSave) console.error("buildAgenda save error:", errSave);
 
   console.log(
-    `buildAgenda: ${slides.length} placas ${status} → R2 social/agenda-${ts}-*`,
+    `buildAgenda: ${slides.length} stories + ${feedUrls.length} feed ${status} → R2 social/agenda-${ts}-*`,
   );
 
   return {
@@ -256,6 +296,7 @@ export async function buildAgenda(
     countHoy: eventosHoy.length,
     countTarde: minHour != null ? sel.listado.length : null,
     slides,
+    feedSlides,
     error: errorMsg,
   };
 }

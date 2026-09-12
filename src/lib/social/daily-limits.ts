@@ -1,10 +1,11 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 /** Límites diarios por servicio (platform-side, para evitar ban).
- *  Feed = publicaciones al feed (carrusel, publishArticle, publishEvent). */
+ *  Feed = publicaciones al feed (carrusel, publishArticle, publishEvent, agenda).
+ *  9 = carrusel 2 + agenda 2 + separador 3 + margen 2 (2026-09-12, con agenda al feed). */
 export const DAILY_LIMITS: Record<string, number> = {
-  instagram: 6,
-  facebook: 6,
+  instagram: 9,
+  facebook: 9,
   tiktok: 3,
   twitter: 6,
   threads: 6,
@@ -44,7 +45,8 @@ export interface DailyCount {
 }
 
 /** Cuenta cuántos posts se mandaron a cada canal hoy (desde 00:00 UTC del día actual).
- *  - kind="feed" (default): cuenta rows con kind IN ('nota', 'evento', 'carrusel').
+ *  - kind="feed" (default): cuenta rows con kind != 'stories'. Las rows de agenda
+ *    (kind='evento') comparten stories + carrusel feed → 1 row cuenta 1 post feed.
  *  - kind="stories": cuenta rows con kind='stories'.
  *  Considera sólo posts con status='published' o 'pending' (scheduled).
  *  No cuenta los 'failed' ni 'skipped'. */
