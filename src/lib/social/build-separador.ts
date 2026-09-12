@@ -24,6 +24,14 @@ const OFFSET_MINUTES = 5;
 
 const R2_PUBLIC_BASE = "https://pub-7d90620b77a845bcbb1bf3fee8f467a2.r2.dev/media";
 
+/** Posts de feed que ocupan posición en la grid de IG (stories NO cuentan).
+ *  El puzzle solo arma fila si el TOTAL de posts de grid es múltiplo de 3. */
+const GRID_KINDS = ["carrusel", "separador", "evento", "partido", "venta"];
+
+/** Posts de grid no registrados en social_posts (manuales o previos a la DB).
+ *  Ajustar si la grid real de IG se desalinea respecto a este conteo. */
+const GRID_POSTS_OFFSET = 0;
+
 export interface SeparadorPlaca {
   layout: string;
   imageUrl: string;
@@ -101,9 +109,10 @@ const PUZZLE_VENTA: PuzzleDef[] = [
   },
 ];
 
-/** Devuelve cuántos carruseles se publicaron desde el último separador.
- *  Si no hay separador previo, cuenta desde epoch (arranca desde 0). */
-async function countCarruselesSinceLastSeparador(): Promise<number> {
+/** Devuelve cuántos posts de grid (cualquier kind visible en feed) se publicaron
+ *  desde el último separador. Si no hay separador previo, cuenta desde epoch.
+ *  Agenda y partidos van a stories → no cuentan (no ocupan grid). */
+async function countGridPostsSinceLastSeparador(): Promise<number> {
   const admin = await getSupabaseAdmin();
 
   const { data: lastSep } = await admin
@@ -120,16 +129,33 @@ async function countCarruselesSinceLastSeparador(): Promise<number> {
   const { count, error } = await admin
     .from("social_posts")
     .select("*", { count: "exact", head: true })
-    .eq("kind", "carrusel")
+    .in("kind", GRID_KINDS)
     .in("status", ["published", "pending"])
     .gt("created_at", since);
 
   if (error) {
-    console.error("countCarruselesSinceLastSeparador error:", error);
+    console.error("countGridPostsSinceLastSeparador error:", error);
     return 0;
   }
 
   return count ?? 0;
+}
+
+/** Total de posts de grid de IG según nuestra DB + offset manual.
+ *  La grid es cronológica (3 por fila): el puzzle arma fila solo si
+ *  total % 3 == 0 al momento de publicar la primera pieza. */
+async function totalGridPosts(): Promise<number> {
+  const admin = await getSupabaseAdmin();
+  const { count, error } = await admin
+    .from("social_posts")
+    .select("*", { count: "exact", head: true })
+    .in("kind", GRID_KINDS)
+    .in("status", ["published", "pending"]);
+  if (error) {
+    console.error("totalGridPosts error:", error);
+    return 0;
+  }
+  return (count ?? 0) + GRID_POSTS_OFFSET;
 }
 
 /** Total de separadores publicados/pendientes. Divide por 3 (piezas por puzzle)
@@ -239,11 +265,27 @@ export async function buildSeparador(
   bufferKey?: string,
   channelIds?: string[],
 ): Promise<SeparadorResult> {
-  const count = await countCarruselesSinceLastSeparador();
+  const count = await countGridPostsSinceLastSeparador();
 
   if (count < SEPARADOR_THRESHOLD) {
     console.log(
-      `buildSeparador: esperando ${count}/${SEPARADOR_THRESHOLD} carruseles — no-op`,
+      `buildSeparador: esperando ${count}/${SEPARADOR_THRESHOLD} posts de grid — no-op`,
+    );
+    return {
+      triggered: false,
+      count,
+      threshold: SEPARADOR_THRESHOLD,
+      variant: "branding",
+      placas: [],
+    };
+  }
+
+  // Alineación: el puzzle arma fila solo si el total de posts de grid es
+  // múltiplo de 3. Si no, diferir al próximo run (10:15/21:15).
+  const total = await totalGridPosts();
+  if (total % 3 !== 0) {
+    console.log(
+      `buildSeparador: ${count}/${SEPARADOR_THRESHOLD} posts pero grid desalineada (total ${total}, mod ${total % 3}) — diferido`,
     );
     return {
       triggered: false,
