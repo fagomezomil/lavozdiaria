@@ -30,7 +30,7 @@ const GRID_KINDS = ["carrusel", "separador", "evento", "partido", "venta"];
 
 /** Posts de grid no registrados en social_posts (manuales o previos a la DB).
  *  Ajustar si la grid real de IG se desalinea respecto a este conteo. */
-const GRID_POSTS_OFFSET = 0;
+const GRID_POSTS_OFFSET = 7;
 
 export interface SeparadorPlaca {
   layout: string;
