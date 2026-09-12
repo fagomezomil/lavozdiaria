@@ -51,6 +51,13 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+/** Attribution del enhancer: "Basado en reporte de {Fuente}, {URL}". Null si no matchea. */
+function parseAttribution(paragraph: string): { name: string; url: string } | null {
+  const m = /^Basado en reporte de (.+), ((?:https?:\/\/|www\.)\S+)$/i.exec(paragraph);
+  if (!m || !m[1] || !m[2]) return null;
+  return { name: m[1], url: m[2] };
+}
+
 /** Split text into sentences at sentence-ending punctuation (. ! ? …),
  *  but NEVER split when the period sits between digits (decimals, thousands,
  *  dates like 3.14, 12.05.2026, 1.500.000). Preserves the trailing punctuation. */
@@ -328,12 +335,30 @@ export default function ArticleDetail({
           } as React.CSSProperties}>
           {paragraphs.length > 0 ? (
             <div className="article-body text-foreground/90">
-              {paragraphs.map((paragraph, i) => (
-                <Fragment key={i}>
-                  <p>{paragraph}</p>
-                  {i === Math.max(1, Math.floor(paragraphs.length * 0.4)) && <ArticlePushPrompt />}
-                </Fragment>
-              ))}
+              {paragraphs.map((paragraph, i) => {
+                const attribution = parseAttribution(paragraph);
+                return (
+                  <Fragment key={i}>
+                    {attribution ? (
+                      /* Attribution estilizada: label bold + link italic, 12px gris, sin subrayado/hover */
+                      <p className="text-muted" style={{ fontSize: "0.75rem", textAlign: "left" }}>
+                        <span className="font-bold">Fuente del hecho periodístico y fotográfico: </span>
+                        <a
+                          href={attribution.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="italic"
+                        >
+                          {attribution.name} — {attribution.url.length > 35 ? `${attribution.url.slice(0, 35)}…` : attribution.url}
+                        </a>
+                      </p>
+                    ) : (
+                      <p>{paragraph}</p>
+                    )}
+                    {i === Math.max(1, Math.floor(paragraphs.length * 0.4)) && <ArticlePushPrompt />}
+                  </Fragment>
+                );
+              })}
             </div>
           ) : article.excerpt ? (
             <div className="mt-4 article-body text-foreground/90">
