@@ -24,6 +24,7 @@ import {
   generarPlacasPng,
   hoyArtIso,
   limpiarTitulo,
+  normalizarTitulo,
   seleccionarContenido,
   type AgendaEventSrc,
 } from "@/lib/social/agenda-placas";
@@ -132,9 +133,22 @@ export async function buildAgenda(
   const minHour = opts?.minHour ?? null;
 
   // Run de la tarde: dedupe de placas contra lo publicado al mediodía.
+  // Por id y por título normalizado (el mismo evento puede tener 2 rows en DB
+  // desde fuentes distintas → el dedupe por id solo no alcanza).
   const excluirIds = minHour != null ? await idsDestacadosHoy(hoy) : new Set<string>();
+  const excluirTitulos = new Set(
+    eventosHoy
+      .filter((e) => excluirIds.has(e.id))
+      .map((e) => normalizarTitulo(e.title)),
+  );
 
-  const sel = seleccionarContenido(eventosHoy, eventosFuturos, minHour, excluirIds);
+  const sel = seleccionarContenido(
+    eventosHoy,
+    eventosFuturos,
+    minHour,
+    excluirIds,
+    excluirTitulos,
+  );
 
   if (sel.listado.length === 0) {
     console.log(

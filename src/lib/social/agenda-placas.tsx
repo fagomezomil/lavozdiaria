@@ -115,6 +115,16 @@ export function limpiarTitulo(t: string): string {
   return t.replace(/\s*[–-]\s*\d{2}\/\d{2}\/\d{4}.*$/, "").trim();
 }
 
+/** Clave de dedupe: título limpio, sin acentos, solo [a-z0-9]. */
+export function normalizarTitulo(t: string): string {
+  return limpiarTitulo(t)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 /** Corte automático de descripción a N palabras. */
 function cortarPalabras(texto: string, max: number): string {
   const palabras = texto.split(/\s+/).filter(Boolean);
@@ -163,6 +173,7 @@ export function seleccionarContenido(
   eventosFuturos: AgendaEventSrc[],
   minHour: number | null,
   excluirIds?: Set<string>,
+  excluirTitulosSet?: Set<string>,
 ): AgendaSeleccion {
   const hoyIso = hoyArtIso();
   const minStr =
@@ -176,13 +187,33 @@ export function seleccionarContenido(
   // Sin hora (solo run del mediodía): van al final del listado del día.
   const sinHora = minStr == null ? eventosHoy.filter((e) => horaCorta(e.time) === null) : [];
 
+  // Dedupe por título normalizado: el mismo evento llega duplicado desde fuentes
+  // distintas (p.ej. entradanet + mercedes_sosa con títulos invertidos u horas
+  // distintas). Keep first = el de menor hora. Aplica a placas Y listado.
+  const titulosVistos = new Set<string>();
+  const dedupePorTitulo = (list: AgendaEventSrc[]): AgendaEventSrc[] => {
+    const out: AgendaEventSrc[] = [];
+    for (const e of list) {
+      const key = normalizarTitulo(e.title);
+      if (key && titulosVistos.has(key)) continue;
+      if (key) titulosVistos.add(key);
+      out.push(e);
+    }
+    return out;
+  };
+  const poolHoyDedup = dedupePorTitulo(poolHoy);
+  const sinHoraDedup = dedupePorTitulo(sinHora);
+
   const usados = new Set<string>(excluirIds ?? []);
+  const excluirTitulos = excluirTitulosSet ?? new Set<string>();
+  const placaEligible = (e: AgendaEventSrc): boolean =>
+    !usados.has(e.id) && !excluirTitulos.has(normalizarTitulo(e.title));
   const eventoPlacas: AgendaEventSrc[] = [];
   for (const tipo of ["cultural", "deportivo", "turistico"]) {
     const candidato =
-      poolHoy.find((e) => e.category === tipo && !usados.has(e.id)) ??
-      poolHoy.find((e) => e.category === "cultural" && !usados.has(e.id)) ??
-      eventosFuturos.find((e) => !usados.has(e.id));
+      poolHoyDedup.find((e) => e.category === tipo && placaEligible(e)) ??
+      poolHoyDedup.find((e) => e.category === "cultural" && placaEligible(e)) ??
+      eventosFuturos.find((e) => placaEligible(e));
     if (candidato) {
       usados.add(candidato.id);
       eventoPlacas.push(candidato);
@@ -190,24 +221,24 @@ export function seleccionarContenido(
   }
 
   const toRow = (e: AgendaEventSrc, dayLabel?: string): ListadoRow => {
-    const city = e.venue_city && e.venue_city !== e.venue_name ? ` · ${e.venue_city}` : "";
+    const venueLimpio = e.venue_name || e.venue_city || "Tucumán";
+    const city =
+      e.venue_name && e.venue_city && e.venue_city !== e.venue_name ? ` · ${e.venue_city}` : "";
     return {
       time: horaCorta(e.time) ?? "—",
       title: limpiarTitulo(e.title),
-      venue: `${e.venue_name ?? "Tucumán"}${city}`,
+      venue: `${venueLimpio}${city}`,
       cat: e.category,
       dayLabel,
     };
   };
 
-  const listado: ListadoRow[] = [...poolHoy, ...sinHora].map((e) => toRow(e));
-  const yaEnListado = new Set(
-    [...poolHoy, ...sinHora].map((e) => e.id),
-  );
+  const eventosListado = [...poolHoyDedup, ...sinHoraDedup];
+  const listado: ListadoRow[] = eventosListado.map((e) => toRow(e));
   if (listado.length < 8) {
     for (const e of eventosFuturos) {
       if (listado.length >= 8) break;
-      if (!yaEnListado.has(e.id) && e.date_iso) {
+      if (e.date_iso && !titulosVistos.has(normalizarTitulo(e.title))) {
         listado.push(toRow(e, labelDiaFuturo(e.date_iso, hoyIso)));
       }
     }
