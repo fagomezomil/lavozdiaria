@@ -16,7 +16,10 @@ const PNG_GEN_CONCURRENCY = 3;
 export interface CarouselResult {
   notes: (SelectedNote | null)[];
   slideImageUrls: string[];
+  /** Caption IG (keyword-first + hashtags). También es el que se guarda en DB. */
   caption: string;
+  /** Caption por servicio: instagram con hashtags, facebook limpio. */
+  captions: { instagram: string; facebook: string };
   articleIds: (string | null)[];
   sections: Section[];
 }
@@ -242,7 +245,8 @@ export async function buildCarousel(): Promise<CarouselResult> {
   );
 
   const slideImageUrls = slideResults.filter((u): u is string => u !== null);
-  const caption = buildCaption(notes, turno);
+  const captionIg = buildCaption(notes, turno, "instagram");
+  const captionFb = buildCaption(notes, turno, "facebook");
   const articleIds = notes.map((n) => (n ? n.id : null));
 
   // Placa promo horóscopo al final del carrusel (no es nota: articleId null).
@@ -253,7 +257,14 @@ export async function buildCarousel(): Promise<CarouselResult> {
     sections.push("horoscopo");
   }
 
-  return { notes, slideImageUrls, caption, articleIds, sections };
+  return {
+    notes,
+    slideImageUrls,
+    caption: captionIg,
+    captions: { instagram: captionIg, facebook: captionFb },
+    articleIds,
+    sections,
+  };
 }
 
 /** Orquesta stories: select 10 (2 por sección) → generate 10 PNGs 9:16 → upload.

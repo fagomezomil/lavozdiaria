@@ -43,6 +43,17 @@ interface ReelManifest {
   sections: string[];
 }
 
+/** Hashtags fijos del reel (IG SEO). Si el caption del manifest ya trae alguno,
+ *  no se duplica. */
+const REEL_HASHTAGS = ["#Tucuman", "#QueNoticia"];
+
+function captionConHashtags(caption: string): string {
+  const yaTiene = REEL_HASHTAGS.some((h) =>
+    caption.toLowerCase().includes(h.toLowerCase()),
+  );
+  return yaTiene ? caption : `${caption}\n\n${REEL_HASHTAGS.join(" ")}`;
+}
+
 /** Par mp4+manifest más nuevo en reels-incoming (o null si no hay). */
 function encontrarPar(): { mp4: string; manifest: string } | null {
   if (!fs.existsSync(INCOMING)) return null;
@@ -71,6 +82,7 @@ async function main(): Promise<number> {
 
   const manifest: ReelManifest = JSON.parse(fs.readFileSync(par.manifest, "utf-8"));
   const ts = manifest.ts;
+  const caption = captionConHashtags(manifest.caption);
   log({ reelTs: ts, mp4: path.basename(par.mp4), sections: manifest.sections });
 
   // 1. MP4 → Buffer de memoria → R2
@@ -98,7 +110,7 @@ async function main(): Promise<number> {
 
   const bufferKey = process.env.BUFFER_API_KEY ?? "";
   if (!dryRun && bufferKey) {
-    const res = await bufferPublish(bufferKey, [], manifest.caption, [mp4Url!], undefined, "video");
+    const res = await bufferPublish(bufferKey, [], caption, [mp4Url!], undefined, "video");
     channelTargets = res.channelTargets;
     bufferUpdateIds = res.channelTargets
       .filter((t) => t.postId)
@@ -119,7 +131,7 @@ async function main(): Promise<number> {
       article_ids: manifest.articleIds,
       sections: manifest.sections,
       slide_image_urls: mp4Url ? [mp4Url] : [],
-      caption: manifest.caption,
+      caption,
       channel_targets: channelTargets,
       buffer_update_ids: bufferUpdateIds.length > 0 ? bufferUpdateIds : null,
       error_message: errorMsg,

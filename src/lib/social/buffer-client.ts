@@ -160,7 +160,9 @@ export async function listChannels(accessToken: string): Promise<BufferChannel[]
 }
 
 /** Publica un carrusel (o un video) a N canales (una mutación createPost por canal).
- *  - text: caption
+ *  - text: caption default
+ *  - textsByService: caption por servicio (ej. instagram con hashtags, facebook
+ *    limpio). Si un service no está en el map, cae a `text`.
  *  - mediaUrls: URLs públicas de los archivos (Buffer los descarga al publicar)
  *  - channelIds: lista de channel IDs destino (si vacío, usa todos los descubiertos)
  *  - scheduled: programa para esa fecha ISO; sino shareNow (publica en el instante)
@@ -174,6 +176,7 @@ export async function bufferPublish(
   mediaUrls: string[],
   scheduled?: Date,
   assetType: "image" | "video" = "image",
+  textsByService?: Partial<Record<string, string>>,
 ): Promise<BufferPublishResult> {
   if (!accessToken) return { success: false, channelTargets: [], skippedByLimit: [], error: "BUFFER_API_KEY no configurada" };
   if (mediaUrls.length === 0) return { success: false, channelTargets: [], skippedByLimit: [], error: "Sin slides para publicar" };
@@ -255,7 +258,7 @@ export async function bufferPublish(
     }
 
     const input: Record<string, unknown> = {
-      text,
+      text: textsByService?.[service] ?? text,
       channelId,
       schedulingType: "automatic",
       mode,

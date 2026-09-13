@@ -68,6 +68,9 @@ export async function GET(request: Request) {
         channelIds,
         carousel.caption,
         carousel.slideImageUrls,
+        undefined,
+        "image",
+        carousel.captions,
       );
     }
 

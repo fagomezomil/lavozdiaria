@@ -6,7 +6,11 @@ import { revalidatePath } from "next/cache";
 import { buildCarousel, buildStories } from "@/lib/social/carousel-builder";
 import { bufferPublish, bufferPublishStories } from "@/lib/social/buffer-client";
 import { AGENDA_COLORS, AGENDA_LABELS } from "@/lib/social/slide-template";
-import { buildEventCaption } from "@/lib/social/caption-builder";
+import {
+  buildEventCaption,
+  buildStoryNoteCaption,
+  buildStoryGenericCaption,
+} from "@/lib/social/caption-builder";
 import type { ChannelTarget } from "@/lib/social/daily-limits";
 import { r2Upload } from "@/lib/r2";
 
@@ -181,7 +185,15 @@ export async function publishNow() {
     return { success: false, error: "Falta BUFFER_API_KEY en .env.local" };
   }
 
-  const result = await bufferPublish(bufferKey, channelIds, carousel.caption, carousel.slideImageUrls);
+  const result = await bufferPublish(
+    bufferKey,
+    channelIds,
+    carousel.caption,
+    carousel.slideImageUrls,
+    undefined,
+    "image",
+    carousel.captions,
+  );
   const status: "published" | "failed" = result.success ? "published" : "failed";
   const bufferUpdateIds = (result.channelTargets ?? [])
     .map((t) => t.postId)
@@ -459,10 +471,18 @@ export async function publishStoriesNow() {
     return { success: false, error: "Falta BUFFER_API_KEY" };
   }
 
-  const slideEntries = stories.slideImageUrls.map((url, i) => ({
-    url,
-    caption: `¡QUE NOTICIA! ${["#Politica", "#Deportes", "#Tucuman", "#Economia", "#Internacionales"][i % 5]}\n\nLas noticias más importantes de Tucumán y el mundo. Lee más en quenoticia.com.ar`,
-  }));
+  // Caption por slide: título de nota para slides con nota, genérico para CTA/promo.
+  const noteById = new Map(
+    stories.notes.filter((n): n is NonNullable<typeof n> => Boolean(n?.id)).map((n) => [n.id, n]),
+  );
+  const slideEntries = stories.slideImageUrls.map((url, i) => {
+    const id = stories.articleIds[i];
+    const note = id ? noteById.get(id) : undefined;
+    return {
+      url,
+      caption: note ? buildStoryNoteCaption(note) : buildStoryGenericCaption(),
+    };
+  });
 
   const result = await bufferPublishStories(bufferKey, channelIds, slideEntries);
   const status: "published" | "failed" = result.success ? "published" : "failed";
